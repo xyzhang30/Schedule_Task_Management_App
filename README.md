@@ -1,1 +1,1 @@
-# CS316
+# Schedule/Task Management System
