@@ -1,11 +1,18 @@
 # Schedule/Task Management System
 
 
-### Running the app (without docker)
-backend: (inside /backend directory, without docker) `flask --app __init__.py run`
-with docker: 
+### Running the app
+Run Docker: 
 - docker compose build
 - docker compose up
-use localhost:5001 for database GUI
-- see `docker-compose.yml` for db username and password
-use localhost:8080 for backend/app
+
+Database GUI (adminer): 
+- Port: localhost:5001 
+- System: PostgreSQL
+- Server: db
+- Username: test_user
+- Password: notarealpassword
+- Database: development
+
+Backend: 
+- Port: localhost:8080
