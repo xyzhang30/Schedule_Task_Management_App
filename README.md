@@ -16,3 +16,6 @@ Database GUI (adminer):
 
 Backend: 
 - Port: localhost:8080
+
+Frontend:
+- Port: localhost:3000
