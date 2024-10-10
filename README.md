@@ -2,8 +2,10 @@
 
 
 ### Running the app (without docker)
-<!-- (in backend folder)
-`python3 -m venv .venv`
-- `sudo apt install python3.10-venv` (if needed)
-`. .venv/bin/activate` -->
-backend: (inside /backend directory) `flask --app __init__.py run`
+backend: (inside /backend directory, without docker) `flask --app __init__.py run`
+with docker: 
+- docker compose build
+- docker compose up
+use localhost:5001 for database GUI
+- see `docker-compose.yml` for db username and password
+use localhost:8080 for backend/app

@@ -31,8 +31,7 @@ def create_app(test_config=None):
     def hello():
         return 'backend server running'
 
-    # app.register_blueprint(accountController.bp)
-    # app.register_blueprint(album_controller.bp)
+    app.register_blueprint(accountController.bp)
 
-    # init_db()
+    init_db()
     return app
