@@ -1,6 +1,7 @@
 import os
 from flask import Flask
 from app.controllers import accountController
+from app.controllers import availabilityController
 from .db import init_db
 
 def create_app(test_config=None):
@@ -32,6 +33,7 @@ def create_app(test_config=None):
         return 'backend server running'
 
     app.register_blueprint(accountController.bp)
+    app.register_blueprint(availabilityController.bp)
 
     init_db()
     return app

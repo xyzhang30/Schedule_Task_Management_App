@@ -3,11 +3,13 @@
 import psycopg2
 import os
 
+# get database connection information from env vars.
 db_user = os.environ.get("POSTGRES_USER")
 db_password = os.environ.get("POSTGRES_PASSWORD")
 db_host = os.environ.get("POSTGRES_HOST")
 db_name = os.environ.get("POSTGRES_DB")
 
+# connect to database
 conn_details = psycopg2.connect(
    host=db_host,
    database=db_name,
@@ -15,6 +17,7 @@ conn_details = psycopg2.connect(
    password=db_password,
 )
 
+# create tables 
 cursor = conn_details.cursor()
 Table_creation = '''
     DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts CASCADE;    
