@@ -17,89 +17,89 @@ conn_details = psycopg2.connect(
 
 cursor = conn_details.cursor()
 Table_creation = '''
-    DROP TABLE IF EXISTS Assignment, Task, Student, Friend, Availability, Likes, Shares, Saves, Comments, Events, Post, Accounts CASCADE;    
+    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts CASCADE;    
     
-    CREATE TABLE Accounts (
+    CREATE TABLE accounts (
         account_id SERIAL PRIMARY KEY,
-        username VARCHAR(50) UNIQUE,
-        password VARCHAR(255),
-        email VARCHAR(100) UNIQUE,
+        username VARCHAR(50) UNIQUE NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        email VARCHAR(100) UNIQUE NOT NULL,
         phone VARCHAR(15) UNIQUE,
         avatar VARCHAR(255),
-        year_created INTEGER
+        year_created INTEGER NOT NULL
     );
 
-    CREATE TABLE Friend (
-        account_id1 INTEGER REFERENCES Accounts(account_id),
-        account_id2 INTEGER REFERENCES Accounts(account_id),
+    CREATE TABLE friend (
+        account_id1 INTEGER REFERENCES accounts(account_id),
+        account_id2 INTEGER REFERENCES accounts(account_id),
         PRIMARY KEY (account_id1, account_id2)
     );
 
-    CREATE TABLE Student (
-        account_id INTEGER PRIMARY KEY REFERENCES Accounts(account_id),
+    CREATE TABLE student (
+        account_id INTEGER PRIMARY KEY REFERENCES accounts(account_id),
         major VARCHAR(100),
         interest VARCHAR(100),
         student_id SERIAL UNIQUE,
         organization VARCHAR(100)
     );
 
-    CREATE TABLE Events ( 
+    CREATE TABLE events ( 
         event_id SERIAL PRIMARY KEY,
-        account_id INTEGER REFERENCES Accounts(account_id),
-        event_name VARCHAR(20),
+        account_id INTEGER REFERENCES accounts(account_id),
+        event_name VARCHAR(20) NOT NULL,
         event_location VARCHAR(30),
-        s_date VARCHAR(20),
-        e_date VARCHAR(20),
+        s_date TIMESTAMP NOT NULL,
+        e_date TIMESTAMP NOT NULL,
         category VARCHAR(30)
     );
 
-    CREATE TABLE Task (
+    CREATE TABLE task (
         task_id SERIAL PRIMARY KEY,
-        account_id INTEGER REFERENCES Accounts(account_id),
+        account_id INTEGER REFERENCES accounts(account_id),
         due_date VARCHAR(15),
-        task_name VARCHAR(20),
+        task_name VARCHAR(20) NOT NULL,
         category VARCHAR(100)
     );
 
-    CREATE TABLE Assignment ( 
-        task_id INTEGER PRIMARY KEY REFERENCES Task(task_id),
-        class_id INTEGER REFERENCES Events(event_id)
+    CREATE TABLE assignment ( 
+        task_id INTEGER PRIMARY KEY REFERENCES task(task_id),
+        class_id INTEGER REFERENCES events(event_id)
     );
 
-    CREATE TABLE Availability (
-        account_id INTEGER REFERENCES Accounts(account_id),
+    CREATE TABLE availability (
+        account_id INTEGER REFERENCES accounts(account_id),
         unav_interval VARCHAR(20),
         full_date VARCHAR(15),
         PRIMARY KEY (account_id, unav_interval, full_date)
     );
 
-    CREATE TABLE Post ( 
+    CREATE TABLE post ( 
         post_id SERIAL PRIMARY KEY,
         title VARCHAR(20),
-        date_posted VARCHAR(15), 
-        poster_id INTEGER REFERENCES Accounts(account_id)
+        date_posted VARCHAR(15) NOT NULL, 
+        poster_id INTEGER REFERENCES accounts(account_id)
     );
 
-    CREATE TABLE Likes(
-        post_id INTEGER REFERENCES Post(post_id),
-        liker_id INTEGER REFERENCES Accounts(account_id),
+    CREATE TABLE likes(
+        post_id INTEGER REFERENCES post(post_id),
+        liker_id INTEGER REFERENCES accounts(account_id),
         PRIMARY KEY (post_id, liker_id)
     );
 
-    CREATE TABLE Shares(
-        post_id INTEGER REFERENCES Post(post_id),
-        sharer_id INTEGER REFERENCES Accounts(account_id),
+    CREATE TABLE shares(
+        post_id INTEGER REFERENCES post(post_id),
+        sharer_id INTEGER REFERENCES accounts(account_id),
         PRIMARY KEY (post_id, sharer_id)
     );
 
-    CREATE TABLE Saves(
-        post_id INTEGER REFERENCES Post(post_id),
-        saver_id INTEGER REFERENCES Accounts(account_id),
+    CREATE TABLE saves(
+        post_id INTEGER REFERENCES post(post_id),
+        saver_id INTEGER REFERENCES accounts(account_id),
         PRIMARY KEY (post_id, saver_id)
     );
 
-    CREATE TABLE Comments(
-        commenter_id INTEGER REFERENCES Accounts(account_id),
+    CREATE TABLE comments(
+        commenter_id INTEGER REFERENCES accounts(account_id),
         timestamp NUMERIC NOT NULL,
         text VARCHAR(200) NOT NULL,
         PRIMARY KEY (commenter_id, timestamp)
