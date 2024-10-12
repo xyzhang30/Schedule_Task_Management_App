@@ -6,15 +6,15 @@ from ..db import Base, db_session
 class Account(Base):
 	__tablename__ = 'accounts'
 	account_id = Column(Integer, primary_key=True)
-	username = Column(String, unique=True)
-	password = Column(String, unique=False)
-	email = Column(String, unique=True)
-	phone = Column(String, unique=True)
-	avatar = Column(String, unique=False)
+	username = Column(String(50), unique=True)
+	password = Column(String(255), unique=False)
+	email = Column(String(100), unique=True)
+	phone = Column(String(15), unique=True)
+	avatar = Column(String(255), unique=False)
 	year_created = Column(Integer, unique=False)
 
-	# def __repr__(self):
-		# return f"<Account id={self.id} name={self.name}>"
+	def __repr__(self):
+		return f"<Account account_id={self.account_id} username={self.username}>"
 
 	@classmethod
 	def all(cls):
