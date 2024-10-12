@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, render_template
+from flask import Blueprint, jsonify
 from flask import request
 from ..models.account import Account
 
@@ -14,10 +14,22 @@ def index():
 
 @bp.route('/create', methods = ['POST'])
 def createAccount():
-    name = request.form.get("name")
+    username = request.form.get("username")
+    password = request.form.get("password")
+    email = request.form.get("email")
+    phone = request.form.get("phone")
+    avatar = request.form.get("avatar")
+    year_created = (int)(request.form.get("year_created"))
+
     print("request!!!!!!: ", request.form)
-    # id = request.form.get('id')
-    account = Account(name=name)
+    account = Account(
+        username=username,
+        password=password,
+        email=email,
+        phone=phone,
+        avatar=avatar,
+        year_created=year_created
+        )
     account.save()
     return index()
 
