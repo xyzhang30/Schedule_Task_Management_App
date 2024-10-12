@@ -21,7 +21,6 @@ def createAccount():
     avatar = request.form.get("avatar")
     year_created = (int)(request.form.get("year_created"))
 
-    print("request!!!!!!: ", request.form)
     account = Account(
         username=username,
         password=password,
