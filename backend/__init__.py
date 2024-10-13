@@ -1,5 +1,6 @@
 import os
 from flask import Flask
+from flask_cors import CORS
 from app.controllers import accountController, availabilityController, friendController
 from .db import init_db
 
@@ -7,6 +8,7 @@ def create_app(test_config=None):
     # create and configure the app
     # app = Flask(__name__, instance_relative_config=True)
     app = Flask(__name__)
+    cors = CORS(app)
     # app.config.from_mapping(
     #     SECRET_KEY='not-really-that-secret-huh',
     #     DATABASE=os.path.join(app.instance_path, 'mvc.sqlite'),
