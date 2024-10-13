@@ -17,7 +17,16 @@ class Friend(Base):
 
 	@classmethod
 	def get_by_ids(cls, account_id1, account_id2):
-		# Always save the smaller ID as account_id1
+		'''
+		gets friend account pair from database
+
+		PARAMS: 
+		- account_id1: id for first account in friend pair
+		- account_id2: id for second account in friend pair
+
+		RETURNS: 
+		- the Friend object if found
+		'''
 		if account_id1 > account_id2:
 			account_id1, account_id2 = account_id2, account_id1
 		return db_session.query(cls).filter_by(account_id1=account_id1, account_id2=account_id2).first()
