@@ -13,6 +13,9 @@ def index():
 
 @bp.route('/add-friend', methods = ['POST'])
 def addFriend():
+    '''
+    add a friend account pair into database
+    '''
     account_id1 =  int(request.form.get("account_id1"))
     account_id2 = int(request.form.get("account_id2"))
     # always save the smaller id as id1 -- ensures there are no bugs caused by the order of the two friends saved.
@@ -28,6 +31,9 @@ def addFriend():
 
 @bp.route('/remove-friend', methods = ['DELETE'])
 def removeFriend():
+    '''
+    removes a friend account pair from database 
+    '''
     account_id1 = int(request.form.get("account_id1"))
     account_id2 = int(request.form.get("account_id2"))
     friend = Friend.get_by_ids(account_id1, account_id2)
