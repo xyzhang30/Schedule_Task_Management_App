@@ -1,7 +1,6 @@
 import os
 from flask import Flask
-from app.controllers import accountController
-from app.controllers import availabilityController
+from app.controllers import accountController, availabilityController, friendController
 from .db import init_db
 
 def create_app(test_config=None):
@@ -34,6 +33,7 @@ def create_app(test_config=None):
 
     app.register_blueprint(accountController.bp)
     app.register_blueprint(availabilityController.bp)
+    app.register_blueprint(friendController.bp)
 
     init_db()
     return app
