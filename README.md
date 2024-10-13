@@ -23,3 +23,14 @@ Backend:
 
 Frontend:
 - Port: localhost:3000
+
+
+### dependencies used: 
+Frontend: 
+- react-router-dom
+- axios 
+
+Backend: 
+- flask-cors
+- sqlalchemy
+- psycopg2

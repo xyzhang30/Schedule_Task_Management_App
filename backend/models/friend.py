@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, registry, relationship
+from ..models.account import Account
 
 from ..db import Base, db_session
 
@@ -11,14 +12,16 @@ class Friend(Base):
 	def __repr__(self):
 		return f"<Friend account_id1={self.account_id1} account_id2={self.account_id2}>"
 
+
 	@classmethod
 	def all(cls):
 		return db_session.query(cls).all()
 
+
 	@classmethod
-	def get_by_ids(cls, account_id1, account_id2):
+	def get_pair_by_ids(cls, account_id1, account_id2):
 		'''
-		gets friend account pair from database
+		gets the friend pair from database according to the two friend account ids
 
 		PARAMS: 
 		- account_id1: id for first account in friend pair
@@ -30,6 +33,33 @@ class Friend(Base):
 		if account_id1 > account_id2:
 			account_id1, account_id2 = account_id2, account_id1
 		return db_session.query(cls).filter_by(account_id1=account_id1, account_id2=account_id2).first()
+
+
+	@classmethod
+	def get_friends_by_id(cls, account_id):
+		'''
+		gets all friend accounts of a given account
+		'''
+		try:
+			friend_pairs = db_session.query(Friend).filter(
+				(Friend.account_id1 == account_id) | (Friend.account_id2 == account_id)
+			).all()
+
+			friends = []
+			for pair in friend_pairs:
+				if pair.account_id1 != account_id:
+					friend_id = pair.account_id1
+				else:
+					friend_id = pair.account_id2
+				friend_acc = Account.get_acc_by_id(friend_id)
+				if friend_acc:
+					friends.append(friend_acc)
+			return friends
+		
+		except Exception as e:
+			print(f"Error fetching friends: {e}")
+			return None		
+		
 
 
 	def save(self):

@@ -19,6 +19,10 @@ class Account(Base):
 	@classmethod
 	def all(cls):
 		return db_session.query(cls).all()
+	
+	@classmethod
+	def get_acc_by_id(cls, id):
+		return db_session.query(cls).filter_by(account_id = id).first()
 
 	def save(self):
 		db_session.add(self)
