@@ -9,6 +9,7 @@ const Friends = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedFriend, setSelectedFriend] = useState(null); 
+  const [searchQuery, setSearchQuery] = useState(''); 
 
   useEffect(() => {
     const fetchFriends = async () => {
@@ -34,6 +35,11 @@ const Friends = () => {
     return <div>{error}</div>;
   }
 
+  const filteredFriends = friends.filter(friend =>
+    friend.username.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+
   const handleFriendClick = (friend) => {
     if (selectedFriend && selectedFriend.account_id === friend.account_id) {
       setSelectedFriend(null);
@@ -48,16 +54,21 @@ const Friends = () => {
         <h2>Friends</h2>
         <button className="add-friends-button">Add Friends</button>
       </div>
+
       <div className="search-bar">
-        <input type="text" placeholder="Search friends" />
+        <input 
+          type="text" 
+          placeholder="Search friends"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)} />
       </div>
 
       <div className="friends-list">
         <p>My Friends: </p>
         {loading ? (
           <p>Loading friends...</p>
-        ) : friends.length > 0 ? (
-          friends.map((friend, index) => (
+        ) : filteredFriends.length > 0 ? (
+          filteredFriends.map((friend, index) => (
             <div 
               key={index} 
               className="friend-item"
@@ -67,7 +78,7 @@ const Friends = () => {
             </div>
           ))
         ) : (
-          <p>You haven't added any friends yet.</p>
+          <p>No friends found.</p>
         )}
       </div>
 
