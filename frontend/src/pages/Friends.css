@@ -1,0 +1,66 @@
+.friends-page-container {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    grid-template-rows: auto auto auto;
+    gap: 20px;
+    padding: 20px;
+  }
+  
+  .friends-header {
+    grid-column: 1 / span 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .add-friends-button {
+    padding: 10px 20px;
+    background-color: #f0f0f0;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .search-bar {
+    grid-column: 1 / span 2;
+  }
+  
+  .search-bar input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+  }
+  
+  .friends-list {
+    grid-column: 1 / 2;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .friend-item {
+    padding: 15px;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+  }
+  
+  .friends-profile-section {
+    grid-column: 2 / 3;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .profile-picture {
+    width: 100px;
+    height: 100px;
+    background-color: #d0d0d0;
+    border-radius: 50%;
+  }
+  
+  .profile-info {
+    width: 300px;
+    height: 30px;
+    background-color: #d0d0d0;
+  }
+  
