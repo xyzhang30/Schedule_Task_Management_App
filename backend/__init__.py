@@ -1,7 +1,7 @@
 import os
 from flask import Flask
 from flask_cors import CORS
-from app.controllers import accountController, availabilityController, friendController
+from app.controllers import accountController, availabilityController, friendController, taskController
 from .db import init_db
 
 def create_app(test_config=None):
@@ -36,6 +36,7 @@ def create_app(test_config=None):
     app.register_blueprint(accountController.bp)
     app.register_blueprint(availabilityController.bp)
     app.register_blueprint(friendController.bp)
+    app.register_blueprint(taskController.bp)
 
     init_db()
     return app

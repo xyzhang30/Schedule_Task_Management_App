@@ -59,7 +59,8 @@ Table_creation = '''
     CREATE TABLE task (
         task_id SERIAL PRIMARY KEY,
         account_id INTEGER REFERENCES accounts(account_id),
-        due_date VARCHAR(15),
+        due_date VARCHAR(15) NOT NULL,
+        due_time VARCHAR(15),
         task_name VARCHAR(20) NOT NULL,
         category VARCHAR(100)
     );
