@@ -1,12 +1,14 @@
 import os
 from flask import Flask
-from app.controllers import accountController
+from flask_cors import CORS
+from app.controllers import accountController, availabilityController, friendController
 from .db import init_db
 
 def create_app(test_config=None):
     # create and configure the app
     # app = Flask(__name__, instance_relative_config=True)
     app = Flask(__name__)
+    cors = CORS(app)
     # app.config.from_mapping(
     #     SECRET_KEY='not-really-that-secret-huh',
     #     DATABASE=os.path.join(app.instance_path, 'mvc.sqlite'),
@@ -31,8 +33,9 @@ def create_app(test_config=None):
     def hello():
         return 'backend server running'
 
-    # app.register_blueprint(accountController.bp)
-    # app.register_blueprint(album_controller.bp)
+    app.register_blueprint(accountController.bp)
+    app.register_blueprint(availabilityController.bp)
+    app.register_blueprint(friendController.bp)
 
-    # init_db()
+    init_db()
     return app

@@ -1,20 +1,20 @@
 services:
-  # frontend: 
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   volumes:
-  #     - ./frontend:/app
-  #   ports:
-  #     - 3000:3000
-  #   environment:
-  #     REACT_APP_BASE_URL: http://localhost:8080
+  frontend: 
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/app
+    ports:
+      - 3000:3000
+    environment:
+      REACT_APP_BASE_URL: http://localhost:8080
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    command: flask --app __init__.py run --host=0.0.0.0
+    command: flask --app __init__.py run --reload --debugger --host=0.0.0.0
     volumes:
       - ./backend:/srv/app
     stdin_open: true
@@ -44,7 +44,7 @@ services:
     image: adminer
     restart: always
     ports:
-      - 5000:8080
-  
+      - 5001:8080
+
 volumes:
   db_data:
