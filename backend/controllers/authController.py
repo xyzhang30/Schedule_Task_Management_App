@@ -5,10 +5,12 @@ import uuid
 bp = Blueprint('auth', __name__, url_prefix = '/auth')
 
 @bp.route('/login', methods = ['POST'])
+
 def login():
     print("Logging in...")
     #gets user input
     user_inputted_username = request.form['username']
+
     user_inputted_email = request.form['email']
     user_inputted_password = request.form['password']
 
