@@ -3,12 +3,12 @@
 
 ### Running the app
 Run Docker: 
-- docker compose build
-- docker compose up
+- `docker compose build`
+- `docker compose up`
 - do the following when database is updated, or if you are running this for the first time.
     - go into the terminal in the backend container in docker
-    - python createTables.py (creates all tables in the database)
-    - python seed.py (creates test data in the database)
+    - `python createTables.py` (creates all tables in the database)
+    - `python seed.py` (creates test data in the database) DONT DO IT YET, IT'S NOT FINISHED
 
 Database GUI (adminer): 
 - Port: localhost:5001 
