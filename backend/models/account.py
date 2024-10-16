@@ -27,6 +27,7 @@ class Account(Base):
 	@classmethod
 	def get_acc_by_username(cls, username):
 		return db_session.query(cls).filter_by(cls.username == username).first()
+	
 	def save(self):
 		db_session.add(self)
 		db_session.commit()
