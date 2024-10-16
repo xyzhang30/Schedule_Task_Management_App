@@ -1,7 +1,6 @@
-FROM python:3.7.3
+FROM python:3.11
 
-RUN mkdir /srv/app
-WORKDIR /Schedule_Task_Management_App/backend
+WORKDIR /srv/app
 ADD requirements.txt .
 RUN pip install -r requirements.txt
 ADD . .

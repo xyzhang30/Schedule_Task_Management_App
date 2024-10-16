@@ -1,6 +1,6 @@
 import os
 from flask import Flask
-# from ..backend.controllers import accountController
+from app.controllers import accountController
 from .db import init_db
 
 def create_app(test_config=None):
