@@ -10,7 +10,7 @@ class Account(Base):
 	password = Column(String(255), unique=False)
 	email = Column(String(100), unique=True)
 	phone = Column(String(15), unique=True)
-	avatar = Column(String(255), unique=False)
+	avatar = Column(String(255), unique=False, nullable = True)
 	year_created = Column(Integer, unique=False)
 
 	def __repr__(self):
@@ -23,7 +23,10 @@ class Account(Base):
 	@classmethod
 	def get_acc_by_id(cls, id):
 		return db_session.query(cls).filter_by(account_id = id).first()
-
+	
+	@classmethod
+	def get_acc_by_username(cls, username):
+		return db_session.query(cls).filter_by(cls.username == username).first()
 	def save(self):
 		db_session.add(self)
 		db_session.commit()
