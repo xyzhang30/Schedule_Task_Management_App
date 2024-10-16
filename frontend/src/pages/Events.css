@@ -1,0 +1,298 @@
+/* CSS for the overall layout */
+.main-container {
+    display: flex;
+    height: 100vh;
+    background-color: #f5f5f5;
+  }
+  
+  /* Sidebar */
+ /* Events.css */
+ .sidebar {
+    width: 60px;
+    background-color: #e6e6e6;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    transition: width 0.3s ease;
+    position: relative;
+  }
+  
+  .sidebar:hover {
+    width: 200px;
+  }
+  
+  .sidebar button {
+    background-color: #dcdcf7;
+    border: none;
+    padding: 10px;
+    width: 90%;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    color: #333;
+    transition: opacity 0.3s ease;
+  }
+  
+  .sidebar button span {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .sidebar:hover button span {
+    opacity: 1;
+  }
+  
+  .sidebar button i {
+    margin-right: 10px;
+  }
+  
+  .content {
+    width: calc(100% - 60px);
+    display: flex;
+    flex-direction: row;
+    overflow: auto;
+    transition: width 0.3s ease;
+  }
+  
+  .sidebar:hover ~ .content {
+    width: calc(100% - 200px);
+  }
+  
+  /* Left section with the event list */
+  .left-section {
+    flex: 1;
+    padding: 20px;
+    background-color: white;
+  }
+  
+  .left-section h1 {
+    margin-bottom: 20px;
+  }
+  
+  .left-section h2 {
+    margin-top: 20px;
+    color: #333;
+  }
+  
+  .event-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #e6e6e6;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+  }
+  
+  .event-section span {
+    margin-right: 10px;
+  }
+  
+  .delete-button {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+  
+  /* Middle section with the filter */
+  .filter-section {
+    flex-basis: 300px;
+    padding: 20px;
+    background-color: #f9f9f9;
+  }
+  
+  .filter-section h3 {
+    margin-bottom: 20px;
+  }
+  
+  .filter-section label {
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+  .create-button {
+    background-color: #28a745;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+  }
+  
+  /* Right section with the event details */
+  .right-section {
+    flex: 1;
+    padding: 20px;
+    background-color: #f5f5f5;
+  }
+  .event-details {
+    flex: 1;
+    padding: 20px;
+    background-color: white;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease; /* Smooth transition */
+  }
+  
+  /* When an event is clicked, show the event details */
+  .visible {
+    opacity: 1;
+    transform: translateY(0); /* Bring the event details to its original position */
+  }
+  
+  .close-button {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 50%;
+    font-size: 12px;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 70px; /* Increased width to fit the text */
+    height: 70px; /* Increase height to make the button larger */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+/* Replace text with an "X" */
+.close-button::before {
+    content: 'X';
+    font-size: 18px;
+    color: white;
+}
+
+  
+  .category-badge {
+    background-color: #c6a105;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 20px;
+  }
+  
+  .update-button {
+    background-color: #17a2b8;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+  }
+
+
+/* Background overlay */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  /* Modal container */
+  .modal-content {
+    background-color: #ffffff;
+    border-radius: 10px;
+    padding: 40px;
+    width: 500px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    position: relative;
+    z-index: 1001;
+  }
+  
+  /* Modal title */
+  .modal-content h2 {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #333;
+  }
+  
+  /* Input fields */
+  .modal-content input[type="text"],
+  .modal-content input[type="datetime-local"] {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+    transition: border 0.3s;
+  }
+  
+  .modal-content input[type="text"]:focus,
+  .modal-content input[type="datetime-local"]:focus {
+    border-color: #17a2b8;
+    outline: none;
+  }
+  
+  /* Create button */
+  .modal-content .create-button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #28a745;
+    color: white;
+    font-size: 18px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    margin-top: 20px;
+  }
+  
+  .modal-content .create-button:hover {
+    background-color: #218838;
+    transform: translateY(-3px);
+  }
+  
+  /* Close button */
+  .modal-content .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: red;
+    color: white;
+    font-size: 18px;
+    border: none;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .modal-content .close-button:hover {
+    background-color: darkred;
+  }
+  
+  /* Input labels */
+  .modal-content label {
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 5px;
+    display: block;
+  }
+  
+  /* Make the overall layout more centered */
+  .modal-content form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
