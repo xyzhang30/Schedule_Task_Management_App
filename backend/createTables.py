@@ -80,7 +80,9 @@ Table_creation = '''
         post_id SERIAL PRIMARY KEY,
         title VARCHAR(20),
         date_posted VARCHAR(15) NOT NULL, 
-        poster_id INTEGER REFERENCES accounts(account_id)
+        poster_id INTEGER REFERENCES accounts(account_id),
+        content VARCHAR(300) NOT NULL,
+        image_url VARCHAR(300)
     );
 
     CREATE TABLE likes(
