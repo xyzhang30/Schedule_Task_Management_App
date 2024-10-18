@@ -20,9 +20,7 @@ def get_requests_for(account_id):
 @bp.route('/send-request', methods=['POST'])
 def send_request():
     account_id_from = int(request.form.get("account_id_from"))
-    print("_____FROM: ", account_id_from)
     account_id_to = int(request.form.get("account_id_to"))
-    print("_____TO: ", account_id_to)
     message = request.form.get("message")
 
     friendRequest = FriendRequest(
