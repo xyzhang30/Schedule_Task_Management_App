@@ -1,28 +1,46 @@
 import React, {useState, useEffect} from 'react';
 import axios from 'axios';
+<<<<<<< HEAD
 import './Friends.css'; 
+=======
+>>>>>>> 2c34212427baa19cbed54c8dabdc4e9e1bf4f8f5
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
 const Friends = () => {
   const [friends, setFriends] = useState([]);
+<<<<<<< HEAD
   const [allUsers, setAllUsers] = useState([]); 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedFriend, setSelectedFriend] = useState(null); 
   const [searchQuery, setSearchQuery] = useState(''); 
   const [showAddFriendsPopup, setShowAddFriendsPopup] = useState(false); 
+=======
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+>>>>>>> 2c34212427baa19cbed54c8dabdc4e9e1bf4f8f5
 
   useEffect(() => {
     const fetchFriends = async () => {
       try {
         const response = await axios.get(`${baseUrl}/friend/get-friends/1`);
+<<<<<<< HEAD
         setFriends(response.data); 
+=======
+        console.log("RESPONSE!!!: ", response.data)
+        setFriends(response.data); 
+        console.log("__FRIENDS__: ", friends)
+>>>>>>> 2c34212427baa19cbed54c8dabdc4e9e1bf4f8f5
         setLoading(false);
       } catch (err) {
         console.error("Error fetching friends:", err);
         setError('Failed to fetch friends.');
+<<<<<<< HEAD
         setLoading(false);
+=======
+        setLoading(false);  // Set loading to false even if there's an error
+>>>>>>> 2c34212427baa19cbed54c8dabdc4e9e1bf4f8f5
       }
     };
 
