@@ -146,4 +146,4 @@ def check_password(pass_to_be_checked, hashed_salted_password):
     pass_to_be_checked = pass_to_be_checked.encode('utf-8')
     return bcrypt.checkpw(pass_to_be_checked, hashed_salted_password)
 
-#Todo: finalize session understanding
+#Todo: finalize session understanding and add forgot_password
