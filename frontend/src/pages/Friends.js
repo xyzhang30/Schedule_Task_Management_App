@@ -12,6 +12,7 @@ const Friends = () => {
   const [selectedFriend, setSelectedFriend] = useState(null); 
   const [searchQuery, setSearchQuery] = useState(''); 
   const [showAddFriendsPopup, setShowAddFriendsPopup] = useState(false); 
+  const [requestedFriends, setRequestedFriends] = useState([]);
 
   useEffect(() => {
     const fetchFriends = async () => {
@@ -64,6 +65,32 @@ const Friends = () => {
     setShowAddFriendsPopup(!showAddFriendsPopup);
     if (!allUsers.length) {
       fetchAllUsers();
+    }
+  };
+
+  const handleAddFriendClick = async (account_id) => {
+    try {
+      console.log("____ACCOUNTID: ", account_id)
+      // const response = await axios.post(`${baseUrl}/friend_request/send-request`, {
+      //   account_id_to: account_id, //default to 1 as dummy user now
+      //   account_id_from: 1,
+      //   message: "requested to add you as a friend"
+      // });
+      const formData = new FormData();
+      formData.append("account_id_from", 1);  // Replace this with the actual user ID in production
+      formData.append("account_id_to", account_id);
+      formData.append("message", "requested to add you as a friend");
+
+      const response = await axios.post(`${baseUrl}/friend_request/send-request`, formData, {
+          // headers: {
+          //     'Content-Type': 'multipart/form-data', // Specify the content type for FormData
+          // }
+      });
+      // setFriends(response.data);
+      setRequestedFriends((prevRequested) => [...prevRequested, account_id]);
+    } catch (err) {
+      console.error('Error sending friend request:', err);
+      setError('Failed to send friend request.');
     }
   };
 
@@ -139,7 +166,7 @@ const Friends = () => {
                         ) : (
                           <button 
                             className="add-friend-button" 
-                            // onClick={() => handleAddFriendClick(user.account_id)}
+                            onClick={() => handleAddFriendClick(user.account_id)}
                           >
                             Add
                           </button>

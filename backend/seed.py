@@ -23,7 +23,7 @@ conn_details = psycopg2.connect(
 # create tables 
 cursor = conn_details.cursor()
 Table_creation = '''
-    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts CASCADE;    
+    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, friendrequests CASCADE;    
     
     CREATE TABLE accounts (
         account_id SERIAL PRIMARY KEY,
@@ -111,6 +111,15 @@ Table_creation = '''
         text VARCHAR(200) NOT NULL,
         PRIMARY KEY (commenter_id, timestamp)
     );
+
+    CREATE TABLE friendrequests (
+        notification_id SERIAL PRIMARY KEY,
+        account_id_to INTEGER REFERENCES accounts(account_id),
+        account_id_from INTEGER REFERENCES accounts(account_id),
+        message VARCHAR(255),
+        is_read BOOLEAN DEFAULT FALSE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
 '''
 cursor.execute(Table_creation)
 
@@ -129,7 +138,7 @@ for n in range(6):
     password = 'my_password'
     email = faker.email()
     phone = faker.phone_number()[:12]
-    avatar = faker.image_url()
+    avatar = None
     year_created = random.randint(2010, 2024)
     
     cursor.execute('''
