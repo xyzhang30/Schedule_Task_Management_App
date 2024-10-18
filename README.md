@@ -34,3 +34,14 @@ Backend:
 - flask-cors
 - sqlalchemy
 - psycopg2
+
+
+### dependencies used: 
+Frontend: 
+- react-router-dom
+- axios 
+
+Backend: 
+- flask-cors
+- sqlalchemy
+- psycopg2
