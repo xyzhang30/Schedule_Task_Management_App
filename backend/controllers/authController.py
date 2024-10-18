@@ -11,15 +11,13 @@ def login():
     print("Logging in...")
     #gets user input
     user_inputted_username = request.form['username']
-
     user_inputted_email = request.form['email']
     user_inputted_password = request.form['password']
 
     try:
         account = Account.get_acc_by_username(user_inputted_username) #Check if their username exists and get the account tuple associated with it
-        salted_hashed_password = salt_and_hash_password(user_inputted_password)
 
-        if salted_hashed_password == account.password: #Compare their password with the password in the database
+        if check_password(user_inputted_password, account.password): #Compare their password with the password in the database
             response_message = {'msg': 'Successfully Logged In'}
             status_code = 200
             session['user'] = account.account_id   #keep track of logged in status with the account id
@@ -83,8 +81,7 @@ def change_password():
     try:
         account = Account.get_acc_by_id(session['user'])
         original_password = request.form['original_password']
-        hashed_salted_orig_password = salt_and_hash_password(original_password)
-        if hashed_salted_orig_password == account.password:
+        if check_password(original_password, account.password):
             account.password = salt_and_hash_password(request.form['new_password'])
             account.save()
             response_message = {'msg': 'Successfully changed password'}
@@ -96,13 +93,57 @@ def change_password():
             return jsonify(response_message), status_code
         
     except Exception as e:
-        response_message = {'msg': 'Not logged in'}
+        response_message = {'msg': 'Please log in'}
         status_code = 401
         return jsonify(response_message), status_code
-        
+
+@bp.route('/change_username', methods = ['POST'])
+def change_username():
+    account = Account.get_acc_by_id(session['user'])
+    new_username = request.form['new_username']
+    try: 
+        account.username = new_username
+        account.save()
+        response_message = {'msg': 'Succesfully changed username'}
+        status_code = 201
+        return jsonify(response_message), status_code
+    except Exception as e:
+        response_message = {'msg': 'Username already taken'}
+        status_code = 409
+        return jsonify(response_message), status_code
+    
+@bp.route('/change_username', methods = ['POST'])
+def change_email():
+    account = Account.get_acc_by_id(session['user'])
+    new_email = request.form['new_email']
+    try: 
+        account.email = new_email
+        account.save()
+        response_message = {'msg': 'Succesfully changed email'}
+        status_code = 201
+        return jsonify(response_message), status_code
+    except Exception as e:
+        response_message = {'msg': 'Email already taken'}
+        status_code = 409
+        return jsonify(response_message), status_code
+
+@bp.route('/change_number', methods = ['POST'])
+def change_number():
+    account = Account.get_acc_by_id(session['user'])
+    new_number = request.form['new_number']
+    account.new_number = new_number
+    account.save()
+    response_message = {'msg': 'Succesfully changed phone number'}
+    status_code = 201
+    return jsonify(response_message), status_code
+    
 def salt_and_hash_password(password):
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
     return hashed_password
 
-# Todo: Split change_password into first getting the original password, and a seperate endpoint for changing it. Fix bcrypt salting and comparing, and finalize session understanding
+def check_password(pass_to_be_checked, hashed_salted_password):
+    pass_to_be_checked = pass_to_be_checked.encode('utf-8')
+    return bcrypt.checkpw(pass_to_be_checked, hashed_salted_password)
+
+#Todo: finalize session understanding
