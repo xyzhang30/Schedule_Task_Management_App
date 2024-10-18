@@ -59,10 +59,10 @@ Table_creation = '''
     CREATE TABLE task (
         task_id SERIAL PRIMARY KEY,
         account_id INTEGER REFERENCES accounts(account_id),
-        due_date VARCHAR(15) NOT NULL,
-        due_time VARCHAR(15),
+        due_time TIMESTAMP NOT NULL,
         task_name VARCHAR(20) NOT NULL,
-        category VARCHAR(100)
+        category VARCHAR(100),
+        complete BOOLEAN DEFAULT false
     );
 
     CREATE TABLE assignment ( 

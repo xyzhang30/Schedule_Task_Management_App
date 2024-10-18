@@ -40,9 +40,9 @@ CREATE TABLE Task (
     task_id SERIAL PRIMARY KEY,
     account_id INTEGER REFERENCES Account(account_id),
     category VARCHAR(100),
-    due_date VARCHAR(15), --cannot be null
-    due_time VARCHAR(15),
-    task_name VARCHAR(20) --cannot be null
+    due_time TIMESTAMP NOT NULL,
+    task_name VARCHAR(20) NOT NULL,
+    complete BOOLEAN DEFAULT false
 );
 CREATE TABLE Assignment ( 
     task_id INTEGER PRIMARY KEY REFERENCES Task(task_id),
