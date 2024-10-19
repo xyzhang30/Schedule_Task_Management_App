@@ -43,3 +43,47 @@ class Post(Base):
 
     def to_dict(self):
         return {column.name: getattr(self, column.name) for column in self.__table__.columns}
+
+
+class Like(Base):
+    __tablename__ = 'likes'
+    post_id = Column(Integer, ForeignKey('post.post_id'), primary_key=True)
+    liker_id = Column(Integer, ForeignKey('accounts.account_id'), primary_key=True)
+
+    def save(self):
+        db_session.add(self)
+        db_session.commit()
+
+    def delete(self):
+        db_session.delete(self)
+        db_session.commit()
+
+
+class Save(Base):
+    __tablename__ = 'saves'
+    post_id = Column(Integer, ForeignKey('post.post_id'), primary_key=True)
+    saver_id = Column(Integer, ForeignKey('accounts.account_id'), primary_key=True)
+
+    def save(self):
+        db_session.add(self)
+        db_session.commit()
+
+    def delete(self):
+        db_session.delete(self)
+        db_session.commit()
+
+
+class Comment(Base):
+    __tablename__ = 'comments'
+    commenter_id = Column(Integer, ForeignKey('accounts.account_id'), primary_key=True)
+    post_id = Column(Integer, ForeignKey('post.post_id'), primary_key=True)
+    timestamp = Column(DateTime, default=datetime.utcnow, primary_key=True)
+    text = Column(String(200), nullable=False)
+
+    def save(self):
+        db_session.add(self)
+        db_session.commit()
+
+    def delete(self):
+        db_session.delete(self)
+        db_session.commit()

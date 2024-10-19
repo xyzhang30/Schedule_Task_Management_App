@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from ..models.post import Post
+from ..models.post import Post, Like, Save, Comment
 from ..models.friend import Friend
 
 bp = Blueprint('post', __name__, url_prefix='/post')
@@ -75,7 +75,7 @@ def add_post():
         image_url=image_url
     )
     new_post.save()
-    return jsonify(new_post.to_dict()), 200
+    return jsonify(new_post.to_dict()), 201
 
 
 @bp.route('/update-post/<int:post_id>', methods=['PUT'])
@@ -110,3 +110,130 @@ def remove_post(post_id):
         return jsonify({"message": "Post removed successfully."}), 200
     else:
         return jsonify({"error": "Post not found."}), 404
+
+
+# Like
+@bp.route('/like', methods=['POST'])
+def like_post():
+    post_id = request.form.get('post_id')
+    liker_id = request.form.get('liker_id')
+    
+    like = Like(post_id=post_id, liker_id=liker_id)
+    like.save()
+    
+    return jsonify({"message": "Post liked successfully"}), 201
+
+
+@bp.route('/unlike', methods=['DELETE'])
+def unlike_post():
+    post_id = request.form.get('post_id')
+    liker_id = request.form.get('liker_id')
+
+    like = Like.query.filter_by(post_id=post_id, liker_id=liker_id).first()
+    if like:
+        like.delete()
+        return jsonify({"message": "Post unliked successfully"}), 200
+    return jsonify({"error": "Like not found"}), 404
+
+
+@bp.route('/<int:post_id>/likes', methods=['GET'])
+def get_likes(post_id):
+    '''
+    Retrieves all likes for a specific post.
+    '''
+    likes = Like.query.filter_by(post_id=post_id).all()
+    if not likes:
+        return jsonify({"message": "No likes found for this post"}), 404
+    
+    liker_list = [{"liker_id": like.liker_id} for like in likes]
+    return jsonify(liker_list), 200
+
+
+# Save
+@bp.route('/save', methods=['POST'])
+def save_post():
+    post_id = request.form.get('post_id')
+    saver_id = request.form.get('saver_id')
+    
+    save = Save(post_id=post_id, saver_id=saver_id)
+    save.save()
+    
+    return jsonify({"message": "Post saved successfully"}), 201
+
+
+@bp.route('/unsave', methods=['DELETE'])
+def unsave_post():
+    post_id = request.form.get('post_id')
+    saver_id = request.form.get('saver_id')
+
+    save = Save.query.filter_by(post_id=post_id, saver_id=saver_id).first()
+    if save:
+        save.delete()
+        return jsonify({"message": "Post unsaved successfully"}), 200
+    return jsonify({"error": "Save not found"}), 404
+
+
+@bp.route('/<int:post_id>/saves', methods=['GET'])
+def get_saves(post_id):
+    '''
+    Retrieves all saves for a specific post.
+    '''
+    saves = Save.query.filter_by(post_id=post_id).all()
+    if not saves:
+        return jsonify({"message": "No saves found for this post"}), 404
+    
+    saver_list = [{"saver_id": save.saver_id} for save in saves]
+    return jsonify(saver_list), 200
+
+
+@bp.route('/account/<int:account_id>/saves', methods=['GET'])
+def get_account_saves(account_id):
+    '''
+    Retrieves all posts saved by a specific account.
+    '''
+    saves = Save.query.filter_by(saver_id=account_id).all()
+    if not saves:
+        return jsonify({"message": "No saves found for this account"}), 404
+    
+    post_list = [{"post_id": save.post_id} for save in saves]
+    return jsonify(post_list), 200
+
+
+# Comment
+@bp.route('/comment', methods=['POST'])
+def add_comment():
+    commenter_id = request.form.get('commenter_id')
+    post_id = request.form.get('post_id')
+    text = request.form.get('text')
+    
+    comment = Comment(commenter_id=commenter_id, post_id=post_id, text=text)
+    comment.save()
+    
+    return jsonify({"message": "Comment added successfully"}), 201
+
+
+@bp.route('/comment', methods=['DELETE'])
+def delete_comment():
+    commenter_id = request.form.get('commenter_id')
+    timestamp = request.form.get('timestamp')
+
+    comment = Comment.query.filter_by(commenter_id=commenter_id, timestamp=timestamp).first()
+    if comment:
+        comment.delete()
+        return jsonify({"message": "Comment deleted successfully"}), 200
+    return jsonify({"error": "Comment not found"}), 404
+
+
+@bp.route('/<int:post_id>/comments', methods=['GET'])
+def get_comments(post_id):
+    '''
+    Retrieves all comments for a specific post.
+    '''
+    comments = Comment.query.filter_by(post_id=post_id).all()
+    if not comments:
+        return jsonify({"message": "No comments found for this post"}), 404
+    
+    comment_list = [{"commenter_id": comment.commenter_id, 
+                     "timestamp": comment.timestamp,
+                     "text": comment.text} for comment in comments]
+    return jsonify(comment_list), 200
