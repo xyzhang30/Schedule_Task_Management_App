@@ -1,7 +1,12 @@
 from flask import Blueprint, session, request, jsonify
-import bcrypt
+from flask_mail import Message
+import secrets
+import time
 import uuid
+import bcrypt
 from ..models.account import Account
+from ..models.ResetKeys import ResetKeys
+from ..__init__ import mail
 
 bp = Blueprint('auth', __name__, url_prefix = '/auth')
 
@@ -35,8 +40,6 @@ def login():
     
 @bp.route('/register', methods = ['POST'])
 def register():
-    print("Registering...")
-
     #Get user info from frontend
     user_inputted_username = request.form['username']
     user_inputted_password = request.form['password']
@@ -112,7 +115,7 @@ def change_username():
         status_code = 409
         return jsonify(response_message), status_code
     
-@bp.route('/change_username', methods = ['POST'])
+@bp.route('/change_email', methods = ['POST'])
 def change_email():
     account = Account.get_acc_by_id(session['user'])
     new_email = request.form['new_email']
@@ -136,7 +139,47 @@ def change_number():
     response_message = {'msg': 'Succesfully changed phone number'}
     status_code = 201
     return jsonify(response_message), status_code
-    
+
+@bp.route('/forgot_password', methods = ['POST']) #This function checks a user email for a password reset and sends the link if it is correct 
+def forgot_password():
+    user_inputted_email = request.form['email'] #Get email that the user wants to send reset link to
+    account = Account.get_acc_by_email(user_inputted_email)
+    if account is None:
+        response_message = {'msg': 'The email you entered is not associated with any accounts'}
+        status_code = 401
+        return jsonify(response_message), status_code
+    else: 
+        key = generate_reset_key(account)
+        url = f"http://localhost:5000/auth/forgot_password/{key}"
+        send_reset_email(url)
+
+@bp.route('/forgot_password/<url_key>', methods = ['POST'])
+def reset_password(url_key):
+    reset_key = ResetKeys.get_all_by_reset_key(url_key)
+    if reset_key is None: #If there is no entry for this reset key 
+        return 404
+    time_stamp = reset_key.time_stamp
+    account_id = reset_key.account_id
+
+    if ((time.time() - time_stamp)/60) > 15: #Reset key has expired, it has been longer than 15 minutes
+        response_message = {'msg': 'Password reset link expired'}
+        status_code = 401
+        return jsonify(response_message), 401
+    else:
+        user_inputted_new_password = request.form['new_password']
+        user_inputted_confirm = request.form['new_password'] #'Confirm your new password', should be identical
+        if user_inputted_confirm != user_inputted_new_password:
+            response_message = {'msg': 'Passwords do not match'}
+            status_code = 401
+            return jsonify(response_message), status_code
+        else:
+            new_password(account_id, user_inputted_new_password)
+
+def new_password(account_id, new_pass):
+    account = Account.get_acc_by_id(account_id)
+    account.password = salt_and_hash_password(new_pass)
+    account.save()
+
 def salt_and_hash_password(password):
     salt = bcrypt.gensalt()
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
@@ -146,4 +189,24 @@ def check_password(pass_to_be_checked, hashed_salted_password):
     pass_to_be_checked = pass_to_be_checked.encode('utf-8')
     return bcrypt.checkpw(pass_to_be_checked, hashed_salted_password)
 
-#Todo: finalize session understanding and add forgot_password
+def generate_reset_key(user_account):
+    generated_key = secrets.urlsafe(32)
+    current_time = time.time()
+    user_id = user_account.id
+    new_reset_key = ResetKeys(
+        reset_key = generated_key,
+        account_id = user_id,
+        time_stamp = current_time
+    )
+    new_reset_key.save()
+    return generated_key
+
+def send_reset_email(reset_url):
+    email = Message(
+        subject = 'Resetting Password',
+        sender = 'Shenkermandavid@gmail.com',
+        recipients = ['Shenkermandavid@gmail.com']
+    )
+    email.body = f"Use this link to reset your password: {reset_url}. It will expire in 15 minutes"
+    mail.send(email)
+#Todo: finalize session understanding, clean functions, add decorators, error handling for emails, add delete functionality for reset entries
