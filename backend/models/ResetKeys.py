@@ -5,8 +5,9 @@ from ..db import Base, db_session
 
 class ResetKeys(Base):
 	__tablename__ = 'accounts'
-	reset_key = Column(Integer, primary_key=True)
-	account_id = Column(Integer, unqiue = True)
+	reset_key = Column(String(32), primary_key=True)
+	account_id = Column(Integer, ForeignKey('accounts.account_id'))
+	time_stamp = Column(float)
 
 	def __repr__(self):
 		return f"<ResetKeys reset_key={self.reset_key} account_id={self.account_id}>"
@@ -16,7 +17,7 @@ class ResetKeys(Base):
 		return db_session.query(cls).all()
 	
 	@classmethod
-	def get_acc_by_reset_key(cls, reset_key):
+	def get_all_by_reset_key(cls, reset_key):
 		return db_session.query(cls).filter_by(cls.reset_key == reset_key).first()
 	
 	def save(self):
