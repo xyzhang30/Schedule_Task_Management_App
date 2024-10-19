@@ -40,7 +40,7 @@ Table_creation = '''
         account_id2 INTEGER REFERENCES accounts(account_id),
         PRIMARY KEY (account_id1, account_id2)
     );
-
+    
     CREATE TABLE student (
         account_id INTEGER PRIMARY KEY REFERENCES accounts(account_id),
         major VARCHAR(100),
@@ -105,13 +105,19 @@ Table_creation = '''
         PRIMARY KEY (post_id, saver_id)
     );
 
+    CREATE TABLE commenters(
+        post_id INTEGER REFERENCES post(post_id),
+        commenter_id INTEGER REFERENCES accounts(account_id)
+        PRIMARY KEY (commenter_id, post_id)
+    );
+
     CREATE TABLE comments(
         commenter_id INTEGER REFERENCES accounts(account_id),
         timestamp NUMERIC NOT NULL,
         text VARCHAR(200) NOT NULL,
         PRIMARY KEY (commenter_id, timestamp)
     );
-
+    
     CREATE TABLE friendrequests (
         notification_id SERIAL PRIMARY KEY,
         account_id_to INTEGER REFERENCES accounts(account_id),
