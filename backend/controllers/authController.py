@@ -71,7 +71,7 @@ def register():
         response_message = {'msg': 'Invalid Email or Username'} #Need to make this more fine tuned: they should know what field was bad. i.e. username already taken
         status_code = 409 #proper code for this type of issue apparently
         return jsonify(response_message), status_code
-        
+
 @bp.route('/logout', methods = ['POST'])
 def logout():
     session['user'] = None #logs user out
@@ -150,7 +150,7 @@ def forgot_password():
         return jsonify(response_message), status_code
     else: 
         key = generate_reset_key(account)
-        url = f"http://localhost:5000/auth/forgot_password/{key}"
+        url = f"http://localhost:8080/auth/forgot_password/{key}"
         send_reset_email(url)
 
 @bp.route('/forgot_password/<url_key>', methods = ['POST'])
@@ -158,6 +158,7 @@ def reset_password(url_key):
     reset_key = ResetKeys.get_all_by_reset_key(url_key)
     if reset_key is None: #If there is no entry for this reset key 
         return 404
+    
     time_stamp = reset_key.time_stamp
     account_id = reset_key.account_id
 
