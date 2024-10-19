@@ -11,7 +11,7 @@ class Account(Base):
 	email = Column(String(100), unique=True)
 	phone = Column(String(15), unique=True)
 	avatar = Column(String(255), unique=False, nullable = True)
-	year_created = Column(Integer, unique=False)
+	year_created = Column(Integer, unique=False),
 
 	def __repr__(self):
 		return f"<Account account_id={self.account_id} username={self.username}>"
@@ -27,7 +27,7 @@ class Account(Base):
 	@classmethod
 	def get_acc_by_username(cls, username):
 		return db_session.query(cls).filter_by(cls.username == username).first()
-
+	
 	def get_acc_by_email(cls, email):
 		return db_session.query(cls).filter_by(cls.email == email).first()
 	
