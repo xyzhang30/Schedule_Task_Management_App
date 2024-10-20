@@ -6,8 +6,8 @@ from ..db import Base, db_session
 class PublicEvent(Base):
     __tablename__ = 'public_events'
     event_id = Column(Integer, primary_key=True)
-    event_name = Column(String(50), unique=True)
-    group_id = Column(Integer, ForeignKey('groups.group_id'), unique=False)
+    event_name = Column(String(50), unique=True, nullable=False)
+    group_id = Column(Integer, ForeignKey('groups.group_id'), unique=False, nullable=False)
     start_date = Column(Date, nullable=False)
     end_date = Column(Date, nullable=False)
     start_time = Column(Time, nullable=True)
@@ -27,8 +27,8 @@ class PublicEvent(Base):
         return db_session.query(cls).filter_by(event_id = id).first()
     
     @classmethod
-    def get_evts_by_grp_id(cls, id):
-        return db_session.query(cls).filter_by(group_id = id).all()
+    def get_evts_by_grp_id(cls, grp_id):
+        return db_session.query(cls).filter_by(group_id = grp_id).all()
 
     def save(self):
         db_session.add(self)

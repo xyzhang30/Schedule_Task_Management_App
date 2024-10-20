@@ -6,7 +6,7 @@ from ..db import Base, db_session
 class Group(Base):
 	__tablename__ = 'groups'
 	group_id = Column(Integer, primary_key=True)
-	group_name = Column(String(50), unique=True)
+	group_name = Column(String(50), unique=True, nullable=False)
 	group_avatar = Column(String(255), unique=False)
 	year_created = Column(Integer, unique=False)
 	admin_id = Column(Integer, ForeignKey('accounts.account_id'), unique=False)
