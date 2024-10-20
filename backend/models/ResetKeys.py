@@ -1,13 +1,13 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, Float, UUID
 from sqlalchemy.orm import Mapped, mapped_column, registry, relationship
 
 from ..db import Base, db_session
 
 class ResetKeys(Base):
-	__tablename__ = 'accounts'
+	__tablename__ = 'resetkeys'
 	reset_key = Column(String(32), primary_key=True)
-	account_id = Column(Integer, ForeignKey('accounts.account_id'))
-	time_stamp = Column(float)
+	account_id = Column(UUID(as_uuid=True), ForeignKey('accounts.account_id'))
+	time_stamp = Column(Float)
 
 	def __repr__(self):
 		return f"<ResetKeys reset_key={self.reset_key} account_id={self.account_id}>"
