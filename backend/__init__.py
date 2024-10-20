@@ -1,7 +1,7 @@
 import os
 from flask import Flask
 from flask_cors import CORS
-from app.controllers import accountController, availabilityController, friendController, eventController
+from app.controllers import accountController, availabilityController, friendController, postController, authController, friendRequestController, eventController
 from .db import init_db
 
 def create_app(test_config=None):
@@ -19,7 +19,7 @@ def create_app(test_config=None):
     #     # load the instance config, if it exists, when not testing
     #     app.config.from_pyfile('config.py', silent=True)
     # else:
-    #     # load the test config if passed in
+    #     # load the test config if passed inv
     #     app.config.from_mapping(test_config)
 
     # # ensure the instance folder exists
@@ -37,6 +37,9 @@ def create_app(test_config=None):
     app.register_blueprint(availabilityController.bp)
     app.register_blueprint(friendController.bp)
     app.register_blueprint(eventController.bp)
+    app.register_blueprint(authController.bp)
+    app.register_blueprint(friendRequestController.bp)
+    app.register_blueprint(postController.bp)
 
     init_db()
     return app

@@ -1,20 +1,28 @@
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import './App.css';
+import LandingPage from './pages/landingPage.js';
+import Friends from './pages/Friends.js';
+import NavBar from './navbar.js';
+import Posts from './pages/Posts.js';
 import Events from './pages/Events';
-import LandingPage from './pages/landingPage';  // Assuming you want a landing page or a default page
 
 function App() {
   return (
     <Router>
+      {/* <div>
+        <NavBar /> */}
       <Routes>
         {/* Default Route */}
         {/* <Route path="/" element={<LandingPage />} /> */}
 
         {/* Events Route */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/friends" element={<Friends/>} />
+        <Route path="/posts" element={<Posts/>} />
         <Route path="/event" element={<Events />} />
-
-        {/* Redirect to Events if no other route matches */}
-        <Route path="*" element={<Navigate to="/event" />} />
       </Routes>
+      {/* </div> */}
     </Router>
   );
 }
