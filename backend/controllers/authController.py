@@ -5,7 +5,7 @@ import time
 import uuid
 import bcrypt
 from ..models.account import Account
-from ..models.ResetKeys import ResetKeys
+from ..models.resetKeys import ResetKeys
 from ..__init__ import mail
 
 bp = Blueprint('auth', __name__, url_prefix = '/auth')
@@ -21,7 +21,8 @@ def login():
 
     try:
         account = Account.get_acc_by_username(user_inputted_username) #Check if their username exists and get the account tuple associated with it
-
+        print(account.password)
+        print(user_inputted_password)
         if check_password(user_inputted_password, account.password): #Compare their password with the password in the database
             response_message = {'msg': 'Successfully Logged In'}
             status_code = 200
@@ -47,11 +48,9 @@ def register():
     user_inputted_phone_number = request.form['phone_number']
     user_inputted_year_created = (int)(request.form['year'])
 
-    generated_id = uuid.uuid1() #generate unique account id
     salted_hashed_password = salt_and_hash_password(user_inputted_password)
 
     new_account = Account(
-        account_id = generated_id,
         username = user_inputted_username,
         password = salted_hashed_password,
         email = user_inputted_email,
@@ -168,7 +167,7 @@ def reset_password(url_key):
         return jsonify(response_message), 401
     else:
         user_inputted_new_password = request.form['new_password']
-        user_inputted_confirm = request.form['new_password'] #'Confirm your new password', should be identical
+        user_inputted_confirm = request.form['confirm_password'] #'Confirm your new password', should be identical
         if user_inputted_confirm != user_inputted_new_password:
             response_message = {'msg': 'Passwords do not match'}
             status_code = 401
@@ -183,12 +182,12 @@ def new_password(account_id, new_pass):
 
 def salt_and_hash_password(password):
     salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')  # Decode to string
     return hashed_password
 
 def check_password(pass_to_be_checked, hashed_salted_password):
-    pass_to_be_checked = pass_to_be_checked.encode('utf-8')
-    return bcrypt.checkpw(pass_to_be_checked, hashed_salted_password)
+    pass_to_be_checked = pass_to_be_checked.encode('utf-8')  # Encode pass_to_be_checked for comparison
+    return bcrypt.checkpw(pass_to_be_checked, hashed_salted_password.encode('utf-8'))  # Encode hashed password for comparison
 
 def generate_reset_key(user_account):
     generated_key = secrets.urlsafe(32)
