@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey, UUID
 from sqlalchemy.orm import Mapped, mapped_column, registry, relationship
 from ..models.account import Account
 
