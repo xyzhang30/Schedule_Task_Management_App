@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import './landingPage.css';
 
 const LandingPage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
