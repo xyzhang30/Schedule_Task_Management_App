@@ -43,12 +43,13 @@ def get_friends_posts_by_poster(poster_id):
     '''
     Gets all posts from the friends of a specific poster ID
     '''
-    friends = Friend.get_friends_by_id(poster_id)
+    friends_accounts = Friend.get_friends_by_id(poster_id)
+    friend_ids = [friend.account_id for friend in friends_accounts]
     
-    if not friends:
+    if not friend_ids:
         return jsonify({"error": "No friends found or no posts by friends."}), 404
     
-    posts = Post.query.filter(Post.poster_id.in_(friends)).all()
+    posts = Post.query.filter(Post.poster_id.in_(friend_ids)).all()
 
     if not posts:
         return jsonify({"error": "No posts found for friends."}), 404
@@ -65,6 +66,7 @@ def add_post():
     title = request.form.get('title')
     content = request.form.get('content')
     image_url = request.form.get('image_url')
+    poster_id = request.form.get('poster_id')
 
     if not title or not content:
         return jsonify({"error": "Title and content are required."}), 400
@@ -72,10 +74,12 @@ def add_post():
     new_post = Post(
         title=title,
         content=content,
-        image_url=image_url
+        image_url=image_url,
+        poster_id=poster_id
     )
+
     new_post.save()
-    return jsonify(new_post.to_dict()), 201
+    return index()
 
 
 @bp.route('/update-post/<int:post_id>', methods=['PUT'])
@@ -118,7 +122,8 @@ def like_post():
     post_id = request.form.get('post_id')
     liker_id = request.form.get('liker_id')
     
-    like = Like(post_id=post_id, liker_id=liker_id)
+    like = Like(post_id=post_id, 
+                liker_id=liker_id)
     like.save()
     
     return jsonify({"message": "Post liked successfully"}), 201
@@ -155,7 +160,8 @@ def save_post():
     post_id = request.form.get('post_id')
     saver_id = request.form.get('saver_id')
     
-    save = Save(post_id=post_id, saver_id=saver_id)
+    save = Save(post_id=post_id, 
+                saver_id=saver_id)
     save.save()
     
     return jsonify({"message": "Post saved successfully"}), 201
@@ -206,18 +212,24 @@ def add_comment():
     post_id = request.form.get('post_id')
     text = request.form.get('text')
     
-    comment = Comment(commenter_id=commenter_id, post_id=post_id, text=text)
+    comment = Comment(commenter_id=commenter_id, 
+                      post_id=post_id, 
+                      text=text)
     comment.save()
     
     return jsonify({"message": "Comment added successfully"}), 201
 
-
-@bp.route('/comment', methods=['DELETE'])
+# Not sure how to input timestamp and test this
+@bp.route('/delete-comment', methods=['DELETE'])
 def delete_comment():
     commenter_id = request.form.get('commenter_id')
+    post_id = request.form.get('post_id')
     timestamp = request.form.get('timestamp')
 
-    comment = Comment.query.filter_by(commenter_id=commenter_id, timestamp=timestamp).first()
+    comment = Comment.query.filter_by(commenter_id=commenter_id, 
+                      post_id=post_id, 
+                      timestamp=timestamp).first()
+        
     if comment:
         comment.delete()
         return jsonify({"message": "Comment deleted successfully"}), 200
@@ -231,7 +243,7 @@ def get_comments(post_id):
     '''
     comments = Comment.query.filter_by(post_id=post_id).all()
     if not comments:
-        return jsonify({"message": "No comments found for this post"}), 404
+        return jsonify([]), 200
     
     comment_list = [{"commenter_id": comment.commenter_id, 
                      "timestamp": comment.timestamp,

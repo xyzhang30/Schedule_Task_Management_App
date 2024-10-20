@@ -1,10 +1,7 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
-from sqlalchemy.orm import registry
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, TIMESTAMP
 from datetime import datetime
 from ..db import Base, db_session
-from ..models.account import Account
-
-mapper_registry = registry()
+# from ..models.account import Account
 
 class Post(Base):
     __tablename__ = 'post'
@@ -13,8 +10,8 @@ class Post(Base):
     title = Column(String(100), nullable=False)
     content = Column(Text, nullable=False)
     image_url = Column(Text)
-    date_posted = Column(DateTime, nullable=False, default=datetime.utcnow)
-    poster_id = Column(Integer, ForeignKey('accounts.account_id'), primary_key=True)
+    date_posted = Column(TIMESTAMP, nullable=False, default=datetime.now())
+    poster_id = Column(Integer, ForeignKey('accounts.account_id'), nullable=False)
 
     def __repr__(self):
         return f"<Post id={self.post_id} title={self.title}>"
@@ -77,7 +74,7 @@ class Comment(Base):
     __tablename__ = 'comments'
     commenter_id = Column(Integer, ForeignKey('accounts.account_id'), primary_key=True)
     post_id = Column(Integer, ForeignKey('post.post_id'), primary_key=True)
-    timestamp = Column(DateTime, default=datetime.utcnow, primary_key=True)
+    timestamp = Column(TIMESTAMP, default=datetime.now(), primary_key=True)
     text = Column(String(200), nullable=False)
 
     def save(self):
