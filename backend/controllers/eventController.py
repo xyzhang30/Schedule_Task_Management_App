@@ -1,4 +1,4 @@
-# eventController.py
+
 
 from flask import Blueprint, request, jsonify
 from ..models.event import Event  

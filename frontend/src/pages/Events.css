@@ -1,4 +1,4 @@
-/* Container layout similar to tasks */
+
 .events-page-container {
   display: flex;
   grid-template-rows: auto 1fr;
@@ -70,7 +70,6 @@
   background-color: #138496;
 }
 
-/* Filter Container */
 .filter-container {
   grid-column: 1 / span 2;
   background-color: #fff;
@@ -127,7 +126,7 @@
   transform: scale(1.05);
 }
 
-/* Events List */
+
 .events-list {
   grid-column: 1;
   padding: 20px;
@@ -188,7 +187,7 @@
   background-color: #c82333;
 }
 
-/* Event Details */
+
 .event-details {
   grid-column: 2;
   padding: 20px;
