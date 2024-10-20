@@ -3,6 +3,8 @@
 from flask import Blueprint, request, jsonify
 from ..models.event import Event  
 from datetime import datetime
+import logging
+logging.basicConfig(level=logging.DEBUG)
 
 bp = Blueprint('event', __name__, url_prefix='/event')
 
@@ -10,12 +12,13 @@ bp = Blueprint('event', __name__, url_prefix='/event')
 @bp.route('/createEvent', methods=['POST'])
 def create_event():
     data = request.json
+    logging.debug(f"Incoming data: {data}")
     new_event = Event(
-        account_id=data['account_id'],
+        account_id=int(data['account_id']),
         name=data['name'],
         location=data.get('location'),
         start_date=datetime.strptime(data['start_date'], '%Y-%m-%dT%H:%M'),
-        end_date=datetime.strptime(data['end_date'], '%Y-%m-%dT%H:%M:%S'),
+        end_date=datetime.strptime(data['end_date'], '%Y-%m-%dT%H:%M'),
         category=data.get('category')
     )
     new_event.save()  
@@ -24,7 +27,7 @@ def create_event():
 # Update Event
 @bp.route('/updateEvent/<int:event_id>', methods=['PUT'])
 def update_event(event_id):
-    event = Event.query.get(event_id)
+    event = Event.get_event(event_id)
     if not event:
         return jsonify({'message': 'Event not found'}), 404
 
@@ -32,9 +35,9 @@ def update_event(event_id):
     event.name = data.get('name', event.name)
     event.location = data.get('location', event.location)
     if 'start_date' in data:
-        event.start_date = datetime.strptime(data['start_date'], '%Y-%m-%dT%H:%M:%S')
+        event.start_date = datetime.strptime(data['start_date'], '%Y-%m-%dT%H:%M')
     if 'end_date' in data:
-        event.end_date = datetime.strptime(data['end_date'], '%Y-%m-%dT%H:%M:%S')
+        event.end_date = datetime.strptime(data['end_date'], '%Y-%m-%dT%H:%M')
     event.category = data.get('category', event.category)
     event.update()
 
@@ -43,7 +46,7 @@ def update_event(event_id):
 # Delete Event
 @bp.route('/deleteEvent/<int:event_id>', methods=['DELETE'])
 def delete_event(event_id):
-    event = Event.query.get(event_id)
+    event = Event.get_event(event_id)
     if not event:
         return jsonify({'message': 'Event not found'}), 404
 
@@ -53,8 +56,15 @@ def delete_event(event_id):
 # Fetch Event by ID
 @bp.route('/getEvent/<int:event_id>', methods=['GET'])
 def get_event(event_id):
-    event = Event.query.get(event_id)
+    event = Event.get_event(event_id)
     if not event:
         return jsonify({'message': 'Event not found'}), 404
 
     return jsonify({'event': event.to_dict()}), 200
+
+# Fetch Events by Account ID
+@bp.route('/getEventsByAccount/<int:account_id>', methods=['GET'])
+def get_events_by_account(account_id):
+    events = Event.get_events_by_account(account_id)
+    events_list = [event.to_dict() for event in events]
+    return jsonify({'events': events_list}), 200

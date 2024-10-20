@@ -1,169 +1,386 @@
 import React, { useState, useEffect } from 'react';
-import './Events.css'; // Ensure styles are correctly linked.
-import axios from 'axios'; // Import axios for HTTP requests
-
+import axios from 'axios';
+import './Events.css';
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
-const Events = () => {
-  const [selectedEvent, setSelectedEvent] = useState(null); // Track the currently selected event
-  const [events, setEvents] = useState([]); // Fetch events from the API
-  const [showCreateEventModal, setShowCreateEventModal] = useState(false); // Toggle create event modal
-  const [newEvent, setNewEvent] = useState({ name: '', location: '', startDate: '', endDate: '', category: '' });
 
-  // Fetch events from the API when the component mounts
+const Events = () => {
+  const [events, setEvents] = useState({});
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showAddEventModal, setShowAddEventModal] = useState(false);
+  const [newEvent, setNewEvent] = useState({ name: '', location: '', start_date: '', end_date: '', category: '' });
+  const [categories, setCategories] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [showUpdateEventModal, setShowUpdateEventModal] = useState(false);
+  const [updatedEvent, setUpdatedEvent] = useState({});
+
   useEffect(() => {
-    axios.get(`${baseUrl}/event/get-events`) // Adjust to your Flask API route
-      .then(response => {
-        setEvents(response.data); // Assume the API returns a list of events
-      })
-      .catch(error => {
+    const fetchEvents = async () => {
+      try {
+        const response = await axios.get(`${baseUrl}/event/getEventsByAccount/1`);
+        const eventData = response.data.events || [];
+        const groupedEvents = groupEventsByDate(eventData);
+        setEvents(groupedEvents);
+        extractCategories(eventData);
+      } catch (error) {
         console.error("There was an error fetching the events!", error);
-      });
+        setError('Failed to fetch events.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEvents();
   }, []);
 
-  // Function to handle click on an event to show details
-  const handleEventClick = (eventName, startDate) => {
-    setSelectedEvent({
-      name: eventName,
-      startDate: new Date(startDate).toLocaleString(),
+  const groupEventsByDate = (events) => {
+    const grouped = {};
+    events.forEach(event => {
+      const date = new Date(event.start_date).toLocaleDateString();
+      if (!grouped[date]) {
+        grouped[date] = [];
+      }
+      grouped[date].push(event);
     });
+    return grouped;
   };
 
-  // Function to close event details
-  const closeEventDetails = () => {
-    setSelectedEvent(null); // Clear the selected event when close button is clicked
+  const extractCategories = (events) => {
+    const categorySet = new Set();
+    events.forEach(event => {
+      if (event.category) {
+        categorySet.add(event.category);
+      }
+    });
+    setCategories([...categorySet]);
   };
 
-  // Function to delete an event
-  const deleteEvent = (eventId) => {
-    axios.delete(`${baseUrl}/event/deleteEvent/${eventId}`) // Adjust to your Flask API route
-      .then(response => {
-        setEvents(events.filter(event => event.id !== eventId)); // Update the state
-      })
-      .catch(error => {
-        console.error("There was an error deleting the event!", error);
-      });
+  const handleCategoryChange = (e) => {
+    setSelectedCategory(e.target.value);
   };
 
-  // Function to handle form input changes
+  const filteredEvents = Object.keys(events).reduce((filtered, date) => {
+    const eventsForDate = events[date].filter(event =>
+      selectedCategory === '' || event.category === selectedCategory
+    );
+    if (eventsForDate.length) {
+      filtered[date] = eventsForDate;
+    }
+    return filtered;
+  }, {});
+
+  const handleEventClick = (event) => {
+    setSelectedEvent(event);
+  };
+
+  const formatDateTime = (timestamp) => {
+    const date = new Date(timestamp);
+    if (isNaN(date.getTime())) {
+      return 'Invalid Date';
+    }
+    return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setNewEvent({ ...newEvent, [name]: value });
   };
 
-  // Function to create a new event
-  const handleCreateEvent = () => {
-    console.log("New Event Data:", newEvent); // Debugging step
-    
-    // Ensure that all fields are filled before sending the request
-    if (!newEvent.name || !newEvent.location || !newEvent.startDate || !newEvent.endDate || !newEvent.category) {
-      alert("Please fill in all fields");
-      return;
+  const handleAddEvent = async (e) => {
+    e.preventDefault();
+    try {
+      const formData = {
+        ...newEvent,
+        account_id: '1',
+      };
+      const response = await axios.post(`${baseUrl}/event/createEvent`, formData);
+      setShowAddEventModal(false);
+      setNewEvent({ name: '', location: '', start_date: '', end_date: '', category: '' });
+
+      // Fetch updated events
+      const updatedEventsResponse = await axios.get(`${baseUrl}/event/getEventsByAccount/1`);
+      const eventData = updatedEventsResponse.data.events || [];
+      const groupedEvents = groupEventsByDate(eventData);
+      setEvents(groupedEvents);
+      extractCategories(eventData);
+    } catch (error) {
+      console.error("There was an error creating the event!", error.response?.data || error.message);
+      setError('Failed to create event.');
     }
-  
-    axios.post('${baseUrl}/event/createEvent', newEvent) // Adjust to your Flask API route
-      .then(response => {
-        console.log('Event created', response.data); // Debugging step
-        setEvents([...events, response.data.event]); // Update the state with the new event
-        setShowCreateEventModal(false); // Close the modal
-        setNewEvent({ name: '', location: '', startDate: '', endDate: '', category: '' }); // Reset form
-      })
-      .catch(error => {
-        console.error("There was an error creating the event!", error);
-      });
   };
-  
+
+  const handleDeleteEvent = async (eventId) => {
+    try {
+      await axios.delete(`${baseUrl}/event/deleteEvent/${eventId}`);
+      // Remove the event from the state
+      setEvents(prevEvents => {
+        const updatedEvents = { ...prevEvents };
+        for (const date in updatedEvents) {
+          updatedEvents[date] = updatedEvents[date].filter(event => event.event_id !== eventId);
+          if (updatedEvents[date].length === 0) {
+            delete updatedEvents[date];
+          }
+        }
+        return updatedEvents;
+      });
+      if (selectedEvent && selectedEvent.event_id === eventId) {
+        setSelectedEvent(null);
+      }
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      setError('Failed to delete event.');
+    }
+  };
+
+  const handleUpdateEventClick = (event) => {
+    setUpdatedEvent({
+      ...event,
+    });
+    setShowUpdateEventModal(true);
+  };
+
+  const handleUpdateInputChange = (e) => {
+    const { name, value } = e.target;
+    setUpdatedEvent({ ...updatedEvent, [name]: value });
+  };
+
+  const handleUpdateEventSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const eventId = updatedEvent.event_id;
+      const formData = {
+        ...updatedEvent,
+      };
+      delete formData.event_id;
+
+      await axios.put(`${baseUrl}/event/updateEvent/${eventId}`, formData);
+      setShowUpdateEventModal(false);
+
+      // Fetch updated events
+      const updatedEventsResponse = await axios.get(`${baseUrl}/event/getEventsByAccount/1`);
+      const eventData = updatedEventsResponse.data.events || [];
+      const groupedEvents = groupEventsByDate(eventData);
+      setEvents(groupedEvents);
+      extractCategories(eventData);
+
+      // Update the selectedEvent
+      setSelectedEvent(prevEvent => (prevEvent && prevEvent.event_id === eventId ? { ...prevEvent, ...formData } : prevEvent));
+    } catch (error) {
+      console.error('Error updating event:', error);
+      setError('Failed to update event.');
+    }
+  };
 
   return (
-    <div className="main-container">
-      {/* Sidebar */}
+    <div className="events-page-container">
+      
       <div className="sidebar">
         <button><i className="fas fa-bars"></i></button>
         <button><i className="fas fa-bars"></i></button>
         <button><i className="fas fa-bars"></i></button>
       </div>
 
-      {/* Main content */}
-      <div className="content">
-        {/* Event list section */}
-        <div className="left-section">
-          <h1>Events</h1>
-          {events.map((event) => (
-            <div key={event.id}>
-              <h2>{new Date(event.date).toLocaleDateString()}</h2>
-              <div
-                className="event-section"
-                onClick={() => handleEventClick(event.name, event.date)} // Trigger details on click
-              >
-                <div className="event">
-                  <span>{event.name}</span>
-                  <span>{new Date(event.date).toLocaleString()}</span>
-                </div>
-                <button className="delete-button" onClick={() => deleteEvent(event.id)}>X</button>
+     
+
+      {showAddEventModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Add a New Event</h2>
+            <form onSubmit={handleAddEvent}>
+              <label>
+                Event Name:
+                <input
+                  type="text"
+                  name="name"
+                  value={newEvent.name}
+                  onChange={handleInputChange}
+                  required
+                />
+              </label>
+              <label>
+                Location:
+                <input
+                  type="text"
+                  name="location"
+                  value={newEvent.location}
+                  onChange={handleInputChange}
+                  required
+                />
+              </label>
+              <label>
+                Start Date:
+                <input
+                  type="datetime-local"
+                  name="start_date"
+                  value={newEvent.start_date}
+                  onChange={handleInputChange}
+                  required
+                />
+              </label>
+              <label>
+                End Date:
+                <input
+                  type="datetime-local"
+                  name="end_date"
+                  value={newEvent.end_date}
+                  onChange={handleInputChange}
+                  required
+                />
+              </label>
+              <label>
+                Category:
+                <input
+                  type="text"
+                  name="category"
+                  value={newEvent.category}
+                  onChange={handleInputChange}
+                  required
+                />
+              </label>
+              <div className="modal-actions">
+                <button type="submit">Create Event</button>
+                <button type="button" onClick={() => setShowAddEventModal(false)}>
+                  Cancel
+                </button>
               </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showUpdateEventModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Update Event</h2>
+            <form onSubmit={handleUpdateEventSubmit}>
+              <label>
+                Event Name:
+                <input
+                  type="text"
+                  name="name"
+                  value={updatedEvent.name}
+                  onChange={handleUpdateInputChange}
+                  required
+                />
+              </label>
+              <label>
+                Location:
+                <input
+                  type="text"
+                  name="location"
+                  value={updatedEvent.location}
+                  onChange={handleUpdateInputChange}
+                  required
+                />
+              </label>
+              <label>
+                Start Date:
+                <input
+                  type="datetime-local"
+                  name="start_date"
+                  value={updatedEvent.start_date}
+                  onChange={handleUpdateInputChange}
+                  required
+                />
+              </label>
+              <label>
+                End Date:
+                <input
+                  type="datetime-local"
+                  name="end_date"
+                  value={updatedEvent.end_date}
+                  onChange={handleUpdateInputChange}
+                  required
+                />
+              </label>
+              <label>
+                Category:
+                <input
+                  type="text"
+                  name="category"
+                  value={updatedEvent.category}
+                  onChange={handleUpdateInputChange}
+                  required
+                />
+              </label>
+              <div className="modal-actions">
+                <button type="submit">Update Event</button>
+                <button type="button" onClick={() => setShowUpdateEventModal(false)}>
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {loading ? (
+        <p>Loading events...</p>
+      ) : error ? (
+        <p>{error}</p>
+      ) : (
+        <div className="events-list">
+          {Object.keys(filteredEvents).map(date => (
+            <div key={date} className="events-date">
+              <h3>{date}</h3>
+              {filteredEvents[date].map(event => (
+                <div key={event.event_id} className="event-item-container">
+                  <div
+                    className="event-item"
+                    onClick={() => handleEventClick(event)}
+                  >
+                    {event.name}
+                  </div>
+                  <button
+                    className="delete-event-button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleDeleteEvent(event.event_id);
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
+              ))}
             </div>
           ))}
         </div>
+      )}
+      
+       <div className="filter-container">
+        <h2>Events</h2>
+        <label htmlFor="categoryFilter">Filter by Category: </label>
+        <select id="categoryFilter" value={selectedCategory} onChange={handleCategoryChange}>
+          <option value="">All Categories</option>
+          {categories.map(category => (
+            <option key={category} value={category}>
+              {category}
+            </option>
+          ))}
+        </select>
+        <button className="add-event-button" onClick={() => setShowAddEventModal(true)}>
+          Add Event
+        </button>
+      </div>
 
-        {/* Middle section with filters */}
-        <div className="filter-section">
-          <h3>Filter by</h3>
-          <div>
-            <strong>Category</strong>
-            <label><input type="checkbox" /> Social</label>
-            <label><input type="checkbox" /> Other</label>
+      <div className="event-details">
+        {selectedEvent ? (
+          <div className="event-details-content">
+            <h2>{selectedEvent.name}</h2>
+            <p>Location: {selectedEvent.location}</p>
+            <p>Category: {selectedEvent.category}</p>
+            <p>Start Date: {formatDateTime(selectedEvent.start_date)}</p>
+            <p>End Date: {formatDateTime(selectedEvent.end_date)}</p>
+            <button
+              className="update-event-button"
+              onClick={() => handleUpdateEventClick(selectedEvent)}
+            >
+              Update Event
+            </button>
           </div>
-          <div>
-            <strong>Location</strong>
-            <label><input type="checkbox" /> Onsite</label>
-            <label><input type="checkbox" /> Other</label>
-          </div>
-          <button className="create-button" onClick={() => setShowCreateEventModal(true)}>Create new event</button>
-        </div>
-
-        {/* Event Details Section */}
-        <div className={`right-section event-details ${selectedEvent ? 'visible' : ''}`}>
-          {selectedEvent && (
-            <>
-              <button className="close-button" onClick={closeEventDetails}>X</button>
-              <h2>{selectedEvent.name} <span className="category-badge">category</span></h2>
-              <p><strong>Location:</strong> Location text</p>
-              <p><strong>Start Date:</strong> {selectedEvent.startDate}</p>
-              <p><strong>End Date:</strong> End date text</p>
-              <p><strong>Notes:</strong> Who else joined... <br />Friends: xxx, xxx, ...</p>
-              <button className="update-button">Update</button>
-            </>
-          )}
-        </div>
-
-        {/* Create Event Modal */}
-        {showCreateEventModal && (
-          <div className="modal">
-            <div className="modal-content">
-              <h2>Create New Event</h2>
-              <div className="modal-form">
-                <label>Event Name:</label>
-                <input type="text" name="name" value={newEvent.name} onChange={handleInputChange} />
-
-                <label>Location:</label>
-                <input type="text" name="location" value={newEvent.location} onChange={handleInputChange} />
-
-                <label>Start Date:</label>
-                <input type="datetime-local" name="startDate" value={newEvent.startDate} onChange={handleInputChange} />
-
-                <label>End Date:</label>
-                <input type="datetime-local" name="endDate" value={newEvent.endDate} onChange={handleInputChange} />
-
-                <label>Category:</label>
-                <input type="text" name="category" value={newEvent.category} onChange={handleInputChange} />
-
-                <div className="modal-actions">
-                  <button className="create-button" onClick={handleCreateEvent}>Create</button>
-                  <button className="close-button" onClick={() => setShowCreateEventModal(false)}></button>
-                </div>
-              </div>
-            </div>
-          </div>
+        ) : (
+          <p></p>
         )}
       </div>
     </div>
