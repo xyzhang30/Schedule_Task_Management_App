@@ -52,12 +52,14 @@ Table_creation = '''
     CREATE TABLE events ( 
         event_id SERIAL PRIMARY KEY,
         account_id INTEGER REFERENCES accounts(account_id),
-        event_name VARCHAR(20) NOT NULL,
-        event_location VARCHAR(30),
-        s_date TIMESTAMP NOT NULL,
-        e_date TIMESTAMP NOT NULL,
+        name VARCHAR(20) NOT NULL,
+        location VARCHAR(30),
+        start_date TIMESTAMP NOT NULL,
+        end_date TIMESTAMP NOT NULL,
         category VARCHAR(30)
     );
+
+    
 
     CREATE TABLE task (
         task_id SERIAL PRIMARY KEY,
@@ -161,7 +163,7 @@ for _ in range(7):
     category = random.choice(['club', 'personal', 'school', 'work'])
     
     cursor.execute('''
-        INSERT INTO events (account_id, event_name, event_location, s_date, e_date, category)
+        INSERT INTO events (account_id, name, location, start_date, end_date, category)
         VALUES (%s, %s, %s, %s, %s, %s)
     ''', (account_id, event_name, event_location, s_date, e_date, category))
 
