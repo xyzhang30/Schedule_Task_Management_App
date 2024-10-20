@@ -80,7 +80,7 @@
   justify-content: space-between;
   padding: 15px 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin-bottom: 20px;
+  margin-bottom: 500px;
 }
 .filter-container h2 {
   margin: 0; 
@@ -99,7 +99,7 @@
 }
 
 .filter-container select {
-  padding: 8px 12px;
+  padding: 10px,0px,0px 12px;
   border-radius: 30px;
   border: 1px solid #ced4da;
   font-size: 1rem;
@@ -112,7 +112,7 @@
   border-color: #17a2b8;
 }
 .filter-container .add-event-button {
-  padding: 10px 20px;
+  padding: 10px 10px;
   background-color: #17a2b8;
   border: none;
   cursor: pointer;
