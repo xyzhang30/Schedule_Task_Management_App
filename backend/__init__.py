@@ -19,7 +19,7 @@ def create_app(test_config=None):
     app.config['MAIL_USE_TLS'] = True
     app.config['MAIL_USE_SSL'] = False
     mail.init_app(app)
-    cors = CORS(app)
+    CORS(app, supports_credentials=True, resources={r"/*": {"origins": "http://localhost:3000"}})
     # app.config.from_mapping(
     #     SECRET_KEY='not-really-that-secret-huh',
     #     DATABASE=os.path.join(app.instance_path, 'mvc.sqlite'),
