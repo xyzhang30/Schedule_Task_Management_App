@@ -10,6 +10,14 @@ from ..__init__ import mail
 
 bp = Blueprint('auth', __name__, url_prefix = '/auth')
 
+@bp.route('/session_status', methods=['GET'])
+def session_status():
+    user = session.get('user')
+    if user:
+        return jsonify({'loggedIn': True, 'user': user})
+    else:
+        return jsonify({'loggedIn': False})
+
 @bp.route('/login', methods = ['POST'])
 
 def login():
@@ -73,7 +81,7 @@ def register():
 
 @bp.route('/logout', methods = ['POST'])
 def logout():
-    session['user'] = None #logs user out
+    session.pop('user', None) #logs user out
     response_message = {'msg': 'Successfully logged out'}
     status_code = 200
     return jsonify(response_message), status_code
