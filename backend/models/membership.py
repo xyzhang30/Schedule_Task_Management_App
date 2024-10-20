@@ -18,6 +18,10 @@ class Membership(Base):
 
 	# TODO: think about how to avoid overflow attack
 	@classmethod
+	def get_membership(cls, acc_id, grp_id):
+		return db_session.query(cls).filter_by(account_id = acc_id, group_id = grp_id).first()
+
+	@classmethod
 	def get_accs_by_grp_id(cls, id):
 		return db_session.query(cls).filter_by(group_id = id).all()
 	
