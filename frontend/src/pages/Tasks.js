@@ -106,7 +106,7 @@ const Tasks = () => {
                 </button>
             </div>
 
-            <div className="filter-container">
+            <div>
                 <label htmlFor="categoryFilter">Filter by Category: </label>
                 <select id="categoryFilter" value={selectedCategory} onChange={handleCategoryChange}>
                     <option value="">All Categories</option>
