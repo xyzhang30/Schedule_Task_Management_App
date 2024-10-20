@@ -12,9 +12,8 @@ bp = Blueprint('auth', __name__, url_prefix = '/auth')
 
 @bp.route('/session_status', methods=['GET'])
 def session_status():
-    user = session.get('user')
-    if user:
-        return jsonify({'loggedIn': True, 'user': user})
+    if 'user' in session:
+        return jsonify({'loggedIn': True, 'user': session['user']})
     else:
         return jsonify({'loggedIn': False})
 
@@ -141,11 +140,16 @@ def change_email():
 def change_number():
     account = Account.get_acc_by_id(session['user'])
     new_number = request.form['new_number']
-    account.new_number = new_number
-    account.save()
-    response_message = {'msg': 'Succesfully changed phone number'}
-    status_code = 201
-    return jsonify(response_message), status_code
+    try: 
+        account.phone = new_number
+        account.save()
+        response_message = {'msg': 'Succesfully changed number'}
+        status_code = 201
+        return jsonify(response_message), status_code
+    except Exception as e:
+        response_message = {'msg': 'Phone number already taken'}
+        status_code = 409
+        return jsonify(response_message), status_code
 
 @bp.route('/forgot_password', methods = ['POST']) #This function checks a user email for a password reset and sends the link if it is correct 
 def forgot_password():
