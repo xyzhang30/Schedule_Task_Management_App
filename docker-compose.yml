@@ -45,6 +45,6 @@ services:
     restart: always
     ports:
       - 5001:8080
-
+  
 volumes:
   db_data:

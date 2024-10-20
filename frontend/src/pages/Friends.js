@@ -26,7 +26,6 @@ const Friends = () => {
         setLoading(false);
       }
     };
-
     fetchFriends();
   }, []); 
 

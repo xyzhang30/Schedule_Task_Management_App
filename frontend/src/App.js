@@ -4,6 +4,7 @@ import './App.css';
 import LandingPage from './pages/landingPage.js';
 import Friends from './pages/Friends.js';
 import NavBar from './navbar.js';
+import Posts from './pages/Posts.js';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/friends" element={<Friends/>} />
+        <Route path="/posts" element={<Posts/>} />
       </Routes>
       {/* </div> */}
     </Router>

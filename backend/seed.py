@@ -83,8 +83,10 @@ Table_creation = '''
     CREATE TABLE post ( 
         post_id SERIAL PRIMARY KEY,
         title VARCHAR(20),
-        date_posted VARCHAR(15) NOT NULL, 
-        poster_id INTEGER REFERENCES accounts(account_id)
+        date_posted TIMESTAMP(100) NOT NULL, 
+        poster_id INTEGER REFERENCES accounts(account_id),
+        content VARCHAR(300) NOT NULL,
+        image_url VARCHAR(300)
     );
 
     CREATE TABLE likes(
@@ -105,17 +107,12 @@ Table_creation = '''
         PRIMARY KEY (post_id, saver_id)
     );
 
-    CREATE TABLE commenters(
-        post_id INTEGER REFERENCES post(post_id),
-        commenter_id INTEGER REFERENCES accounts(account_id)
-        PRIMARY KEY (commenter_id, post_id)
-    );
-
     CREATE TABLE comments(
+        post_id INTEGER REFERENCES post(post_id),
         commenter_id INTEGER REFERENCES accounts(account_id),
-        timestamp NUMERIC NOT NULL,
+        timestamp TIMESTAMP NOT NULL,
         text VARCHAR(200) NOT NULL,
-        PRIMARY KEY (commenter_id, timestamp)
+        PRIMARY KEY (post_id, commenter_id, timestamp)
     );
     
     CREATE TABLE friendrequests (
@@ -195,3 +192,17 @@ for n in range (8):
 conn_details.commit()
 cursor.close()
 conn_details.close()
+
+
+# CREATE TABLE commenters(
+#         post_id INTEGER REFERENCES post(post_id),
+#         commenter_id INTEGER REFERENCES accounts(account_id)
+#         PRIMARY KEY (commenter_id, post_id)
+#     );
+
+#     CREATE TABLE comments(
+#         commenter_id INTEGER REFERENCES accounts(account_id),
+#         timestamp NUMERIC NOT NULL,
+#         text VARCHAR(200) NOT NULL,
+#         PRIMARY KEY (commenter_id, timestamp)
+#     );
