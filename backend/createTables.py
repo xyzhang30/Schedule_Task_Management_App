@@ -79,7 +79,7 @@ Table_creation = '''
     CREATE TABLE post ( 
         post_id SERIAL PRIMARY KEY,
         title VARCHAR(20),
-        date_posted VARCHAR(15) NOT NULL, 
+        date_posted TIMESTAMP(100) NOT NULL, 
         poster_id INTEGER REFERENCES accounts(account_id),
         content VARCHAR(300) NOT NULL,
         image_url VARCHAR(300)
@@ -104,10 +104,11 @@ Table_creation = '''
     );
 
     CREATE TABLE comments(
+        post_id INTEGER REFERENCES post(post_id),
         commenter_id INTEGER REFERENCES accounts(account_id),
-        timestamp NUMERIC NOT NULL,
+        timestamp TIMESTAMP NOT NULL,
         text VARCHAR(200) NOT NULL,
-        PRIMARY KEY (commenter_id, timestamp)
+        PRIMARY KEY (post_id, commenter_id, timestamp)
     );
 '''
 cursor.execute(Table_creation)

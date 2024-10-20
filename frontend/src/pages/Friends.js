@@ -22,7 +22,6 @@ const Friends = () => {
         setLoading(false);  // Set loading to false even if there's an error
       }
     };
-
     fetchFriends();
   }, []); 
 
