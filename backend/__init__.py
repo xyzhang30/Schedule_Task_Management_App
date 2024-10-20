@@ -2,7 +2,7 @@ import os
 from flask import Flask
 from flask_cors import CORS
 from flask_mail import Mail
-from backend.controllers import accountController, availabilityController, friendController, authController
+from app.controllers import accountController, availabilityController, friendController, authController
 from .db import init_db
 
 mail = Mail() #create mail instance for importing
@@ -11,6 +11,7 @@ def create_app(test_config=None):
     # create and configure the app
     # app = Flask(__name__, instance_relative_config=True)
     app = Flask(__name__)
+    app.config['SECRET_KEY'] = 'TEMPORARY_KEY'
     app.config['MAIL_SERVER']='live.smtp.mailtrap.io'
     app.config['MAIL_PORT'] = 587
     app.config['MAIL_USERNAME'] = 'api'
