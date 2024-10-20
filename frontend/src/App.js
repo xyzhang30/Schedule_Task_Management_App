@@ -10,20 +10,34 @@ import Logout from './pages/Logout.js';
 import ChangeUsername from './pages/ChangeUsername.js';
 import ChangePassword from './pages/ChangePassword.js';
 import ChangePhoneNumber from './pages/ChangePhoneNumber.js';
+import Tasks from './pages/Tasks.js';
+import NavBar from './navbar.js';
+import Posts from './pages/Posts.js';
+import Events from './pages/Events';
 
 function App() {
   return (
     <Router>
+      {/* <div>
+        <NavBar /> */}
       <Routes>
+        {/* Default Route */}
+        {/* <Route path="/" element={<LandingPage />} /> */}
+
+        {/* Events Route */}
         <Route path="/" element={<LandingPage />} />
-        <Route path="/friends" element={<Friends />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/logout" element={<Logout />} />
         <Route path="/change-username" element={<ChangeUsername />} />
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/change-phone-number" element={<ChangePhoneNumber />} />
+        <Route path="/friends" element={<Friends/>} />
+        <Route path="/tasks" element={<Tasks/>} />
+        <Route path="/posts" element={<Posts/>} />
+        <Route path="/event" element={<Events />} />
       </Routes>
+      {/* </div> */}
     </Router>
   );
 }

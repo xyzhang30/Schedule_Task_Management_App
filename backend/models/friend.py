@@ -61,7 +61,6 @@ class Friend(Base):
 			return None		
 		
 
-
 	def save(self):
 		db_session.add(self)
 		db_session.commit()

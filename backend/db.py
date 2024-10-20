@@ -24,5 +24,9 @@ def init_db():
     from app.models.account import Account
     from app.models.availability import Availability
     from app.models.friend import Friend
+    from app.models.task import Task
+    from app.models.event import Event
+    from app.models.post import Post
+    from app.models.friendRequests import FriendRequest
     # from flask_mvc_walkthrough.models.album import Album
     Base.metadata.create_all(bind=engine)

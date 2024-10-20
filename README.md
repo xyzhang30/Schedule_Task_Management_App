@@ -7,8 +7,7 @@ Run Docker:
 - `docker compose up`
 - do the following when database is updated, or if you are running this for the first time.
     - go into the terminal in the backend container in docker
-    - `python createTables.py` (creates all tables in the database)
-    - `python seed.py` (creates test data in the database) DONT DO IT YET, IT'S NOT FINISHED
+    - `python seed.py` (creates tables and test data)
 
 Database GUI (adminer): 
 - Port: localhost:5001 
