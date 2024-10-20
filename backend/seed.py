@@ -58,9 +58,7 @@ Table_creation = '''
         end_date TIMESTAMP NOT NULL,
         category VARCHAR(30)
     );
-
     
-
     CREATE TABLE task (
         task_id SERIAL PRIMARY KEY,
         account_id INTEGER REFERENCES accounts(account_id),
@@ -152,7 +150,6 @@ for n in range(6):
 
 # events test data
 for _ in range(7):
-    account_id = random.choice(accounts)
     event_name = faker.word()
     event_location = faker.city()
     s_date = faker.date_this_year() 
@@ -163,23 +160,22 @@ for _ in range(7):
     category = random.choice(['club', 'personal', 'school', 'work'])
     
     cursor.execute('''
-        INSERT INTO events (account_id, name, location, start_date, end_date, category)
-        VALUES (%s, %s, %s, %s, %s, %s)
-    ''', (account_id, event_name, event_location, s_date, e_date, category))
+        INSERT INTO events (name, location, start_date, end_date, category)
+        VALUES (%s, %s, %s, %s, %s)
+    ''', (event_name, event_location, s_date, e_date, category))
 
 
 # tasks test data
 for _ in range (8):
-    account_id = random.choice(accounts)
     due_time = faker.date_time_this_year() 
     task_name = faker.word()
     category = random.choice(['club', 'personal', 'school', 'work'])
     complete = random.choice([True, False])
 
     cursor.execute('''
-        INSERT INTO task (account_id, due_time, task_name, category, complete)
-        VALUES (%s, %s, %s, %s, %s)
-    ''', (account_id, due_time, task_name, category, complete))
+        INSERT INTO task (due_time, task_name, category, complete)
+        VALUES (%s, %s, %s, %s)
+    ''', (due_time, task_name, category, complete))
 
 
 # commit changes to save
