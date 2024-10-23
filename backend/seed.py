@@ -23,7 +23,7 @@ conn_details = psycopg2.connect(
 # create tables 
 cursor = conn_details.cursor()
 Table_creation = '''
-    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, friendrequests CASCADE;    
+    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, friendrequests, groups, public_events, memberships, registrations CASCADE;    
     
     CREATE TABLE accounts (
         account_id SERIAL PRIMARY KEY,
@@ -83,7 +83,7 @@ Table_creation = '''
     CREATE TABLE post ( 
         post_id SERIAL PRIMARY KEY,
         title VARCHAR(20),
-        date_posted TIMESTAMP(100) NOT NULL, 
+        date_posted TIMESTAMP NOT NULL, 
         poster_id INTEGER REFERENCES accounts(account_id),
         content VARCHAR(300) NOT NULL,
         image_url VARCHAR(300)
@@ -122,6 +122,35 @@ Table_creation = '''
         message VARCHAR(255),
         is_read BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+    CREATE TABLE groups (
+        group_id SERIAL PRIMARY KEY,
+        group_name VARCHAR(50) UNIQUE NOT NULL,
+        group_avatar VARCHAR(255),
+        year_created INTEGER NOT NULL,
+        admin_id INTEGER REFERENCES accounts(account_id)
+    );
+
+    CREATE TABLE public_events (
+        event_id SERIAL PRIMARY KEY,
+        event_name VARCHAR(50) UNIQUE NOT NULL,
+        group_id INTEGER REFERENCES groups(group_id) NOT NULL,
+        start_date_time TIMESTAMP NOT NULL,
+        end_date_time TIMESTAMP NOT NULL,
+        is_all_day BOOLEAN DEFAULT FALSE
+    );
+
+    CREATE TABLE memberships (
+        group_id INTEGER REFERENCES groups(group_id),
+        account_id INTEGER REFERENCES accounts(account_id),
+        PRIMARY KEY (group_id, account_id)
+    );
+
+    CREATE TABLE registrations (
+        event_id INTEGER REFERENCES public_events(event_id),
+        account_id INTEGER REFERENCES accounts(account_id),
+        PRIMARY KEY (event_id, account_id)
     );
 '''
 cursor.execute(Table_creation)

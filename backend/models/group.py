@@ -9,7 +9,7 @@ class Group(Base):
 	group_name = Column(String(50), unique=True, nullable=False)
 	group_avatar = Column(String(255), unique=False)
 	year_created = Column(Integer, unique=False)
-	admin_id = Column(Integer, ForeignKey('accounts.account_id'), unique=False)
+	admin_id = Column(Integer, ForeignKey('accounts.account_id'), unique=False, nullable=False)
 
 
 	def __repr__(self):
