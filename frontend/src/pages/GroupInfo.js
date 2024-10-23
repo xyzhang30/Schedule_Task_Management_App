@@ -200,8 +200,7 @@ const GroupInformationPage = () => {
                         className="event-block" onClick={() => handleEventClick(event.event_id)}
                     >
                         <h2>{event.event_name}</h2>
-                        <p>{event.start_date} - {event.end_date}</p>
-                        <p>{event.start_time} - {event.end_time}</p>
+                        <p>{event.start_date_time} - {event.end_date_time}</p>
                     </div>
                 ))}
 
@@ -209,8 +208,7 @@ const GroupInformationPage = () => {
                     <div className="modal-overlay">
                         <div className="modal-content">
                             <h2>{selectedEvent.event_name}</h2>
-                            <p><strong>Date:</strong> {selectedEvent.start_date} - {selectedEvent.end_date}</p>
-                            <p><strong>Time:</strong> {selectedEvent.start_time} - {selectedEvent.end_time}</p>
+                            <p><strong>Date and Time:</strong> {selectedEvent.start_date_time} - {selectedEvent.end_date_time}</p>
                             {userRole === 'guest' && userStatus === 'notRegistered' && (
                               <>
                                 <button onClick={handleGroupRequest}>Request to Join Group</button>

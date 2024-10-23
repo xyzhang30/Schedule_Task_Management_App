@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, Date, Time, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, TIMESTAMP
 from sqlalchemy.orm import Mapped, mapped_column, registry, relationship
 
 from ..db import Base, db_session
@@ -8,10 +8,8 @@ class PublicEvent(Base):
     event_id = Column(Integer, primary_key=True)
     event_name = Column(String(50), unique=True, nullable=False)
     group_id = Column(Integer, ForeignKey('groups.group_id'), unique=False, nullable=False)
-    start_date = Column(Date, nullable=False)
-    end_date = Column(Date, nullable=False)
-    start_time = Column(Time, nullable=True)
-    end_time = Column(Time, nullable=True)
+    start_date_time = Column(TIMESTAMP, nullable=False)
+    end_date_time = Column(TIMESTAMP, nullable=False)
     is_all_day = Column(Boolean, default=False)
 
     

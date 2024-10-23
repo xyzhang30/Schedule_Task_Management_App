@@ -4,7 +4,7 @@ import uuid
 import smtplib
 import os
 from email.mime.text import MIMEText
-import datetime
+from datetime import datetime
 
 from ..models.group import Group
 from ..models.membership import Membership
@@ -65,9 +65,12 @@ def index():
     return jsonify(groups_list)
 
 
-@bp.route('/show-groups/<int:account_id>', methods=['GET'])
-def showGroups(account_id):
-    memberships = Membership.get_grps_by_acc_id(account_id)
+@bp.route('/show-groups', methods=['GET'])
+def showGroups():
+    user_id = session.get('user')
+    user_id = 1 # HARDCODE
+    
+    memberships = Membership.get_grps_by_acc_id(user_id)
     groups = [Group.get_grp_by_id(mbs.group_id) for mbs in memberships]
 
     if groups is None:
@@ -84,35 +87,40 @@ def createGroup():
     year_created = (int)(request.form.get("year_created"))
 
     user_id = session.get('user')
+    user_id = 1 # HARDCODE
 
     exist_group = Group.query.filter_by(group_name=group_name).first()
     if exist_group:
         return jsonify({'message': 'Group name already exists. Please choose a different name.'}), 400
     
-    generated_id = str(uuid.uuid1())
+    # generated_id = str(uuid.uuid1())
 
     group = Group(
-        group_id=generated_id,
+        # group_id=generated_id,
         group_name=group_name,
         group_avatar=group_avatar,
         year_created=year_created,
         admin_id=user_id
     )
     group.save()
+    addAdminAsMember(group.group_id, user_id)
+    return jsonify({'message': 'Group created successfully', 'group': group.to_dict()}), 200
 
+
+def addAdminAsMember(group_id, admin_id):
     membership = Membership(
-        group_id=generated_id,
-        admin_id=user_id
+        group_id=group_id,
+        account_id=admin_id
     )
     membership.save()
-
-    return jsonify({'message': 'Group created successfully', 'group': group.to_dict()}), 200
+    return jsonify({'message': 'Admin added as member successfully', 'membership': membership.to_dict()}), 200
 
 
 @bp.route('/to-group/<int:group_id>', methods=['GET'])
 def toGroup(group_id):
 
     user_id = session.get('user')
+    user_id = 1 # HARDCODE
 
     group = Group.get_grp_by_id(group_id)
     if not group:
@@ -342,10 +350,8 @@ def toEvent(group_id, event_id):
         'event_id': event.even_id,
         'event_name': event.event_name,
         'group_id': event.group_id,
-        'start_date': event.start_date,
-        'end_date': event.end_date,
-        'start_time': event.start_time,
-        'end_time': event.end_time,
+        'start_date_time': event.start_date_time,
+        'end_date_time': event.end_date_time,
         'is_all_day': event.is_all_day
     }
 
@@ -388,35 +394,27 @@ def createEvent(group_id):
     if error_message:
         return error_message
     
+    print("______EVENTNAME: ", request.form.get("event_name"))
+    print("______START: ", request.form.get("start_date_time"))
+    print("______END: ", request.form.get("end_date_time"))
+    
     event_name = request.form.get("event_name")
-    start_date_str = request.form.get("start_date") # TODO: design front-end input placeholder
-    end_date_str = request.form.get("end_date")
-    start_time_str = request.form.get("start_time") # TODO: design front-end input placeholder
-    end_time_str = request.form.get("end_time")
-    is_all_day = request.form.get("is_all_day") == 'true' # TODO: design front-end input options
-
-    try:
-        start_date = convertDateType(start_date_str)
-        end_date = convertDateType(end_date_str)
-        start_time = convertTimeType(start_time_str)
-        end_time = convertTimeType(end_time_str)
-    except ValueError as e:
-        return jsonify({'message': str(e)}), 400
+    start_date_time = datetime.strptime(request.form.get("start_date_time"), '%Y-%m-%dT%H:%M')
+    end_date_time = datetime.strptime(request.form.get("end_date_time"), '%Y-%m-%dT%H:%M')
+    is_all_day = request.form.get("is_all_day") == 'true'
 
     exist_event = PublicEvent.query.filter_by(event_name=event_name).first()
     if exist_event:
         return jsonify({'message': 'Event name already exists. Please choose a different name.'}), 400
     
-    generated_id = str(uuid.uuid1())
+    # generated_id = str(uuid.uuid1())
 
     event = PublicEvent(
-        event_id=generated_id,
+        # event_id=generated_id,
         event_name=event_name,
         group_id=group_id,
-        start_date=start_date,
-        end_date=end_date,
-        start_time=start_time,
-        end_time=end_time,
+        start_date_time=start_date_time,
+        end_date_time=end_date_time,
         is_all_day=is_all_day
     )
 
@@ -437,10 +435,8 @@ def editEvent(group_id, event_id):
         return jsonify({'message': 'Event not found'}), 404
     
     new_event_name = request.form.get("new_event_name")
-    new_start_date_str = request.form.get("start_date")
-    new_end_date_str = request.form.get("end_date")
-    new_start_time_str = request.form.get("start_time")
-    new_end_time_str = request.form.get("end_time")
+    new_start_date_time_input = request.form.get("start_date_time")
+    new_end_date_time_input = request.form.get("end_date_time")
     new_is_all_day = request.form.get("is_all_day")
 
     exist_event = PublicEvent.query.filter_by(event_name=new_event_name).first()
@@ -448,19 +444,9 @@ def editEvent(group_id, event_id):
         return jsonify({'message': 'Event name already exists. Please choose a different name.'}), 400
     
     event.event_name = new_event_name if new_event_name else event.event_name
+    event.start_date_time = datetime.strptime(new_start_date_time_input, '%Y-%m-%dT%H:%M') if new_start_date_time_input else event.start_data_time
+    event.end_date_time = datetime.strptime(new_end_date_time_input, '%Y-%m-%dT%H:%M') if new_end_date_time_input else event.end_data_time
     event.is_all_day = (new_is_all_day  == 'true') if new_is_all_day else event.is_all_day
-
-    try:
-        if new_start_date_str:
-            event.start_date = convertDateType(new_start_date_str)
-        if new_end_date_str:
-            event.end_date = convertDateType(new_end_date_str)
-        if new_start_time_str:
-            event.start_time = convertTimeType(new_start_time_str)
-        if new_end_time_str:
-            event.end_time = convertTimeType(new_end_time_str)
-    except ValueError as e:
-        return jsonify({'message': str(e)}), 400
 
     event.save()
 
@@ -608,6 +594,7 @@ def groupAdminError(group_id):
         return None, jsonify({'message': 'Group not found'}), 404
     
     user_id = session.get('user')
+    user_id = 1 # HARDCODE
     if group.admin_id != user_id:
         return None, jsonify({'message': 'Access denied: You are not the group administrator'}), 403
 
@@ -638,17 +625,17 @@ def send_email(from_email, to_email, subject, message):
         return False, f"Failed to send email: {str(e)}"
 
 
-def convertDateType(date_str):
-    try:
-        date = datetime.strptime(date_str, '%Y-%m-%d').date()
-    except ValueError:
-        raise ValueError('Invalid date format. Use YYYY-MM-DD.')
-    return date
+# def convertDateType(date_str):
+#     try:
+#         date = datetime.strptime(date_str, '%Y-%m-%d').date()
+#     except ValueError:
+#         raise ValueError('Invalid date format. Use YYYY-MM-DD.')
+#     return date
 
 
-def convertTimeType(time_str):
-    try:
-        time = datetime.strptime(time_str, '%H:%M').time()
-    except ValueError:
-        raise ValueError('Invalid time format. Use HH:MM.')
-    return time
+# def convertTimeType(time_str):
+#     try:
+#         time = datetime.strptime(time_str, '%H:%M').time()
+#     except ValueError:
+#         raise ValueError('Invalid time format. Use HH:MM.')
+#     return time

@@ -16,7 +16,7 @@ const GroupIndexPage = () => {
   useEffect(() => {
     const fetchGroups = async () => {
       try {
-        const response = await axios.get(`${baseUrl}/group/show-groups/1`);
+        const response = await axios.get(`${baseUrl}/group/show-groups`);
         console.log("____RESPONSE: ", response.data);
         setGroups(response.data);
         console.log("__GROUPS__: ", groups);
@@ -30,7 +30,7 @@ const GroupIndexPage = () => {
     };
   
     fetchGroups();
-  }, [groups]);
+  }, []);
 
   useEffect(() => {
     // console.log("__GROUPS__: ", groups);
