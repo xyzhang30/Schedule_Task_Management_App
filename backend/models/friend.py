@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, ForeignKey
+from sqlalchemy import Column, Integer, ForeignKey, UUID
 from sqlalchemy.orm import Mapped, mapped_column, registry, relationship
 from ..models.account import Account
 
@@ -60,7 +60,6 @@ class Friend(Base):
 			print(f"Error fetching friends: {e}")
 			return None		
 		
-
 
 	def save(self):
 		db_session.add(self)

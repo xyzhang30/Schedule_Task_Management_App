@@ -19,10 +19,9 @@ class Group(Base):
 	def all(cls):
 		return db_session.query(cls).all()
 
-	# TODO: think about how to avoid overflow attack
 	@classmethod
-	def get_grp_by_id(cls, id):
-		return db_session.query(cls).filter_by(group_id = id).first()
+	def get_grp_by_id(cls, grp_id):
+		return db_session.query(cls).filter_by(group_id = grp_id).first()
 	
 	def save(self):
 		db_session.add(self)

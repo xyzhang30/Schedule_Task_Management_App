@@ -4,7 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, registry, relationship
 from ..db import Base, db_session
 
 class Registration(Base):
-	__tablename__ = 'memberships'
+	__tablename__ = 'registrations'
 	event_id = Column(Integer, ForeignKey('public_events.event_id'), primary_key=True)
 	account_id = Column(Integer, ForeignKey('accounts.account_id'), primary_key=True)
 

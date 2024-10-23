@@ -1,0 +1,32 @@
+.navbar {
+    position: fixed; /* Make it fixed on the left side */
+    top: 0;
+    left: 0;
+    width: 200px; /* Set your desired width */
+    height: 100%; /* Full height */
+    background-color: #333; /* Background color */
+    color: white; /* Text color */
+    transition: width 0.3s ease; /* Smooth transition for expanding */
+    overflow: hidden; /* Hide overflow when collapsed */
+  }
+  
+  .navbar-header {
+    padding: 10px;
+    cursor: pointer; /* Pointer cursor for header */
+  }
+  
+  .navbar-items {
+    padding: 10px; /* Space between items */
+  }
+  
+  .navbar-items a {
+    color: white; /* Link color */
+    text-decoration: none; /* Remove underline */
+    display: block; /* Make links block elements */
+    padding: 5px 10px; /* Padding for links */
+  }
+  
+  .navbar.expanded {
+    width: 250px; /* Width when expanded */
+  }
+  

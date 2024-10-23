@@ -1,0 +1,121 @@
+.tasks-page-container {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+    gap: 20px;
+    padding: 20px;
+}
+
+.tasks-header {
+    grid-column: 1 / span 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.tasks-header h2 {
+    margin: 0;
+    font-size: 2rem;
+}
+
+.tasks-list {
+    grid-column: 1;
+    border-right: 1px solid #ddd;
+    padding: 20px;
+}
+
+.tasks-date {
+    margin-bottom: 20px;
+}
+
+.tasks-date h3 {
+    font-size: 1.2rem;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.task-item {
+    background-color: #e0e0e0;
+    padding: 10px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+.task-item:hover {
+    background-color: #cfcfcf;
+}
+
+.task-details {
+    grid-column: 2;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.task-details-content {
+    background-color: #f9f9f9;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+}
+
+.task-details h2 {
+    font-size: 1.5rem;
+    color: #333;
+}
+
+.task-details p {
+    font-size: 1rem;
+    color: #666;
+}
+
+.add-task-button {
+    padding: 10px 20px;
+    background-color: #f0f0f0;
+    border: none;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+/* Modal Styles */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
+    width: 100%;
+    z-index: 1001;
+    position: relative;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.modal-actions button {
+    padding: 10px 20px;
+    border: none;
+    cursor: pointer;
+}

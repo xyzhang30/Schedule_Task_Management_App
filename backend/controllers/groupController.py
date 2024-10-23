@@ -29,7 +29,8 @@ from ..models.registration import Registration
 
 # Functions included:
 
-# Get groups (index)
+# Get all groups (index)
+# Get groups by account id (showGroups)
 
 # Group page access control (toGroup)
 # Create group (createGroup)
@@ -41,6 +42,8 @@ from ..models.registration import Registration
 # Leave group (leaveGroup)
 # Add member by account_id (addMember)
 # Delete member by account_id (deleteMember)
+
+# Get events by group id (showEvents)
 
 # Event popup access control (toEvent)
 # Create event (createEvent)
@@ -60,6 +63,18 @@ def index():
     group = Group.all()
     groups_list = [grp.to_dict() for grp in group]
     return jsonify(groups_list)
+
+
+@bp.route('/show-groups/<int:account_id>', methods=['GET'])
+def showGroups(account_id):
+    memberships = Membership.get_grps_by_acc_id(account_id)
+    groups = [Group.get_grp_by_id(mbs.group_id) for mbs in memberships]
+
+    if groups is None:
+        return jsonify({"message": "No groups found."}), 404
+
+    group_list = [group.to_dict() for group in groups]
+    return jsonify(group_list), 200
 
 
 @bp.route('/create-group', methods = ['POST'])
@@ -304,6 +319,12 @@ def requestJoin(group_id):
         return jsonify({'message': f'Failed to send join request: {str(e)}'}), 500
 
 
+@bp.route('/show-events/<int:group_id>', methods=['GET'])
+def showEvents(group_id):
+    events = [event.to_dict() for event in PublicEvent.get_evts_by_grp_id(group_id)]
+    return events
+
+
 @bp.route('/to-event/<int:group_id>/<int:event_id>', methods=['GET'])
 def toEvent(group_id, event_id):
 
@@ -335,20 +356,26 @@ def toEvent(group_id, event_id):
         if user_id == group.admin_id:
             event_data['is_admin'] = True
             if registr:
+                event_data['registered'] = True
                 event_data['permissions'] = ['attend_event', 'edit_event', 'cancel_event']
             else:
+                event_data['registered'] = False
                 event_data['permissions'] = ['register_event', 'edit_event', 'cancel_event']
         else:
             event_data['is_member'] = True
             if registr:
+                event_data['registered'] = True
                 event_data['permissions'] = ['attend_event']
             else:
+                event_data['registered'] = False
                 event_data['permissions'] = ['register_event']
     else:
         event_data['is_guest'] = True
         if registr:
+            event_data['registered'] = True
             event_data['permissions'] = ['attend_event']
         else:
+            event_data['registered'] = False
             event_data['permissions'] = ['request_register']
 
     return jsonify(event_data)
@@ -398,7 +425,7 @@ def createEvent(group_id):
     return jsonify({'message': 'Event created successfully', 'event': event.to_dict()}), 200
 
 
-@bp.route('/edit/<int:group_id>/<int:event_id>', methods = ['PUT'])
+@bp.route('/edit-event/<int:group_id>/<int:event_id>', methods = ['PUT'])
 def editEvent(group_id, event_id):
 
     group, error_message = groupAdminError(group_id)
@@ -440,7 +467,7 @@ def editEvent(group_id, event_id):
     return jsonify({'message': 'Event updated successfully', 'event': event.to_dict()}), 200
 
 
-@bp.route('/remove/<int:event_id>', methods=['DELETE'])
+@bp.route('/cancel-event/<int:event_id>', methods=['DELETE'])
 def cancelEvent(event_id):
 
     group, error_message = groupAdminError(event_id)

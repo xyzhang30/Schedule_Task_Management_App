@@ -1,18 +1,48 @@
-import React from 'react';
-import './landingPage.css'; 
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import './landingPage.css';
 
 const LandingPage = () => {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const navigate = useNavigate();
+
+  // Check if the user is logged in by calling the session_status endpoint
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const response = await axios.get('http://localhost:8080/auth/session_status', { withCredentials: true });
+        if (response.data.loggedIn) {
+          setIsLoggedIn(true);  // Set the state to true if the user is logged in
+        } else {
+          setIsLoggedIn(false);
+        }
+      } catch (err) {
+        console.error('Error checking session:', err);
+      }
+    };
+
+    checkSession();
+  }, []);
+
   return (
     <div className="landing-page">
-      
-      {/* Hero Banner */}
       <section className="hero-banner">
         <h1>Master Your College Life</h1>
         <p>Organize your academic and personal life with ease.</p>
-        <div className="cta-buttons">
-          <button className="btn sign-up">Sign Up</button>
-          <button className="btn log-in">Log In</button>
-        </div>
+        {!isLoggedIn ? (
+          <div className="cta-buttons">
+            <button className="btn sign-up" onClick={() => navigate('/register')}>Sign Up</button>
+            <button className="btn log-in" onClick={() => navigate('/login')}>Log In</button>
+          </div>
+        ) : (
+          <div className="cta-buttons">
+            <button className="btn log-out" onClick={() => navigate('/logout')}>Log Out</button>
+            <button className="btn change-username" onClick={() => navigate('/change-username')}>Change Username</button>
+            <button className="btn change-password" onClick={() => navigate('/change-password')}>Change Password</button>
+            <button className="btn change-phone" onClick={() => navigate('/change-phone-number')}>Change Phone Number</button>
+          </div>
+        )}
       </section>
     </div>
   );
