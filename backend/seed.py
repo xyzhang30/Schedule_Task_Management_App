@@ -23,7 +23,7 @@ conn_details = psycopg2.connect(
 # create tables 
 cursor = conn_details.cursor()
 Table_creation = '''
-    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, friendrequests CASCADE;    
+    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, friendrequests, groups, public_events, memberships, registrations CASCADE;    
     
     CREATE TABLE accounts (
         account_id SERIAL PRIMARY KEY,
@@ -52,13 +52,13 @@ Table_creation = '''
     CREATE TABLE events ( 
         event_id SERIAL PRIMARY KEY,
         account_id INTEGER REFERENCES accounts(account_id),
-        event_name VARCHAR(20) NOT NULL,
-        event_location VARCHAR(30),
-        s_date TIMESTAMP NOT NULL,
-        e_date TIMESTAMP NOT NULL,
+        name VARCHAR(20) NOT NULL,
+        location VARCHAR(30),
+        start_date TIMESTAMP NOT NULL,
+        end_date TIMESTAMP NOT NULL,
         category VARCHAR(30)
     );
-
+    
     CREATE TABLE task (
         task_id SERIAL PRIMARY KEY,
         account_id INTEGER REFERENCES accounts(account_id),
@@ -87,7 +87,7 @@ Table_creation = '''
     CREATE TABLE post ( 
         post_id SERIAL PRIMARY KEY,
         title VARCHAR(20),
-        date_posted TIMESTAMP(100) NOT NULL, 
+        date_posted TIMESTAMP NOT NULL, 
         poster_id INTEGER REFERENCES accounts(account_id),
         content VARCHAR(300) NOT NULL,
         image_url VARCHAR(300)
@@ -127,6 +127,35 @@ Table_creation = '''
         is_read BOOLEAN DEFAULT FALSE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
+
+    CREATE TABLE groups (
+        group_id SERIAL PRIMARY KEY,
+        group_name VARCHAR(50) UNIQUE NOT NULL,
+        group_avatar VARCHAR(255),
+        year_created INTEGER NOT NULL,
+        admin_id INTEGER REFERENCES accounts(account_id)
+    );
+
+    CREATE TABLE public_events (
+        event_id SERIAL PRIMARY KEY,
+        event_name VARCHAR(50) UNIQUE NOT NULL,
+        group_id INTEGER REFERENCES groups(group_id) NOT NULL,
+        start_date_time TIMESTAMP NOT NULL,
+        end_date_time TIMESTAMP NOT NULL,
+        is_all_day BOOLEAN DEFAULT FALSE
+    );
+
+    CREATE TABLE memberships (
+        group_id INTEGER REFERENCES groups(group_id),
+        account_id INTEGER REFERENCES accounts(account_id),
+        PRIMARY KEY (group_id, account_id)
+    );
+
+    CREATE TABLE registrations (
+        event_id INTEGER REFERENCES public_events(event_id),
+        account_id INTEGER REFERENCES accounts(account_id),
+        PRIMARY KEY (event_id, account_id)
+    );
 '''
 cursor.execute(Table_creation)
 
@@ -154,7 +183,6 @@ for n in range(6):
 
 # events test data
 for _ in range(7):
-    account_id = random.choice(accounts)
     event_name = faker.word()
     event_location = faker.city()
     s_date = faker.date_this_year() 
@@ -165,23 +193,22 @@ for _ in range(7):
     category = random.choice(['club', 'personal', 'school', 'work'])
     
     cursor.execute('''
-        INSERT INTO events (account_id, event_name, event_location, s_date, e_date, category)
-        VALUES (%s, %s, %s, %s, %s, %s)
-    ''', (account_id, event_name, event_location, s_date, e_date, category))
+        INSERT INTO events (name, location, start_date, end_date, category)
+        VALUES (%s, %s, %s, %s, %s)
+    ''', (event_name, event_location, s_date, e_date, category))
 
 
 # tasks test data
 for _ in range (8):
-    account_id = random.choice(accounts)
     due_time = faker.date_time_this_year() 
     task_name = faker.word()
     category = random.choice(['club', 'personal', 'school', 'work'])
     complete = random.choice([True, False])
 
     cursor.execute('''
-        INSERT INTO task (account_id, due_time, task_name, category, complete)
-        VALUES (%s, %s, %s, %s, %s)
-    ''', (account_id, due_time, task_name, category, complete))
+        INSERT INTO task (due_time, task_name, category, complete)
+        VALUES (%s, %s, %s, %s)
+    ''', (due_time, task_name, category, complete))
 
 
 # commit changes to save
