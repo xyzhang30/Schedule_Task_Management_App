@@ -5,7 +5,7 @@ from ..db import Base, db_session
 
 class ResetKeys(Base):
 	__tablename__ = 'resetkeys'
-	reset_key = Column(String(32), primary_key=True)
+	reset_key = Column(String(100), primary_key=True)
 	account_id = Column(Integer, ForeignKey('accounts.account_id'))
 	time_stamp = Column(Float)
 
