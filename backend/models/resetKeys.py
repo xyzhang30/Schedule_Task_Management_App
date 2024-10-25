@@ -17,8 +17,8 @@ class ResetKeys(Base):
 		return db_session.query(cls).all()
 	
 	@classmethod
-	def get_all_by_reset_key(cls, reset_key):
-		return db_session.query(cls).filter_by(cls.reset_key == reset_key).first()
+	def get_all_by_reset_key(cls, rk):
+		return db_session.query(cls).filter_by(reset_key = rk).first()
 	
 	def save(self):
 		db_session.add(self)
