@@ -1,7 +1,6 @@
-
-
+# eventController.py
 from flask import Blueprint, request, jsonify
-from ..models.event import Event  
+from ..models.event import Event
 from datetime import datetime
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -19,9 +18,11 @@ def create_event():
         location=data.get('location'),
         start_date=datetime.strptime(data['start_date'], '%Y-%m-%dT%H:%M'),
         end_date=datetime.strptime(data['end_date'], '%Y-%m-%dT%H:%M'),
-        category=data.get('category')
+        category=data.get('category'),
+        # label_text=data.get('label_text'),
+        # label_color=data.get('label_color'),
     )
-    new_event.save()  
+    new_event.save()
     return jsonify({'message': 'Event created successfully', 'event': new_event.to_dict()}), 201
 
 # Update Event
@@ -39,6 +40,8 @@ def update_event(event_id):
     if 'end_date' in data:
         event.end_date = datetime.strptime(data['end_date'], '%Y-%m-%dT%H:%M')
     event.category = data.get('category', event.category)
+    # event.label_text = data.get('label_text', event.label_text)
+    # event.label_color = data.get('label_color', event.label_color)
     event.update()
 
     return jsonify({'message': 'Event updated successfully', 'event': event.to_dict()}), 200
@@ -50,7 +53,7 @@ def delete_event(event_id):
     if not event:
         return jsonify({'message': 'Event not found'}), 404
 
-    event.delete()  
+    event.delete()
     return jsonify({'message': 'Event deleted successfully'}), 200
 
 # Fetch Event by ID
