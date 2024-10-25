@@ -48,6 +48,9 @@ CREATE TABLE Assignment (
     task_id INTEGER PRIMARY KEY REFERENCES Task(task_id),
     class_id INTEGER,
 );
+CREATE TABLE Category {
+    category_name VARCHAR(100) PRIMARY KEY
+};
 CREATE TABLE Availability (
     account_id INTEGER REFERENCES Account(account_id),
     unav_interval VARCHAR(20),

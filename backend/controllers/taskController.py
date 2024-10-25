@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify
 from flask import request
-from ..models.task import Task
+from ..models.task import Task, Category
 
 bp = Blueprint('task', __name__, url_prefix='/task')
 
@@ -58,7 +58,6 @@ def createTask():
     account_id = (int)(request.form.get("account_id"))
 
     if not task_name or not due_time or not account_id:
-        print("missing info")
         return jsonify({'error': 'Missing required fields'}), 400
 
     task = Task(
@@ -69,7 +68,6 @@ def createTask():
     )
 
     task.save()
-    print("create succeeded")
     return index()
 
 #update a task
@@ -116,3 +114,24 @@ def removeTask(task_id):
 
 #To-do:
 # - completed tasks at the end, marked
+
+
+#get all categories
+@bp.route('/category/all', methods = ['GET'])
+def getAllCategory():
+    categories = Category.all()
+    categories_list = [a.to_dict() for a in categories]
+    return jsonify(categories_list)
+
+
+#create category
+@bp.route('/category/create', methods = ['POST'])
+def createCategory():
+    category_name = request.form.get("category_name")
+
+    category = Category(
+        category_name = category_name
+    )
+
+    category.save()
+    return jsonify({"message": "Category created successfully!"}), 201

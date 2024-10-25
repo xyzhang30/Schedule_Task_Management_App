@@ -73,6 +73,10 @@ Table_creation = '''
         class_id INTEGER REFERENCES events(event_id)
     );
 
+    CREATE TABLE category (
+        category_name VARCHAR(100) PRIMARY KEY
+    );
+
     CREATE TABLE availability (
         account_id INTEGER REFERENCES accounts(account_id),
         unav_interval VARCHAR(20),
