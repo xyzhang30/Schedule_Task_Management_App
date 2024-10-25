@@ -138,7 +138,6 @@ const Tasks = () => {
         return filtered;
     }, {});
 
-    //NEED EDIT
     const handleEditTask = async (e) => {
         console.log('Edit task called')
         e.preventDefault();
@@ -182,6 +181,27 @@ const Tasks = () => {
             }
         }
     };
+
+    const handleCompleteTask = async () => {
+        if (!selectedTask) return;
+    
+        const confirmComplete = window.confirm(`Are you sure you want to mark task: ${selectedTask.task_name} as complete?`);
+    
+        if (confirmComplete) {
+            try {
+                const response = await axios.post(`${baseUrl}/task/complete/${selectedTask.task_id}`);
+                console.log('Task marked as complete:', response.data);
+    
+                const completedTasks = await axios.get(`${baseUrl}/task/1/sorted`);
+                setTasks(completedTasks.data);
+                //setSelectedTask(null);
+            } catch (err) {
+                console.error('Error completing task:', err);
+                setError('Failed to complete task.');
+            }
+        }
+    };
+     
     
 
     return (
@@ -350,7 +370,7 @@ const Tasks = () => {
                 </div>
             )}
     
-            <div className="task-details">
+                <div className="task-details">
                 {selectedTask ? (
                     <div className="task-details-content">
                         <h2>{selectedTask.task_name}</h2>
@@ -358,11 +378,14 @@ const Tasks = () => {
                         <p>Due Time: {formatDueTime(selectedTask.due_time)}</p>
                         
                         <div className="task-actions">
-                        <button className="edit-task-button" onClick={() => handleEditButtonClick(selectedTask)}>
-                            <FontAwesomeIcon icon={faPencilAlt} /> Edit
-                        </button>
+                            <button className="edit-task-button" onClick={() => handleEditButtonClick(selectedTask)}>
+                                <FontAwesomeIcon icon={faPencilAlt} /> Edit
+                            </button>
                             <button className="delete-task-button" onClick={handleDeleteTask}>
                                 <FontAwesomeIcon icon={faTrash} /> Delete
+                            </button>
+                            <button className="complete-task-button" onClick={handleCompleteTask}>
+                                Complete
                             </button>
                         </div>
                     </div>
@@ -370,6 +393,7 @@ const Tasks = () => {
                     <p>Select a task to view details</p>
                 )}
             </div>
+
         </div>
     );    
 };

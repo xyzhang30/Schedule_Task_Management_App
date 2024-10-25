@@ -113,6 +113,22 @@
     opacity: 0.8;
 }
 
+.complete-task-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.complete-task-button:hover {
+    background-color: #45a049;
+}
+
 .category-controls {
     display: flex;
     align-items: center;
