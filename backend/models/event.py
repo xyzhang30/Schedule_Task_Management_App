@@ -1,11 +1,9 @@
 # event.py
-from sqlalchemy import Column, Integer, ForeignKey, String, DateTime
-from sqlalchemy.orm import registry
-from datetime import datetime
+from sqlalchemy import Column, Integer, String, DateTime
 from ..db import Base, db_session
 
 class Event(Base):
-    __tablename__ = 'events'  
+    __tablename__ = 'event'
     event_id = Column(Integer, primary_key=True)
     account_id = Column(Integer, nullable=False)
     name = Column(String(100), nullable=False)
@@ -13,6 +11,8 @@ class Event(Base):
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)
     category = Column(String(100), nullable=True)
+    # label_text = Column(String(100), nullable=True)
+    # label_color = Column(String(20), nullable=True)
 
     def __repr__(self):
         return f"<Event event_id={self.event_id} name={self.name}>"
@@ -38,6 +38,8 @@ class Event(Base):
             'start_date': self.start_date.strftime('%Y-%m-%dT%H:%M'),
             'end_date': self.end_date.strftime('%Y-%m-%dT%H:%M'),
             'category': self.category
+            # 'label_text': self.label_text,
+            # 'label_color': self.label_color
         }
 
     def save(self):
