@@ -20,8 +20,8 @@ import GroupInfoPage from './pages/GroupInfo.js';
 function App() {
   return (
     <Router>
-      {/* <div>
-        <NavBar /> */}
+      <div>
+        <NavBar />
       <Routes>
         {/* Default Route */}
         {/* <Route path="/" element={<LandingPage />} /> */}
@@ -41,7 +41,7 @@ function App() {
         <Route path="/groups" element={<GroupIndexPage/>} />
         <Route path="/group-info" element={<GroupInfoPage/>} />
       </Routes>
-      {/* </div> */}
+      </div>
     </Router>
   );
 }

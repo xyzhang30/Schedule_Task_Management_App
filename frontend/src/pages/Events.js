@@ -271,13 +271,16 @@ const Events = () => {
 
   return (
     <div className="events-page-container">
+      <div className="events-header">
+        <h2>Events</h2>
+      </div>
 
-      <div className="sidebar">
+      {/* <div className="sidebar">
         <button onClick={() => navigateTo(``)}><i className="fas fa-home"></i> <span>Home</span></button>
         <button onClick={() => navigateTo('/tasks')}><i className="fas fa-calendar"></i> <span>Tasks</span></button>
         <button onClick={() => navigateTo('/posts')}><i className="fas fa-cog"></i> <span>Posts</span></button>
         <button onClick={() => navigateTo('/friends')}><i className="fas fa-info-circle"></i> <span>Friends</span></button>
-      </div>
+      </div> */}
 
       {showAddEventModal && (
         <div className="modal-overlay">

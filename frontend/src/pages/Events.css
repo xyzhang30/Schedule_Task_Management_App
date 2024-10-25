@@ -10,6 +10,17 @@
   font-family: 'Roboto', sans-serif;
 }
 
+.events-header {
+  grid-column: 1 / span 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.events-header h2 {
+  margin: 0;
+  font-size: 2rem;
+}
+
 .sidebar {
   width: 60px;
   background-color: #e6e6e6;
