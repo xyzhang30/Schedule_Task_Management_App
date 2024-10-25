@@ -1,4 +1,4 @@
-from flask import Blueprint, session, request, jsonify
+from flask import Blueprint, session, request, jsonify, redirect
 from flask_mail import Message
 import secrets
 import time
@@ -151,7 +151,7 @@ def change_number():
         status_code = 409
         return jsonify(response_message), status_code
 
-@bp.route('/forgot_password', methods = ['POST']) #This function checks a user email for a password reset and sends the link if it is correct 
+@bp.route('/forgot_password', methods = ['POST']) #This function checks if an email supplied by the user exists, and sends the email a password reset link if it
 def forgot_password():
     user_inputted_email = request.form['email'] #Get email that the user wants to send reset link to
     account = Account.get_acc_by_email(user_inputted_email)
@@ -168,8 +168,8 @@ def forgot_password():
         status_code = 200
         return jsonify(response_message), status_code
 
-@bp.route('/forgot_password/<url_key>', methods = ['POST'])
-def reset_password(url_key):
+@bp.route('/forgot_password/<url_key>', methods = ['GET'])
+def check_reset_key(url_key):
     reset_key = ResetKeys.get_all_by_reset_key(url_key)
     if reset_key is None: #If there is no entry for this reset key 
         return 404
@@ -182,6 +182,13 @@ def reset_password(url_key):
         status_code = 401
         return jsonify(response_message), 401
     else:
+        session['reset_key'] = reset_key.reset_key
+        return redirect('http://localhost:3000/reset-password')
+
+@bp.route('/reset_password', methods = ['POST'])
+def reset_password():
+    if 'reset_key' in session:
+        account_id = ResetKeys.get_all_by_reset_key(session['reset_key']).account_id #Gets the account_id associated with the reset key
         user_inputted_new_password = request.form['new_password']
         user_inputted_confirm = request.form['confirm_password'] #'Confirm your new password', should be identical
         if user_inputted_confirm != user_inputted_new_password:
@@ -192,8 +199,13 @@ def reset_password(url_key):
             new_password(account_id, user_inputted_new_password)
             response_message = {'msg': 'Password successfully changed'}
             status_code = 201
+            session.pop('reset_key')    
             return jsonify(response_message), status_code
-
+    else: 
+        response_message = {'msg': 'Not authorized'}
+        return jsonify(response_message), 401
+        session.p
+    
 def new_password(account_id, new_pass):
     account = Account.get_acc_by_id(account_id)
     account.password = salt_and_hash_password(new_pass)
@@ -228,4 +240,4 @@ def send_reset_email(reset_url):
     )
     email.body = f"Use this link to reset your password: {reset_url}. It will expire in 15 minutes"
     mail.send(email)
-#Todo: finalize session understanding, clean functions, add decorators, error handling for emails, add delete functionality for reset entries
+#Todo: finalize session understanding, clean functions, add decorators, error handling for emails, delete resetkey tuples associated with an account id that successfully reset their passowrd
