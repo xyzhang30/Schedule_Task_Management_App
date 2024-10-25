@@ -337,17 +337,18 @@ def showEvents(group_id):
 def toEvent(group_id, event_id):
 
     user_id = session.get('user')
+    user_id = 1 # HARDCODE
 
     group = Group.get_grp_by_id(group_id)
     if not group:
         return jsonify({'message': 'Group not found'}), 404
-
+    
     event = PublicEvent.get_evt_by_id(event_id)
     if not event:
         return jsonify({'message': 'Event not found'}), 404
-    
+        
     event_data = {
-        'event_id': event.even_id,
+        'event_id': event.event_id,
         'event_name': event.event_name,
         'group_id': event.group_id,
         'start_date_time': event.start_date_time,

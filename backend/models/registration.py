@@ -18,7 +18,7 @@ class Registration(Base):
 
 	@classmethod
 	def get_registr(cls, acc_id, evt_id):
-		return db_session.query(cls).filter_by(account_id = acc_id, group_id = evt_id).first()
+		return db_session.query(cls).filter_by(account_id = acc_id, event_id = evt_id).first()
 
 	@classmethod
 	def get_accs_by_evt_id(cls, evt_id):

@@ -9,6 +9,7 @@ const GroupIndexPage = () => {
   const [filteredGroups, setFilteredGroups] = useState([]);
   const [groupEvents, setGroupEvents] = useState({});
   const [searchTerm, setSearchTerm] = useState('');
+  const [isCreateGroupPopupOpen, setCreateGroupPopupOpen] = useState(false);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -102,44 +103,60 @@ const GroupIndexPage = () => {
     }
   };
 
+  const handleGroupCreate = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/group/create-group`);
+      const groupData = await response.data;
+
+      setCreateGroupPopupOpen(true);
+    } catch (error) {
+      console.error('Failed to fetch group data:', error);
+    }
+  };
+
   return (
-    <div className="group-index">
-      <h1>Groups</h1>
-      <input 
-        type="text" 
-        placeholder="Search by group ID or name..." 
-        value={searchTerm} 
-        onChange={handleSearch} 
-      />
-      <div className="group-list">
-        <div className="group-info">
-          {filteredGroups.map(group => (
-            <div key={group.group_id} className="group-card">
-              <h2 onClick={() => handleGroupClick(group.group_id)}>{group.group_name}</h2>
-              <p>Group ID: {group.group_id}</p>
-              <p>Administrator: {group.group_administrator}</p>
-            </div>
-          ))}
+    <div className="group-index-page-container">
+        <div className="group-index-header">
+            <h2>Groups</h2>
+            <button className="create-group-button" onClick={handleGroupCreate}>Create Group </button>
         </div>
-        <div className="group-events">
-          {filteredGroups.map(group => (
-            <div key={group.group_id} className="event-card">
-              <h2>Upcoming Events for {group.group_name}</h2>
-              {groupEvents[group.group_id] ? (
-                groupEvents[group.group_id].map(event => (
-                  <div key={event.event_id}>
-                    <h3 onClick={() => handleEventClick(group.group_id)}>{event.event_name}</h3>
-                    <p>{event.start_date} - {event.end_date}</p>
-                    <p>{event.start_time} - {event.end_time}</p>
-                  </div>
-                ))
-              ) : (
-                <p>Loading events...</p>
-              )}
+        <div>
+            <input 
+                type="text" 
+                placeholder="Search by group ID or name..." 
+                value={searchTerm} 
+                onChange={handleSearch} 
+            />
+            <div className="group-list">
+                <div className="group-info">
+                    {filteredGroups.map(group => (
+                        <div key={group.group_id} className="group-card">
+                            <h2 onClick={() => handleGroupClick(group.group_id)}>{group.group_name}</h2>
+                            <p>Group ID: {group.group_id}</p>
+                            <p>Administrator: {group.group_administrator}</p>
+                        </div>
+                    ))}
+                </div>
+                <div className="group-events">
+                    {filteredGroups.map(group => (
+                        <div key={group.group_id} className="event-card">
+                            <h2>Upcoming Events for {group.group_name}</h2>
+                            {groupEvents[group.group_id] ? (
+                                groupEvents[group.group_id].map(event => (
+                                    <div key={event.event_id}>
+                                        <h3 onClick={() => handleEventClick(group.group_id)}>{event.event_name}</h3>
+                                        <p>{event.start_date} - {event.end_date}</p>
+                                        <p>{event.start_time} - {event.end_time}</p>
+                                    </div>
+                                ))
+                            ) : (
+                                <p>Loading events...</p>
+                            )}
+                        </div>
+                    ))}
+                </div>
             </div>
-          ))}
         </div>
-      </div>
     </div>
   );
 };

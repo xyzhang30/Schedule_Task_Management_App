@@ -181,117 +181,122 @@ const GroupInformationPage = () => {
   };
 
   return (
-    <div className="group-info-page">
-        <h1>{group.group_name}</h1>
-        <img src={group.group_avatar} alt={`${group.group_name} avatar`} />
-        <p>Year Created: {group.year_created}</p>
-        <input
-            type="text"
-            placeholder="Search events..."
-            value={searchTerm}
-            onChange={handleSearch}
-        />
-        <div className="group-page-content">
-            <div className="left-panel">
-                {filteredEvents.map(event => (
-                    <div 
-                        key={event.event_id} 
-                        ref={(el) => (eventRefs.current[event.event_id] = el)} 
-                        className="event-block" onClick={() => handleEventClick(event.event_id)}
-                    >
-                        <h2>{event.event_name}</h2>
-                        <p>{event.start_date_time} - {event.end_date_time}</p>
-                    </div>
-                ))}
-
-                {isEventPopupOpen && selectedEvent && (
-                    <div className="modal-overlay">
-                        <div className="modal-content">
-                            <h2>{selectedEvent.event_name}</h2>
-                            <p><strong>Date and Time:</strong> {selectedEvent.start_date_time} - {selectedEvent.end_date_time}</p>
-                            {userRole === 'guest' && userStatus === 'notRegistered' && (
-                              <>
-                                <button onClick={handleGroupRequest}>Request to Join Group</button>
-                                {messageVisible && requestGroupSuccess && <p style={{ color: 'green' }}>You have successfully sent the join request!</p>}
-                                {messageVisible && !requestGroupSuccess && <p style={{ color: 'red' }}>Error: Could not join the group. Please try again later.</p>}
-                              </>
-                            )}
-                            {userRole === 'member' && userStatus === 'notRegistered' (
-                              <>
-                                <button onClick={handleEventRegister}>Register</button>
-                                {messageVisible && registerSuccess && <p style={{ color: 'green' }}>You have successfully registered for the event!</p>}
-                                {messageVisible && !registerSuccess && <p style={{ color: 'red' }}>Error: Could not register the event. Please try again later.</p>}
-                              </>
-                            )}
-                            {/* {userRole === 'admin' && userStatus === 'notRegistered' (
-                              <>
-                                <button onClick={onEdit}>Edit Event</button>
-                                <button onClick={onCancel}>Cancel Event</button>
-                                <button onClick={onRegister}>Register</button>
-                              </>
-                            )}
-                            {userRole === 'admin' && userStatus === 'registered' (
-                              <>
-                                <button onClick={onEdit}>Edit Event</button>
-                                <button onClick={onCancel}>Cancel Event</button>
-                              </>
-                            )} */}
-                            <button onClick={onRequestClose}>Close</button>
+    <div className="group-info-page-container">
+        <div className="group-info-header">
+            <h1>{group.group_name}</h1>
+            <img src={group.group_avatar} alt={`${group.group_name} avatar`} />
+            <p>Year Created: {group.year_created}</p>
+            <input
+                type="text"
+                placeholder="Search events..."
+                value={searchTerm}
+                onChange={handleSearch}
+            />
+            <div className="group-page-content">
+                <div className="left-panel">
+                    {filteredEvents.map(event => (
+                        <div 
+                            key={event.event_id} 
+                            ref={(el) => (eventRefs.current[event.event_id] = el)} 
+                            className="event-block" onClick={() => handleEventClick(event.event_id)}
+                        >
+                            <h2>{event.event_name}</h2>
+                            <p>{event.start_date_time} - {event.end_date_time}</p>
                         </div>
+                    ))}
+
+                    {/* Event Popup */}
+                    {isEventPopupOpen && selectedEvent && (
+                        <div className="modal-overlay">
+                            <div className="modal-content">
+                                <h2>{selectedEvent.event_name}</h2>
+                                <p><strong>Date and Time:</strong> {selectedEvent.start_date_time} - {selectedEvent.end_date_time}</p>
+                                {userRole === 'guest' && userStatus === 'notRegistered' && (
+                                  <>
+                                    <button onClick={handleGroupRequest}>Request to Join Group</button>
+                                    {messageVisible && requestGroupSuccess && <p style={{ color: 'green' }}>You have successfully sent the join request!</p>}
+                                    {messageVisible && !requestGroupSuccess && <p style={{ color: 'red' }}>Error: Could not join the group. Please try again later.</p>}
+                                  </>
+                                )}
+                                {userRole === 'member' && userStatus === 'notRegistered' && (
+                                  <>
+                                    <button onClick={handleEventRegister}>Register</button>
+                                    {messageVisible && registerSuccess && <p style={{ color: 'green' }}>You have successfully registered for the event!</p>}
+                                    {messageVisible && !registerSuccess && <p style={{ color: 'red' }}>Error: Could not register the event. Please try again later.</p>}
+                                  </>
+                                )}
+                                {userRole === 'admin' && userStatus === 'notRegistered' && (
+                                  <>
+                                    {/* <button onClick={onEdit}>Edit Event</button>
+                                    <button onClick={onCancel}>Cancel Event</button> */}
+                                    <button onClick={handleEventRegister}>Register</button>
+                                    {messageVisible && registerSuccess && <p style={{ color: 'green' }}>You have successfully registered for the event!</p>}
+                                    {messageVisible && !registerSuccess && <p style={{ color: 'red' }}>Error: Could not register the event. Please try again later.</p>}
+                                  </>
+                                )}
+                                {/* {userRole === 'admin' && userStatus === 'registered' (
+                                  <>
+                                    <button onClick={onEdit}>Edit Event</button>
+                                    <button onClick={onCancel}>Cancel Event</button>
+                                  </>
+                                )} */}
+                                <button onClick={onRequestClose}>Close</button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+                <div className="right-panel">
+                    <div className="group-profile">
+                        <h2>Group Profile</h2>
+                        <p>{group.group_description}</p>
+                        <p>Group Administrator: {group.group_administrator}</p>
+                        {userRole === 'admin' && (
+                            <>
+                                {/* <button onClick={() => handleEditGroupClick(groupId)}>Edit Group</button> */}
+                                {/* {group && (
+                                    <EditGroupPopup 
+                                        isOpen={isEditPopupOpen} 
+                                        onRequestClose={() => setEditPopupOpen(false)} 
+                                        group={group}
+                                        onEdit={async (newGroupName, newGroupAvatar) => {
+                                            const response = await fetch(`${baseUrl}/edit-group/${group.group_id}`, {
+                                                method: 'PUT',
+                                                headers: {
+                                                    'Content-Type': 'application/json',
+                                                },
+                                                body: JSON.stringify({ new_group_name: newGroupName, new_group_avatar: newGroupAvatar }),
+                                            });
+                                            const data = await response.json();
+                                            alert(data.message);
+                                            if (response.ok) {
+                                                setEditPopupOpen(false);
+                                            }
+                                        }}
+                                    />
+                                )} */}
+                                <button onClick={handleGroupDelete}>Delete Group</button>
+                                {messageVisible && deleteGroupSuccess && <p style={{ color: 'green' }}>You have successfully deleted the group!</p>}
+                                {messageVisible && !deleteGroupSuccess && <p style={{ color: 'red' }}>Error: Could not delete the group. Please try again later.</p>}
+                                {/* <button onClick={handleCreateEvent}>Create Event</button>
+                                <button onClick={handleManageMembers}>Manage Members</button> */}
+                            </>
+                        )}
+                        {userRole === 'member' && (
+                            <>
+                                <button onClick={handleGroupLeave}>Leave Group</button>
+                                {messageVisible && leaveGroupSuccess && <p style={{ color: 'green' }}>You have successfully left the group!</p>}
+                                {messageVisible && !leaveGroupSuccess && <p style={{ color: 'red' }}>Error: Could not leave the group. Please try again later.</p>}
+                                {/* <button onClick={handleViewMembers}>View Members</button> */}
+                            </>
+                        )}
+                        {userRole === 'guest' && (
+                            <>
+                              <button onClick={handleGroupRequest}>Request to Join Group</button>
+                              {messageVisible && requestGroupSuccess && <p style={{ color: 'green' }}>You have successfully sent the join request!</p>}
+                              {messageVisible && !requestGroupSuccess && <p style={{ color: 'red' }}>Error: Could not send the request. Please try again later.</p>}
+                            </>
+                        )}
                     </div>
-                )}
-            </div>
-            <div className="right-panel">
-                <div className="group-profile">
-                    <h2>Group Profile</h2>
-                    <p>{group.group_description}</p>
-                    <p>Group Administrator: {group.group_administrator}</p>
-                    {userRole === 'admin' && (
-                        <>
-                            {/* <button onClick={() => handleEditGroupClick(groupId)}>Edit Group</button> */}
-                            {/* {group && (
-                                <EditGroupPopup 
-                                    isOpen={isEditPopupOpen} 
-                                    onRequestClose={() => setEditPopupOpen(false)} 
-                                    group={group}
-                                    onEdit={async (newGroupName, newGroupAvatar) => {
-                                        const response = await fetch(`${baseUrl}/edit-group/${group.group_id}`, {
-                                            method: 'PUT',
-                                            headers: {
-                                                'Content-Type': 'application/json',
-                                            },
-                                            body: JSON.stringify({ new_group_name: newGroupName, new_group_avatar: newGroupAvatar }),
-                                        });
-                                        const data = await response.json();
-                                        alert(data.message);
-                                        if (response.ok) {
-                                            setEditPopupOpen(false);
-                                        }
-                                    }}
-                                />
-                            )} */}
-                            <button onClick={handleGroupDelete}>Delete Group</button>
-                            {messageVisible && deleteGroupSuccess && <p style={{ color: 'green' }}>You have successfully deleted the group!</p>}
-                            {messageVisible && !deleteGroupSuccess && <p style={{ color: 'red' }}>Error: Could not delete the group. Please try again later.</p>}
-                            {/* <button onClick={handleCreateEvent}>Create Event</button>
-                            <button onClick={handleManageMembers}>Manage Members</button> */}
-                        </>
-                    )}
-                    {userRole === 'member' && (
-                        <>
-                            <button onClick={handleGroupLeave}>Leave Group</button>
-                            {messageVisible && leaveGroupSuccess && <p style={{ color: 'green' }}>You have successfully left the group!</p>}
-                            {messageVisible && !leaveGroupSuccess && <p style={{ color: 'red' }}>Error: Could not leave the group. Please try again later.</p>}
-                            {/* <button onClick={handleViewMembers}>View Members</button> */}
-                        </>
-                    )}
-                    {userRole === 'guest' && (
-                        <>
-                          <button onClick={handleGroupRequest}>Request to Join Group</button>
-                          {messageVisible && requestGroupSuccess && <p style={{ color: 'green' }}>You have successfully sent the join request!</p>}
-                          {messageVisible && !requestGroupSuccess && <p style={{ color: 'red' }}>Error: Could not send the request. Please try again later.</p>}
-                        </>
-                    )}
                 </div>
             </div>
         </div>
