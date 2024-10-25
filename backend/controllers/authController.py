@@ -156,6 +156,7 @@ def forgot_password():
     user_inputted_email = request.form['email'] #Get email that the user wants to send reset link to
     account = Account.get_acc_by_email(user_inputted_email)
     if account is None:
+        print('hello')
         response_message = {'msg': 'The email you entered is not associated with any accounts'}
         status_code = 401
         return jsonify(response_message), status_code
@@ -163,6 +164,9 @@ def forgot_password():
         key = generate_reset_key(account)
         url = f"http://localhost:8080/auth/forgot_password/{key}"
         send_reset_email(url)
+        response_message = {'msg': 'An email has been sent to the address with instructions for resetting the password'}
+        status_code = 200
+        return jsonify(response_message), status_code
 
 @bp.route('/forgot_password/<url_key>', methods = ['POST'])
 def reset_password(url_key):
@@ -186,6 +190,9 @@ def reset_password(url_key):
             return jsonify(response_message), status_code
         else:
             new_password(account_id, user_inputted_new_password)
+            response_message = {'msg': 'Password successfully changed'}
+            status_code = 201
+            return jsonify(response_message), status_code
 
 def new_password(account_id, new_pass):
     account = Account.get_acc_by_id(account_id)
@@ -202,9 +209,9 @@ def check_password(pass_to_be_checked, hashed_salted_password):
     return bcrypt.checkpw(pass_to_be_checked, hashed_salted_password.encode('utf-8'))  # Encode hashed password for comparison
 
 def generate_reset_key(user_account):
-    generated_key = secrets.urlsafe(32)
+    generated_key = secrets.token_urlsafe(32) #make a token
     current_time = time.time()
-    user_id = user_account.id
+    user_id = user_account.account_id
     new_reset_key = ResetKeys(
         reset_key = generated_key,
         account_id = user_id,
@@ -216,7 +223,7 @@ def generate_reset_key(user_account):
 def send_reset_email(reset_url):
     email = Message(
         subject = 'Resetting Password',
-        sender = 'Shenkermandavid@gmail.com',
+        sender = 'hello@demomailtrap.com',
         recipients = ['Shenkermandavid@gmail.com']
     )
     email.body = f"Use this link to reset your password: {reset_url}. It will expire in 15 minutes"
