@@ -18,7 +18,7 @@ def create_event():
         location=data.get('location'),
         start_date=datetime.strptime(data['start_date'], '%Y-%m-%dT%H:%M'),
         end_date=datetime.strptime(data['end_date'], '%Y-%m-%dT%H:%M'),
-        category=data.get('category'),
+        category=data.get('category')
         # label_text=data.get('label_text'),
         # label_color=data.get('label_color'),
     )
