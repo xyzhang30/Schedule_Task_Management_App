@@ -10,6 +10,7 @@ import Logout from './pages/Logout.js';
 import ChangeUsername from './pages/ChangeUsername.js';
 import ChangePassword from './pages/ChangePassword.js';
 import ChangePhoneNumber from './pages/ChangePhoneNumber.js';
+import ResetPassword from './pages/ResetPassword.js';
 import Tasks from './pages/Tasks.js';
 import NavBar from './navbar.js';
 import Posts from './pages/Posts.js';
@@ -36,6 +37,7 @@ function App() {
         <Route path="/tasks" element={<Tasks/>} />
         <Route path="/posts" element={<Posts/>} />
         <Route path="/event" element={<Events />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
       {/* </div> */}
     </Router>
