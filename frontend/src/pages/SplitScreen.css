@@ -1,0 +1,13 @@
+.split-screen-left {
+    grid-column: 1;
+    border-right: 1px solid #ddd;
+    padding: 20px;
+    justify-content: center;
+}
+
+.split-screen-right {
+    grid-column: 2;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+}

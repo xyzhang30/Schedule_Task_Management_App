@@ -13,6 +13,7 @@ class Task(Base):
     due_time = Column(TIMESTAMP, unique=False)
     task_name = Column(String, unique=False)  # cannot be null
     complete = Column(Boolean, unique=False, default=False)
+   # event_id = Column(String, ForeignKey('events.event_id'))
 
     def __repr__(self):
         return f"<Task account_id={self.account_id} task_id={self.task_id}>"
@@ -69,3 +70,24 @@ class Task(Base):
             map[k_date].sort(key=lambda x: x.due_time)
 
         return map
+    
+
+class Category(Base):
+    __tablename__ = 'category'
+    category_name = Column(String, primary_key=True)
+
+    def __repr__(self):
+        return f"<Category category_name={self.category_name}>"
+    
+    def to_dict(self):
+        print("called to_dict")
+        return {column.name: getattr(self, column.name) for column in self.__table__.columns}
+    
+    def save(self):
+        db_session.add(self)
+        db_session.commit()
+
+    @classmethod
+    def all(cls):
+        print("called all")
+        return db_session.query(cls).all()
