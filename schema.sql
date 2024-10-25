@@ -19,23 +19,38 @@ CREATE TABLE Student (
     student_id SERIAL UNIQUE,
     organization VARCHAR(100)
 );
+-- CREATE TABLE Task (
+--     task_id SERIAL PRIMARY KEY,
+--     account_id INTEGER REFERENCES Account(account_id),
+--     category VARCHAR(100)
+-- );
+-- CREATE TABLE Assignment ( 
+--     task_id INTEGER PRIMARY KEY REFERENCES Task(task_id),
+--     class_id INTEGER,
+--     assignment_name VARCHAR(20),
+--     due_date VARCHAR(15),
+--     comments VARCHAR(100)
+-- );
+-- CREATE TABLE PersonalTask ( 
+--     task_id INTEGER PRIMARY KEY REFERENCES Task(task_id),
+--     due_date VARCHAR(15),
+--     task_name VARCHAR(20)
+-- );
 CREATE TABLE Task (
     task_id SERIAL PRIMARY KEY,
     account_id INTEGER REFERENCES Account(account_id),
-    category VARCHAR(100)
+    category VARCHAR(100),
+    due_time TIMESTAMP NOT NULL,
+    task_name VARCHAR(20) NOT NULL,
+    complete BOOLEAN DEFAULT false
 );
 CREATE TABLE Assignment ( 
     task_id INTEGER PRIMARY KEY REFERENCES Task(task_id),
     class_id INTEGER,
-    assignment_name VARCHAR(20),
-    due_date VARCHAR(15),
-    comments VARCHAR(100)
 );
-CREATE TABLE PersonalTask ( 
-    task_id INTEGER PRIMARY KEY REFERENCES Task(task_id),
-    due_date VARCHAR(15),
-    task_name VARCHAR(20)
-);
+CREATE TABLE Category {
+    category_name VARCHAR(100) PRIMARY KEY
+};
 CREATE TABLE Availability (
     account_id INTEGER REFERENCES Account(account_id),
     unav_interval VARCHAR(20),
