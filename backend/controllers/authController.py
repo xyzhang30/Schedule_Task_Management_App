@@ -11,6 +11,7 @@ from ..__init__ import mail
 bp = Blueprint('auth', __name__, url_prefix = '/auth')
 
 @bp.route('/session_status', methods=['GET'])
+
 def session_status():
     if 'user' in session:
         return jsonify({'loggedIn': True, 'user': session['user']})
@@ -156,7 +157,6 @@ def forgot_password():
     user_inputted_email = request.form['email'] #Get email that the user wants to send reset link to
     account = Account.get_acc_by_email(user_inputted_email)
     if account is None:
-        print('hello')
         response_message = {'msg': 'The email you entered is not associated with any accounts'}
         status_code = 401
         return jsonify(response_message), status_code
@@ -169,18 +169,21 @@ def forgot_password():
         return jsonify(response_message), status_code
 
 @bp.route('/forgot_password/<url_key>', methods = ['GET'])
-def check_reset_key(url_key):
+
+def check_reset_key(url_key):  
     reset_key = ResetKeys.get_all_by_reset_key(url_key)
     if reset_key is None: #If there is no entry for this reset key 
-        return 404
-    
+        response_message = "This link no longer exists"
+        status_code = 401
+        return response_message, 401
+
     time_stamp = reset_key.time_stamp
     account_id = reset_key.account_id
 
     if ((time.time() - time_stamp)/60) > 15: #Reset key has expired, it has been longer than 15 minutes
-        response_message = {'msg': 'Password reset link expired'}
+        response_message = 'Password reset link expired'
         status_code = 401
-        return jsonify(response_message), 401
+        return response_message, 401
     else:
         session['reset_key'] = reset_key.reset_key
         return redirect('http://localhost:3000/reset-password')
@@ -200,11 +203,14 @@ def reset_password():
             response_message = {'msg': 'Password successfully changed'}
             status_code = 201
             session.pop('reset_key')    
+            old_reset_keys = ResetKeys.get_all_by_account_id(account_id)
+            for old_key in old_reset_keys:
+                old_key.delete()
+
             return jsonify(response_message), status_code
     else: 
         response_message = {'msg': 'Not authorized'}
         return jsonify(response_message), 401
-        session.p
     
 def new_password(account_id, new_pass):
     account = Account.get_acc_by_id(account_id)
