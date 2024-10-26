@@ -15,6 +15,7 @@ import Tasks from './pages/Tasks.js';
 import NavBar from './navbar.js';
 import Posts from './pages/Posts.js';
 import Events from './pages/Events';
+import ForgotPassword from './pages/ForgotPassword.js';
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
         <Route path="/posts" element={<Posts/>} />
         <Route path="/event" element={<Events />} />
         <Route path="/reset-password" element={<ResetPassword />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
       </Routes>
       {/* </div> */}
     </Router>
