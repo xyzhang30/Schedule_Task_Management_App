@@ -34,6 +34,7 @@ const LandingPage = () => {
           <div className="cta-buttons">
             <button className="btn sign-up" onClick={() => navigate('/register')}>Sign Up</button>
             <button className="btn log-in" onClick={() => navigate('/login')}>Log In</button>
+            <button className="btn forgot-password" onClick={() => navigate('/forgot-password')}>Forgot Password</button>
           </div>
         ) : (
           <div className="cta-buttons">
@@ -41,6 +42,7 @@ const LandingPage = () => {
             <button className="btn change-username" onClick={() => navigate('/change-username')}>Change Username</button>
             <button className="btn change-password" onClick={() => navigate('/change-password')}>Change Password</button>
             <button className="btn change-phone" onClick={() => navigate('/change-phone-number')}>Change Phone Number</button>
+            <button className="btn forgot-password" onClick={() => navigate('/forgot-password')}>Forgot Password</button>
           </div>
         )}
       </section>
