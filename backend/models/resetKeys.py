@@ -20,8 +20,16 @@ class ResetKeys(Base):
 	def get_all_by_reset_key(cls, rk):
 		return db_session.query(cls).filter_by(reset_key = rk).first()
 	
+	@classmethod
+	def get_all_by_account_id(cls, id):
+		return db_session.query(cls).filter_by(account_id = id)
+	
 	def save(self):
 		db_session.add(self)
+		db_session.commit()
+
+	def delete(self):
+		db_session.delete(self)
 		db_session.commit()
 
 	def to_dict(self):
