@@ -7,11 +7,11 @@ import bcrypt
 from ..models.account import Account
 from ..models.resetKeys import ResetKeys
 from ..__init__ import mail
+from ..decorators import is_logged_in
 
 bp = Blueprint('auth', __name__, url_prefix = '/auth')
 
 @bp.route('/session_status', methods=['GET'])
-
 def session_status():
     if 'user' in session:
         return jsonify({'loggedIn': True, 'user': session['user']})
@@ -19,7 +19,6 @@ def session_status():
         return jsonify({'loggedIn': False})
 
 @bp.route('/login', methods = ['POST'])
-
 def login():
     print("Logging in...")
     #gets user input
@@ -80,6 +79,7 @@ def register():
         return jsonify(response_message), status_code
 
 @bp.route('/logout', methods = ['POST'])
+@is_logged_in
 def logout():
     session.pop('user', None) #logs user out
     response_message = {'msg': 'Successfully logged out'}
@@ -87,27 +87,24 @@ def logout():
     return jsonify(response_message), status_code
 
 @bp.route('/change_password', methods = ['POST'])
+@is_logged_in
 def change_password():
-    try:
-        account = Account.get_acc_by_id(session['user'])
-        original_password = request.form['original_password']
-        if check_password(original_password, account.password):
-            account.password = salt_and_hash_password(request.form['new_password'])
-            account.save()
-            response_message = {'msg': 'Successfully changed password'}
-            status_code = 201
-            return jsonify(response_message), status_code
-        else:
-            response_message = {'msg': 'Incorrect password provided'}
-            status_code = 401
-            return jsonify(response_message), status_code
-        
-    except Exception as e:
-        response_message = {'msg': 'Please log in'}
+    account = Account.get_acc_by_id(session['user'])
+    original_password = request.form['original_password']
+    if check_password(original_password, account.password):
+        account.password = salt_and_hash_password(request.form['new_password'])
+        account.save()
+        response_message = {'msg': 'Successfully changed password'}
+        status_code = 201
+        return jsonify(response_message), status_code
+    else:
+        response_message = {'msg': 'Incorrect password provided'}
         status_code = 401
         return jsonify(response_message), status_code
+        
 
 @bp.route('/change_username', methods = ['POST'])
+@is_logged_in
 def change_username():
     account = Account.get_acc_by_id(session['user'])
     new_username = request.form['new_username']
@@ -123,6 +120,7 @@ def change_username():
         return jsonify(response_message), status_code
     
 @bp.route('/change_email', methods = ['POST'])
+@is_logged_in
 def change_email():
     account = Account.get_acc_by_id(session['user'])
     new_email = request.form['new_email']
@@ -138,6 +136,7 @@ def change_email():
         return jsonify(response_message), status_code
 
 @bp.route('/change_number', methods = ['POST'])
+@is_logged_in
 def change_number():
     account = Account.get_acc_by_id(session['user'])
     new_number = request.form['new_number']
@@ -169,7 +168,6 @@ def forgot_password():
         return jsonify(response_message), status_code
 
 @bp.route('/forgot_password/<url_key>', methods = ['GET'])
-
 def check_reset_key(url_key):  
     reset_key = ResetKeys.get_all_by_reset_key(url_key)
     if reset_key is None: #If there is no entry for this reset key 
@@ -246,4 +244,4 @@ def send_reset_email(reset_url):
     )
     email.body = f"Use this link to reset your password: {reset_url}. It will expire in 15 minutes"
     mail.send(email)
-#Todo: finalize session understanding, clean functions, add decorators, error handling for emails, delete resetkey tuples associated with an account id that successfully reset their passowrd
+#Todo: finalize session understanding, clean functions, add decorators
