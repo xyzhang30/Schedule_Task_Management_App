@@ -13,7 +13,7 @@ const ChangePhoneNumber = () => {
       const formData = new URLSearchParams();
       formData.append('new_number', newPhoneNumber);
 
-      const response = await axios.post('http://localhost:8080/auth/change_number', formData, {
+      const response = await axios.post('http://localhost:8080/account/change_number', formData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
