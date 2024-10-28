@@ -13,7 +13,7 @@ const ChangeUsername = () => {
       const formData = new URLSearchParams();
       formData.append('new_username', newUsername);
 
-      const response = await axios.post('http://localhost:8080/auth/change_username', formData, {
+      const response = await axios.post('http://localhost:8080/account/change_username', formData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
