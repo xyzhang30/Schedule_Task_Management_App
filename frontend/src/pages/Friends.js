@@ -1,6 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import './Friends.css'; 
+import '../App.css'
+import './SplitScreen.css'
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
@@ -17,7 +19,7 @@ const Friends = () => {
   useEffect(() => {
     const fetchFriends = async () => {
       try {
-        const response = await axios.get(`${baseUrl}/friend/get-friends/1`);
+        const response = await axios.get(`${baseUrl}/friend/get-friends`, {withCredentials: true});
         setFriends(response.data); 
         setLoading(false);
       } catch (err) {
@@ -70,13 +72,8 @@ const Friends = () => {
   const handleAddFriendClick = async (account_id) => {
     try {
       console.log("____ACCOUNTID: ", account_id)
-      // const response = await axios.post(`${baseUrl}/friend_request/send-request`, {
-      //   account_id_to: account_id, //default to 1 as dummy user now
-      //   account_id_from: 1,
-      //   message: "requested to add you as a friend"
-      // });
       const formData = new FormData();
-      formData.append("account_id_from", 1);  // Replace this with the actual user ID in production
+      // formData.append("account_id_from", 8); 
       formData.append("account_id_to", account_id);
       formData.append("message", "requested to add you as a friend");
 
@@ -146,8 +143,8 @@ const Friends = () => {
       )}
 
       {showAddFriendsPopup && (
-        <div className="popup-overlay">
-          <div className="popup-content">
+        <div className="modal-overlay">
+          <div className="modal-content">
             <h3>Add Friends</h3>
             <button className="close-popup" onClick={toggleAddFriendsPopup}>Close</button>
             <div className="user-list">
@@ -159,7 +156,7 @@ const Friends = () => {
                       <div className="user-info">
                         <p>{user.username}</p>
                       </div>
-                      <div className="user-action">
+                      <div className="modal-actions">
                         {isFriend ? (
                           <span className="friend-status">Friend</span>
                         ) : (

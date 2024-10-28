@@ -20,7 +20,7 @@ import GroupInfoPage from './pages/GroupInfo.js';
 function App() {
   return (
     <Router>
-      <div>
+      <div className='main-container'>
         <NavBar />
       <Routes>
         {/* Default Route */}
