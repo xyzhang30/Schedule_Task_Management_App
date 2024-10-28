@@ -40,6 +40,7 @@ const LandingPage = () => {
           <div className="cta-buttons">
             <button className="btn log-out" onClick={() => navigate('/logout')}>Log Out</button>
             <button className="btn change-username" onClick={() => navigate('/change-username')}>Change Username</button>
+            <button className="btn change-email" onClick={() => navigate('/change-email')}>Change Email</button>
             <button className="btn change-password" onClick={() => navigate('/change-password')}>Change Password</button>
             <button className="btn change-phone" onClick={() => navigate('/change-phone-number')}>Change Phone Number</button>
             <button className="btn forgot-password" onClick={() => navigate('/forgot-password')}>Forgot Password</button>
