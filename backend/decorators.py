@@ -1,8 +1,8 @@
-from flask import session
-from decorators import functools, jsonify
+from flask import session, jsonify
+import functools
 
 def is_logged_in(func):
-    @functools.wrap(func)
+    @functools.wraps(func)
     def wrapper_is_logged_in(*args, **kwargs):
         if 'user' in session:
             return func(*args, **kwargs)
@@ -10,3 +10,4 @@ def is_logged_in(func):
             response_message = {'msg': 'Please Log In'}
             status_code = 401
             return jsonify(response_message), status_code
+    return wrapper_is_logged_in
