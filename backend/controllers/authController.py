@@ -1,9 +1,6 @@
 from flask import Blueprint, session, request, jsonify, redirect
 from flask_mail import Message
-import secrets
-import time
-import uuid
-import bcrypt
+import secrets, time, bcrypt
 from ..models.account import Account
 from ..models.resetKeys import ResetKeys
 from ..__init__ import mail
@@ -12,7 +9,8 @@ from ..decorators import is_logged_in
 bp = Blueprint('auth', __name__, url_prefix = '/auth')
 
 @bp.route('/session_status', methods=['GET'])
-def session_status():
+def session_status(): 
+    """Checks if a user is logged in based on session data - used for frontend rendering based on authentication."""
     if 'user' in session:
         return jsonify({'loggedIn': True, 'user': session['user']})
     else:
@@ -20,46 +18,44 @@ def session_status():
 
 @bp.route('/login', methods = ['POST'])
 def login():
-    print("Logging in...")
-    #gets user input
+    """Logs a user in if they provide the correct credentials."""
     user_inputted_username = request.form['username']
-    user_inputted_email = request.form['email']
     user_inputted_password = request.form['password']
 
     try:
-        account = Account.get_acc_by_username(user_inputted_username) #Check if their username exists and get the account tuple associated with it
-        print(account.password)
-        print(user_inputted_password)
-        if check_password(user_inputted_password, account.password): #Compare their password with the password in the database
+        #Attempt to get the account tuple associated with their username
+        account = Account.get_acc_by_username(user_inputted_username) 
+        
+        if check_password(user_inputted_password, account.password): 
             response_message = {'msg': 'Successfully Logged In'}
             status_code = 200
-            session['user'] = account.account_id   #keep track of logged in status with the account id
-
-        else: #Case where password is incorrect
+            session['user'] = account.account_id 
+        else: 
             response_message = {'msg': 'Incorrect Username or Password'}
             status_code = 401
-    
-        return jsonify(response_message), status_code
-    
-    except Exception as e: #Case where username does not exist
+
+    #Handle case where the username inputted does not exist
+    except Exception as e: 
         response_message = {'msg': 'Incorrect Username or Password'}
         status_code = 401
-        return jsonify(response_message), status_code
-    
+            
+    return jsonify(response_message), status_code
+
 @bp.route('/register', methods = ['POST'])
 def register():
-    #Get user info from frontend
+    """Registers a user if they provide proper credentials."""
     user_inputted_username = request.form['username']
     user_inputted_password = request.form['password']
     user_inputted_email = request.form['email']
     user_inputted_phone_number = request.form['phone_number']
     user_inputted_year_created = (int)(request.form['year'])
 
-    salted_hashed_password = salt_and_hash_password(user_inputted_password)
+    #Hash and salt the provided password to securely store it in the database
+    password_to_be_stored = salt_and_hash_password(user_inputted_password)
 
     new_account = Account(
         username = user_inputted_username,
-        password = salted_hashed_password,
+        password = password_to_be_stored,
         email = user_inputted_email,
         phone = user_inputted_phone_number,
         avatar = "0",
@@ -71,17 +67,17 @@ def register():
         response_message = {'msg': 'Successfully Registered'}
         status_code = 200
         session['user'] = new_account.account_id 
-        return jsonify(response_message), status_code
-    
     except Exception as e:
-        response_message = {'msg': 'Invalid Email or Username'} #Need to make this more fine tuned: they should know what field was bad. i.e. username already taken
-        status_code = 409 #proper code for this type of issue apparently
-        return jsonify(response_message), status_code
+        response_message = {'msg': 'Invalid Email or Username - already taken'} 
+        status_code = 409
+
+    return jsonify(response_message), status_code
 
 @bp.route('/logout', methods = ['POST'])
 @is_logged_in
 def logout():
-    session.pop('user', None) #logs user out
+    """Logs the user out by modifying session data."""
+    session.pop('user', None) #Remove user key to log the user out
     response_message = {'msg': 'Successfully logged out'}
     status_code = 200
     return jsonify(response_message), status_code
@@ -89,76 +85,34 @@ def logout():
 @bp.route('/change_password', methods = ['POST'])
 @is_logged_in
 def change_password():
+    """Changes a user's password while they are logged in, if they correctly provide their old password."""
     account = Account.get_acc_by_id(session['user'])
     original_password = request.form['original_password']
+
+    #Check if they have provided the correct original password before updating it
     if check_password(original_password, account.password):
-        account.password = salt_and_hash_password(request.form['new_password'])
+        password_to_be_stored = salt_and_hash_password(request.form['new_password'])  #Hash and salt the provided password to securely store it in the database
+        account.password = password_to_be_stored
         account.save()
         response_message = {'msg': 'Successfully changed password'}
         status_code = 201
-        return jsonify(response_message), status_code
     else:
         response_message = {'msg': 'Incorrect password provided'}
         status_code = 401
-        return jsonify(response_message), status_code
-        
 
-@bp.route('/change_username', methods = ['POST'])
-@is_logged_in
-def change_username():
-    account = Account.get_acc_by_id(session['user'])
-    new_username = request.form['new_username']
-    try: 
-        account.username = new_username
-        account.save()
-        response_message = {'msg': 'Succesfully changed username'}
-        status_code = 201
-        return jsonify(response_message), status_code
-    except Exception as e:
-        response_message = {'msg': 'Username already taken'}
-        status_code = 409
-        return jsonify(response_message), status_code
+    return jsonify(response_message), status_code
     
-@bp.route('/change_email', methods = ['POST'])
-@is_logged_in
-def change_email():
-    account = Account.get_acc_by_id(session['user'])
-    new_email = request.form['new_email']
-    try: 
-        account.email = new_email
-        account.save()
-        response_message = {'msg': 'Succesfully changed email'}
-        status_code = 201
-        return jsonify(response_message), status_code
-    except Exception as e:
-        response_message = {'msg': 'Email already taken'}
-        status_code = 409
-        return jsonify(response_message), status_code
-
-@bp.route('/change_number', methods = ['POST'])
-@is_logged_in
-def change_number():
-    account = Account.get_acc_by_id(session['user'])
-    new_number = request.form['new_number']
-    try: 
-        account.phone = new_number
-        account.save()
-        response_message = {'msg': 'Succesfully changed number'}
-        status_code = 201
-        return jsonify(response_message), status_code
-    except Exception as e:
-        response_message = {'msg': 'Phone number already taken'}
-        status_code = 409
-        return jsonify(response_message), status_code
-
-@bp.route('/forgot_password', methods = ['POST']) #This function checks if an email supplied by the user exists, and sends the email a password reset link if it
+@bp.route('/forgot_password', methods = ['POST']) 
 def forgot_password():
-    user_inputted_email = request.form['email'] #Get email that the user wants to send reset link to
+    """Retrieves and verifies an email from the user and sends a password reset link to the email."""
+    user_inputted_email = request.form['email']
     account = Account.get_acc_by_email(user_inputted_email)
+    
     if account is None:
         response_message = {'msg': 'The email you entered is not associated with any accounts'}
         status_code = 401
         return jsonify(response_message), status_code
+    #Generate a reset key, unique url, and send the reset email
     else: 
         key = generate_reset_key(account)
         url = f"http://localhost:8080/auth/forgot_password/{key}"
@@ -169,8 +123,13 @@ def forgot_password():
 
 @bp.route('/forgot_password/<url_key>', methods = ['GET'])
 def check_reset_key(url_key):  
+    """
+    Verifies the existence and validity of the reset key passed in through the url. 
+    Redirects to the frontend reset-password route if valid.
+    """
     reset_key = ResetKeys.get_all_by_reset_key(url_key)
-    if reset_key is None: #If there is no entry for this reset key 
+    
+    if reset_key is None: 
         response_message = "This link no longer exists"
         status_code = 401
         return response_message, 401
@@ -183,33 +142,36 @@ def check_reset_key(url_key):
         status_code = 401
         return response_message, 401
     else:
-        session['reset_key'] = reset_key.reset_key
+        session['reset_key'] = reset_key.reset_key #Put the valid reset key in the session data
         return redirect('http://localhost:3000/reset-password')
 
 @bp.route('/reset_password', methods = ['POST'])
 def reset_password():
+    """Resets the user's password if their session data contains a valid reset_key."""
     if 'reset_key' in session:
         account_id = ResetKeys.get_all_by_reset_key(session['reset_key']).account_id #Gets the account_id associated with the reset key
+
         user_inputted_new_password = request.form['new_password']
-        user_inputted_confirm = request.form['confirm_password'] #'Confirm your new password', should be identical
+        user_inputted_confirm = request.form['confirm_password'] 
+
         if user_inputted_confirm != user_inputted_new_password:
             response_message = {'msg': 'Passwords do not match'}
             status_code = 401
-            return jsonify(response_message), status_code
         else:
             new_password(account_id, user_inputted_new_password)
             response_message = {'msg': 'Password successfully changed'}
             status_code = 201
-            session.pop('reset_key')    
-            old_reset_keys = ResetKeys.get_all_by_account_id(account_id)
-            for old_key in old_reset_keys:
-                old_key.delete()
+            session.pop('reset_key') #Removes reset key from the session data in accordance with successful password reset
 
-            return jsonify(response_message), status_code
+            old_reset_keys = ResetKeys.get_all_by_account_id(account_id)
+            remove_reset_keys(old_reset_keys) #Clears now-redundant tuples in the database to save space
     else: 
         response_message = {'msg': 'Not authorized'}
-        return jsonify(response_message), 401
+        status_code = 401
+
+    return jsonify(response_message), status_code
     
+#Helper functions
 def new_password(account_id, new_pass):
     account = Account.get_acc_by_id(account_id)
     account.password = salt_and_hash_password(new_pass)
@@ -217,15 +179,15 @@ def new_password(account_id, new_pass):
 
 def salt_and_hash_password(password):
     salt = bcrypt.gensalt()
-    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')  # Decode to string
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8') 
     return hashed_password
 
 def check_password(pass_to_be_checked, hashed_salted_password):
-    pass_to_be_checked = pass_to_be_checked.encode('utf-8')  # Encode pass_to_be_checked for comparison
-    return bcrypt.checkpw(pass_to_be_checked, hashed_salted_password.encode('utf-8'))  # Encode hashed password for comparison
+    pass_to_be_checked = pass_to_be_checked.encode('utf-8')
+    return bcrypt.checkpw(pass_to_be_checked, hashed_salted_password.encode('utf-8'))  
 
 def generate_reset_key(user_account):
-    generated_key = secrets.token_urlsafe(32) #make a token
+    generated_key = secrets.token_urlsafe(32)
     current_time = time.time()
     user_id = user_account.account_id
     new_reset_key = ResetKeys(
@@ -236,6 +198,10 @@ def generate_reset_key(user_account):
     new_reset_key.save()
     return generated_key
 
+def remove_reset_keys(old_reset_keys):
+    for old_key in old_reset_keys:
+        old_key.delete()
+
 def send_reset_email(reset_url):
     email = Message(
         subject = 'Resetting Password',
@@ -244,4 +210,5 @@ def send_reset_email(reset_url):
     )
     email.body = f"Use this link to reset your password: {reset_url}. It will expire in 15 minutes"
     mail.send(email)
-#Todo: finalize session understanding, clean functions
+
+#Todo: finalize session understanding
