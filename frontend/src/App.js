@@ -10,6 +10,7 @@ import Logout from './pages/Logout.js';
 import ChangeUsername from './pages/ChangeUsername.js';
 import ChangePassword from './pages/ChangePassword.js';
 import ChangePhoneNumber from './pages/ChangePhoneNumber.js';
+import ChangeEmail from './pages/ChangeEmail.js';
 import ResetPassword from './pages/ResetPassword.js';
 import Tasks from './pages/Tasks.js';
 import NavBar from './navbar.js';
@@ -34,6 +35,7 @@ function App() {
         <Route path="/change-username" element={<ChangeUsername />} />
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/change-phone-number" element={<ChangePhoneNumber />} />
+        <Route path="/change-email" element={<ChangeEmail /> } />
         <Route path="/friends" element={<Friends/>} />
         <Route path="/tasks" element={<Tasks/>} />
         <Route path="/posts" element={<Posts/>} />
