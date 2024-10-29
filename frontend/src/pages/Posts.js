@@ -11,6 +11,7 @@ const Posts = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false); // tracks if editing or adding a post
   const [newPost, setNewPost] = useState({ title: '', content: '', image_url: '' });
   const [newComment, setNewComment] = useState('');
 
@@ -81,7 +82,7 @@ const Posts = () => {
         console.error("Error fetching post details:", err);
         setError('Failed to fetch post details.');
     }
-    };
+  };
 
   const handlePostSubmit = async (e) => {
     e.preventDefault();
@@ -105,9 +106,9 @@ const Posts = () => {
       console.error("Error adding new post:", err);
       setError('Failed to add post.');
     }
-};
+  };
 
-const handleCommentSubmit = async (e) => {
+  const handleCommentSubmit = async (e) => {
   e.preventDefault();
   if (!newComment) return;
 
@@ -243,12 +244,61 @@ const handleCommentSubmit = async (e) => {
     }
   };
 
+  const handleUpdatePost = async () => {
+    const formData = new FormData();
+    formData.append('title', newPost.title);
+    formData.append('content', newPost.content);
+    formData.append('image_url', newPost.image_url); 
+  
+    try {
+      const response = await axios.put(`${baseUrl}/post/update-post/${selectedPost.post_id}`, formData, { withCredentials: true });
+      
+      setPosts((prevPosts) =>
+        prevPosts.map((p) => (p.post_id === selectedPost.post_id ? { ...p, ...newPost } : p))
+      );
+      
+      setShowModal(false);
+      setIsEditing(false);
+    } 
+    
+    catch (err) {
+      console.error("Error updating post:", err);
+      setError('Failed to update post.');
+    }
+  };
+
+  const handleUpdatePostClick = (post) => {
+    setNewPost({
+      title: post.title,
+      content: post.content,
+      image_url: post.image_url,
+    });
+    setIsEditing(true); // Set modal to editing mode
+    setShowModal(true);
+  };
+
+  const openAddPostModal = () => {
+    setNewPost({ title: '', content: '', image_url: '' });
+    setIsEditing(false); // Set modal to add mode
+    setShowModal(true);
+  };
+  
+  const handleDeletePost = async (post_id) => {
+    try {
+      await axios.delete(`${baseUrl}/post/remove-post/${post_id}`, { withCredentials: true });
+      setPosts((prevPosts) => prevPosts.filter((p) => p.post_id !== post_id));
+    } catch (err) {
+      console.error("Error deleting post:", err);
+      setError('Failed to delete post.');
+    }
+  }; 
+
   return (
     <div className="split-screen-container">
       <div className="split-screen-left">
         <div className="posts-header">
           <h2>Posts</h2>
-          <button className="add-post-button" onClick={() => setShowModal(true)}>Add Post</button>
+          <button className="add-post-button" onClick={openAddPostModal}>Add Post</button>
         </div>
 
         <div className="posts-list">
@@ -266,6 +316,8 @@ const handleCommentSubmit = async (e) => {
                 <button onClick={() => handleToggleSave(post.post_id)}>
                   {post.isSaved ? "Unsave" : "Save"}
                 </button>
+                <button onClick={() => handleUpdatePostClick(post)}>Update</button>
+                <button onClick={() => handleDeletePost(post.post_id)}>Delete</button>
               </div>
             ))
           ) : (
@@ -308,8 +360,8 @@ const handleCommentSubmit = async (e) => {
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">
-            <h2>Add New Post</h2>
-            <form onSubmit={handlePostSubmit}>
+            <h2>{isEditing ? "Edit Post" : "Add New Post"}</h2>
+            <form onSubmit={isEditing ? handleUpdatePost : handlePostSubmit}>
               <label>
                 Title:
                 <input 

@@ -33,7 +33,8 @@ def get_posts_by_poster():
     poster_id = session['user']
     posts = Post.get_posts_by_poster_id(poster_id)
     if not posts:
-        return jsonify({"error": "No posts found for this poster."}), 404
+        return jsonify([]), 200
+        # return jsonify({"error": "No posts found for this poster."}), 404
 
     post_list = [post.to_dict() for post in posts]
     return jsonify(post_list), 200
@@ -49,12 +50,14 @@ def get_friends_posts_by_poster():
     friend_ids = [friend.account_id for friend in friends_accounts]
     
     if not friend_ids:
-        return jsonify({"error": "No friends found or no posts by friends."}), 404
+        return jsonify([]), 200
+        # return jsonify({"error": "No friends found or no posts by friends."}), 404
     
     posts = Post.get_posts_by_poster_ids(friend_ids)
 
     if not posts:
-        return jsonify({"error": "No posts found for friends."}), 404
+        return jsonify([]), 200
+        # return jsonify({"error": "No posts found for friends."}), 404
 
     post_list = [post.to_dict() for post in posts]
     return jsonify(post_list), 200
