@@ -14,26 +14,39 @@ const Posts = () => {
   const [newPost, setNewPost] = useState({ title: '', content: '', image_url: '' });
   const [newComment, setNewComment] = useState('');
 
+  const fetchPosts = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/post/`, { withCredentials: true });
+      const updatedPosts = response.data.map(post => ({
+        ...post,
+        isLiked: false,
+        isSaved: false
+      }));
+      setPosts(updatedPosts);
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching posts:", err);
+      setError('Failed to fetch posts.');
+      setLoading(false);
+    }
+  };
+
+  const fetchCommentsForPost = async (postId) => {
+    try {
+      const response = await axios.get(`${baseUrl}/post/${postId}/comments`, { withCredentials: true });
+      setSelectedPost((prev) => ({
+        ...prev,
+        comments: response.data,
+      }));
+    } catch (err) {
+      console.error("Error fetching comments:", err);
+      setError('Failed to fetch comments.');
+    }
+  };
+
+  // UseEffect to fetch posts when the component mounts
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-          const response = await axios.get(`${baseUrl}/post/`, { withCredentials: true }); // GET request to fetch all posts
-
-          const updatedPosts = response.data.map(post => ({
-            ...post,
-            isLiked: false,
-            isSaved: false
-          }));
-
-          setPosts(response.data);
-          setLoading(false);
-      } catch (err) {
-          console.error("Error fetching posts:", err);
-          setError('Failed to fetch posts.');
-          setLoading(false);
-      }
-    };
-  fetchPosts(); // close the function
+    fetchPosts();
   }, []);
 
   const handlePostClick = async (post_id) => {
@@ -68,8 +81,9 @@ const Posts = () => {
       const response = await axios.post(`${baseUrl}/post/add-post`, formData, { withCredentials: true });
       console.log(response.data);
       
-      // Add the newly created post to the list of posts
-      setPosts([...posts, response.data]);
+      // Fetch all posts again to update the list
+      fetchPosts();
+      
       setShowModal(false);
       setNewPost({ title: '', content: '', image_url: '' });  // clear the form
 
@@ -92,11 +106,7 @@ const handleCommentSubmit = async (e) => {
       const response = await axios.post(`${baseUrl}/post/comment`, formData, { withCredentials: true });
       console.log(response.data);
 
-      // Add the new comment to the selected post's comments
-      setSelectedPost((prev) => ({
-          ...prev,
-          comments: [...prev.comments, response.data],
-      }));
+      fetchCommentsForPost(selectedPost.post_id); // Fetch updated comments
       
       setNewComment('');
 
@@ -112,6 +122,8 @@ const handleCommentSubmit = async (e) => {
 
     try {
       await axios.delete(`${baseUrl}/post/delete-comment/${comment_id}`, { withCredentials: true });
+
+      fetchCommentsForPost(selectedPost.post_id); // Fetch updated comments
 
     } catch (err) {
         console.error("Error deleting comment:", err);
