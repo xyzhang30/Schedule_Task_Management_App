@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Posts.css'; 
+import './SplitScreen.css';
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
@@ -17,6 +18,13 @@ const Posts = () => {
     const fetchPosts = async () => {
       try {
           const response = await axios.get(`${baseUrl}/post/`, { withCredentials: true }); // GET request to fetch all posts
+
+          const updatedPosts = response.data.map(post => ({
+            ...post,
+            isLiked: false,
+            isSaved: false
+          }));
+
           setPosts(response.data);
           setLoading(false);
       } catch (err) {
@@ -100,7 +108,7 @@ const handleCommentSubmit = async (e) => {
 
   const handleDeleteComment = async (comment) => {
     const comment_id = comment.comment_id ;
-    console.log("Deleting comment with ID:", comment_id); // Log the comment ID
+    // console.log("Deleting comment with ID:", comment_id); // Log the comment ID
 
     try {
       await axios.delete(`${baseUrl}/post/delete-comment/${comment_id}`, { withCredentials: true });
@@ -111,56 +119,164 @@ const handleCommentSubmit = async (e) => {
     }
   };
 
-  return (
-    <div className="posts-page-container">
-      <div className="posts-header">
-        <h2>Posts</h2>
-        <button className="add-post-button" onClick={() => setShowModal(true)}>Add Post</button>
-      </div>
+  const handleLike = async (post_id) => {
+    try {
+      const formData = new FormData();
+      formData.append("post_id", post_id);
 
-      <div className="posts-list">
-        <p>Available Posts: </p>
-        {loading ? (
-          <p>Loading posts...</p>
-        ) : posts.length > 0 ? (
+      await axios.post(`${baseUrl}/post/like`, formData, { withCredentials: true });
+      console.log("Post liked successfully");
+    } 
+    catch (err) {
+      console.error("Error liking post:", err);
+      setError('Failed to like post.');
+    }
+  };
+
+  const handleUnlike = async (post_id) => {
+    try {
+      const formData = new FormData();
+      formData.append("post_id", post_id);
+
+      await axios.delete(`${baseUrl}/post/unlike`, { data: formData, withCredentials: true });
+      console.log("Post unliked successfully");
+    } 
+    
+    catch (err) {
+      console.error("Error unliking post:", err);
+      setError('Failed to unlike post.');
+    }
+  };
+
+  const handleSave = async (post_id) => {
+    try {
+      const formData = new FormData();
+      formData.append("post_id", post_id);
+
+      await axios.post(`${baseUrl}/post/save`, formData, { withCredentials: true });
+      console.log("Post saved successfully");
+    } 
+
+    catch (err) {
+      console.error("Error saving post:", err);
+      setError('Failed to save post.');
+    }
+  };
+
+  const handleUnsave = async (post_id) => {
+    try {
+      const formData = new FormData();
+      formData.append("post_id", post_id);
+
+      await axios.delete(`${baseUrl}/post/unsave`, { data: formData, withCredentials: true });
+      console.log("Post unsaved successfully");
+    } 
+    catch (err) {
+      console.error("Error unsaving post:", err);
+      setError('Failed to unsave post.');
+    }
+  };
+
+  const handleToggleLike = async (post_id) => {
+    try {
+      const updatedPosts = posts.map(post => {
+        if (post.post_id === post_id) {
+          if (!post.isLiked) {
+            handleLike(post_id);
+          } else {
+            handleUnlike(post_id);
+          }
+          return { ...post, isLiked: !post.isLiked };
+        }
+        return post;
+      });
+      setPosts(updatedPosts);
+    } catch (err) {
+      console.error("Error toggling like:", err);
+      setError('Failed to toggle like.');
+    }
+  };
+
+  const handleToggleSave = async (post_id) => {
+    try {
+      const updatedPosts = posts.map(post => {
+        if (post.post_id === post_id) {
+          if (!post.isSaved) {
+            handleSave(post_id);
+          } else {
+            handleUnsave(post_id);
+          }
+          return { ...post, isSaved: !post.isSaved };
+        }
+        return post;
+      });
+      setPosts(updatedPosts);
+    } catch (err) {
+      console.error("Error toggling save:", err);
+      setError('Failed to toggle save.');
+    }
+  };
+
+  return (
+    <div className="split-screen-container">
+      <div className="split-screen-left">
+        <div className="posts-header">
+          <h2>Posts</h2>
+          <button className="add-post-button" onClick={() => setShowModal(true)}>Add Post</button>
+        </div>
+
+        <div className="posts-list">
+          <p>Available Posts: </p>
+          {loading ? (
+            <p>Loading posts...</p>
+          ) : posts.length > 0 ? (
             posts.map((post, index) => (
-              <div key={index} className="post-item" onClick={() => handlePostClick(post.post_id)}>
-                <h3>{post.title}</h3>
+              <div key={index} className="post-item">
+                <h3 onClick={() => handlePostClick(post.post_id)}>{post.title}</h3>
                 <p>{post.content ? post.content.slice(0, 100) : "No content available"}...</p>
+                <button onClick={() => handleToggleLike(post.post_id)}>
+                  {post.isLiked ? "Unlike" : "Like"}
+                </button>
+                <button onClick={() => handleToggleSave(post.post_id)}>
+                  {post.isSaved ? "Unsave" : "Save"}
+                </button>
               </div>
             ))
-        ) : (
+          ) : (
             <p>No posts available.</p>
-        )}
+          )}
+        </div>
       </div>
 
-      <div className="post-details">
-        {selectedPost ? (
-          <div>
-            <h3>{selectedPost.title}</h3>
-            <p>{selectedPost.content}</p>
-            <h4>Comments:</h4>
-            {selectedPost.comments.length > 0 ? (
-              selectedPost.comments.map(comment => (
-                <div key={comment.comment_id}>
+      <div className="split-screen-right">
+        <div className="post-details">
+          {selectedPost ? (
+            <div>
+              <h3>{selectedPost.title}</h3>
+              <p>{selectedPost.content}</p>
+              <h4>Comments:</h4>
+              {selectedPost.comments.length > 0 ? (
+                selectedPost.comments.map(comment => (
+                  <div key={comment.comment_id}>
                     <p>{comment.text}</p>
                     <button onClick={() => handleDeleteComment(comment)}>Delete</button>
-                </div>
-              ))
-            ) : (
-              <p>No comments yet.</p>
-            )}
-            <input
-              type="text"
-              placeholder="Add a comment..."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-            />
-            <button onClick={handleCommentSubmit}>Submit Comment</button>
-          </div>
-        ) : (
-          <p>Select a post to view details.</p>
-        )}
+                  </div>
+                ))
+              ) : (
+                <p>No comments yet.</p>
+              )}
+              <input
+                type="text"
+                placeholder="Add a comment..."
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+              />
+              <button onClick={handleCommentSubmit}>Submit Comment</button>
+            </div>
+          ) : (
+            <p>Select a post to view details.</p>
+          )}
+        </div>
       </div>
 
       {showModal && (
