@@ -46,30 +46,35 @@ def register():
     """Registers a user if they provide proper credentials."""
     user_inputted_username = request.form['username']
     user_inputted_password = request.form['password']
+    user_inputted_confirm_password = request.form['confirm_password']
     user_inputted_email = request.form['email']
     user_inputted_phone_number = request.form['phone_number']
     user_inputted_year_created = (int)(request.form['year'])
 
-    #Hash and salt the provided password to securely store it in the database
-    password_to_be_stored = salt_and_hash_password(user_inputted_password)
+    if not compare_with_confirm(user_inputted_password, user_inputted_confirm_password): 
+        response_message = {'msg': 'Passwords do not match'}
+        status_code = 401
+    else: 
+        #Hash and salt the provided password to securely store it in the database
+        password_to_be_stored = salt_and_hash_password(user_inputted_password)
 
-    new_account = Account(
-        username = user_inputted_username,
-        password = password_to_be_stored,
-        email = user_inputted_email,
-        phone = user_inputted_phone_number,
-        avatar = "0",
-        year_created = user_inputted_year_created
-    )
+        new_account = Account(
+            username = user_inputted_username,
+            password = password_to_be_stored,
+            email = user_inputted_email,
+            phone = user_inputted_phone_number,
+            avatar = "0",
+            year_created = user_inputted_year_created
+        )
 
-    try:
-        new_account.save()
-        response_message = {'msg': 'Successfully Registered'}
-        status_code = 200
-        session['user'] = new_account.account_id 
-    except Exception as e:
-        response_message = {'msg': 'Invalid Email or Username - already taken'} 
-        status_code = 409
+        try:
+            new_account.save()
+            response_message = {'msg': 'Successfully Registered'}
+            status_code = 200
+            session['user'] = new_account.account_id 
+        except Exception as e:
+            response_message = {'msg': 'Invalid Email or Username - already taken'} 
+            status_code = 409
 
     return jsonify(response_message), status_code
 
@@ -154,7 +159,7 @@ def reset_password():
         user_inputted_new_password = request.form['new_password']
         user_inputted_confirm = request.form['confirm_password'] 
 
-        if user_inputted_confirm != user_inputted_new_password:
+        if not compare_with_confirm(user_inputted_new_password, user_inputted_confirm):
             response_message = {'msg': 'Passwords do not match'}
             status_code = 401
         else:
@@ -185,6 +190,9 @@ def salt_and_hash_password(password):
 def check_password(pass_to_be_checked, hashed_salted_password):
     pass_to_be_checked = pass_to_be_checked.encode('utf-8')
     return bcrypt.checkpw(pass_to_be_checked, hashed_salted_password.encode('utf-8'))  
+
+def compare_with_confirm(user_inputted_password, confirmation_of_password):
+    return user_inputted_password == confirmation_of_password
 
 def generate_reset_key(user_account):
     generated_key = secrets.token_urlsafe(32)
