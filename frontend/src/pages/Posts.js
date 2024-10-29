@@ -16,7 +16,7 @@ const Posts = () => {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-          const response = await axios.get(`${baseUrl}/post/`); // GET request to fetch all posts
+          const response = await axios.get(`${baseUrl}/post/`, { withCredentials: true }); // GET request to fetch all posts
           setPosts(response.data);
           setLoading(false);
       } catch (err) {
@@ -31,8 +31,8 @@ const Posts = () => {
   const handlePostClick = async (post_id) => {
     try {
       // Fetch the specific post
-      const response = await axios.get(`${baseUrl}/post/get-post/${post_id}`);
-      const commentsResponse = await axios.get(`${baseUrl}/post/${post_id}/comments`);
+      const response = await axios.get(`${baseUrl}/post/get-post/${post_id}`, { withCredentials: true });
+      const commentsResponse = await axios.get(`${baseUrl}/post/${post_id}/comments`, { withCredentials: true });
       console.log("Comments Response:", commentsResponse.data); // Log comments response
 
       const comments = Array.isArray(commentsResponse.data) ? commentsResponse.data : [];
@@ -53,9 +53,9 @@ const Posts = () => {
       formData.append('title', newPost.title);
       formData.append('content', newPost.content);
       formData.append('image_url', newPost.image_url); 
-      formData.append('poster_id', '1');  // change the poster ID!!!
+      // formData.append('poster_id', '1');  // change the poster ID!!!
 
-      const response = await axios.post(`${baseUrl}/post/add-post`, formData);
+      const response = await axios.post(`${baseUrl}/post/add-post`, formData, { withCredentials: true });
       console.log(response.data);
       
       // Add the newly created post to the list of posts
@@ -77,9 +77,9 @@ const handleCommentSubmit = async (e) => {
       const formData = new FormData();
       formData.append('text', newComment);
       formData.append('post_id', selectedPost.post_id);
-      formData.append('commenter_id', '1');  // change the commenter ID!!
+      // formData.append('commenter_id', '1');  // change the commenter ID!!
 
-      const response = await axios.post(`${baseUrl}/post/comment`, formData);
+      const response = await axios.post(`${baseUrl}/post/comment`, formData, { withCredentials: true });
       console.log(response.data);
 
       // Add the new comment to the selected post's comments
@@ -97,17 +97,9 @@ const handleCommentSubmit = async (e) => {
   };
 
   const handleDeleteComment = async (comment) => {
-    const { commenter_id, timestamp } = comment; // Extract required data
-    const postId = selectedPost.post_id; // Get current selected post ID
-
+    const comment_id = selectedPost.comment_id ;
     try {
-      await axios.delete(`${baseUrl}/post/delete-comment`, {
-          data: {
-            commenter_id: commenter_id,
-            post_id: postId,
-            timestamp
-          }
-      });
+      await axios.delete(`${baseUrl}/post/delete-comment`, comment_id, { withCredentials: true });
 
     } catch (err) {
         console.error("Error deleting comment:", err);
