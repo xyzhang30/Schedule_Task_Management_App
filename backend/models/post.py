@@ -28,7 +28,15 @@ class Post(Base):
         '''
         Gets a post by its id
         '''
-        return db_session.query(cls).filter_by(post_id=post_id).first()
+        return db_session.query(cls).get(post_id)
+    
+    @classmethod
+    def get_posts_by_poster_id(cls, poster_id):
+        return db_session.query(cls).filter_by(poster_id=poster_id).all()
+
+    @classmethod
+    def get_posts_by_poster_ids(cls, poster_ids):
+        return db_session.query(cls).filter(cls.poster_id.in_(poster_ids)).all()
 
     def save(self):
         db_session.add(self)
@@ -47,6 +55,14 @@ class Like(Base):
     post_id = Column(Integer, ForeignKey('post.post_id'), primary_key=True)
     liker_id = Column(Integer, ForeignKey('accounts.account_id'), primary_key=True)
 
+    @classmethod
+    def get_likes_by_post_id(cls, post_id):
+        return db_session.query(cls).filter_by(post_id=post_id).all()
+    
+    @classmethod
+    def get_like_by_post_and_liker_id(cls, post_id, liker_id):
+        return db_session.query(cls).filter_by(post_id=post_id, liker_id=liker_id).first()
+
     def save(self):
         db_session.add(self)
         db_session.commit()
@@ -61,6 +77,18 @@ class Save(Base):
     post_id = Column(Integer, ForeignKey('post.post_id'), primary_key=True)
     saver_id = Column(Integer, ForeignKey('accounts.account_id'), primary_key=True)
 
+    @classmethod
+    def get_saves_by_post_id(cls, post_id):
+        return db_session.query(cls).filter_by(post_id=post_id).all()
+
+    @classmethod
+    def get_saves_by_saver_id(cls, saver_id):
+        return db_session.query(cls).filter_by(saver_id=saver_id).all()
+    
+    @classmethod
+    def get_save_by_post_and_saver_id(cls, post_id, saver_id):
+        return db_session.query(cls).filter_by(post_id=post_id, saver_id=saver_id).first()
+
     def save(self):
         db_session.add(self)
         db_session.commit()
@@ -72,10 +100,19 @@ class Save(Base):
 
 class Comment(Base):
     __tablename__ = 'comments'
-    commenter_id = Column(Integer, ForeignKey('accounts.account_id'), primary_key=True)
-    post_id = Column(Integer, ForeignKey('post.post_id'), primary_key=True)
-    timestamp = Column(TIMESTAMP, default=datetime.now(), primary_key=True)
+    comment_id = Column(Integer, primary_key=True, autoincrement=True)
+    commenter_id = Column(Integer, ForeignKey('accounts.account_id'))
+    post_id = Column(Integer, ForeignKey('post.post_id'))
+    timestamp = Column(TIMESTAMP, default=datetime.now())
     text = Column(String(200), nullable=False)
+
+    @classmethod
+    def get_comments_by_post_id(cls, post_id):
+        return db_session.query(cls).filter_by(post_id=post_id).all()
+    
+    @classmethod
+    def get_comment_by_comment_id(cls, comment_id):
+        return db_session.query(cls).get(comment_id)
 
     def save(self):
         db_session.add(self)

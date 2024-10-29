@@ -36,6 +36,8 @@ const Posts = () => {
       console.log("Comments Response:", commentsResponse.data); // Log comments response
 
       const comments = Array.isArray(commentsResponse.data) ? commentsResponse.data : [];
+      console.log("Comments being set in selectedPost:", comments); // Log comments
+
       setSelectedPost({
           ...response.data,
           comments,
@@ -97,9 +99,11 @@ const handleCommentSubmit = async (e) => {
   };
 
   const handleDeleteComment = async (comment) => {
-    const comment_id = selectedPost.comment_id ;
+    const comment_id = comment.comment_id ;
+    console.log("Deleting comment with ID:", comment_id); // Log the comment ID
+
     try {
-      await axios.delete(`${baseUrl}/post/delete-comment`, comment_id, { withCredentials: true });
+      await axios.delete(`${baseUrl}/post/delete-comment/${comment_id}`, { withCredentials: true });
 
     } catch (err) {
         console.error("Error deleting comment:", err);
@@ -137,10 +141,10 @@ const handleCommentSubmit = async (e) => {
             <p>{selectedPost.content}</p>
             <h4>Comments:</h4>
             {selectedPost.comments.length > 0 ? (
-              selectedPost.comments.map((comment, index) => (
-                <div key={index}>
-                  <p>{comment.text}</p>
-                  <button onClick={() => handleDeleteComment(comment)}>Delete</button>
+              selectedPost.comments.map(comment => (
+                <div key={comment.comment_id}>
+                    <p>{comment.text}</p>
+                    <button onClick={() => handleDeleteComment(comment)}>Delete</button>
                 </div>
               ))
             ) : (
