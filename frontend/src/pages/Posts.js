@@ -16,15 +16,29 @@ const Posts = () => {
 
   const fetchPosts = async () => {
     try {
-      const response = await axios.get(`${baseUrl}/post/`, { withCredentials: true });
-      const updatedPosts = response.data.map(post => ({
+      // Fetch friends' posts
+      const friendsResponse = await axios.get(`${baseUrl}/post/get-friends-posts`, { withCredentials: true });
+      const friendsPosts = friendsResponse.data.map(post => ({
         ...post,
         isLiked: false,
-        isSaved: false
+        isSaved: false,
       }));
-      setPosts(updatedPosts);
+
+      // Fetch own posts
+      const ownResponse = await axios.get(`${baseUrl}/post/get-posts`, { withCredentials: true });
+      const ownPosts = ownResponse.data.map(post => ({
+        ...post,
+        isLiked: false,
+        isSaved: false,
+      }));
+
+      const allPosts = [...friendsPosts, ...ownPosts];
+      
+      setPosts(allPosts);
       setLoading(false);
-    } catch (err) {
+    } 
+    
+    catch (err) {
       console.error("Error fetching posts:", err);
       setError('Failed to fetch posts.');
       setLoading(false);
