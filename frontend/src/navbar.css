@@ -7,6 +7,10 @@
   padding-top: 20px;
   transition: width 0.3s ease;
   position: relative;
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100%;
 }
 
 .sidebar:hover {

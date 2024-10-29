@@ -3,7 +3,7 @@ from sqlalchemy import Column, Integer, String, DateTime
 from ..db import Base, db_session
 
 class Event(Base):
-    __tablename__ = 'event'
+    __tablename__ = 'events'
     event_id = Column(Integer, primary_key=True)
     account_id = Column(Integer, nullable=False)
     name = Column(String(100), nullable=False)
@@ -11,8 +11,8 @@ class Event(Base):
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)
     category = Column(String(100), nullable=True)
-    # label_text = Column(String(100), nullable=True)
-    # label_color = Column(String(20), nullable=True)
+    label_text = Column(String(100), nullable=True)
+    label_color = Column(String(20), nullable=True)
 
     def __repr__(self):
         return f"<Event event_id={self.event_id} name={self.name}>"
@@ -37,9 +37,9 @@ class Event(Base):
             'location': self.location,
             'start_date': self.start_date.strftime('%Y-%m-%dT%H:%M'),
             'end_date': self.end_date.strftime('%Y-%m-%dT%H:%M'),
-            'category': self.category
-            # 'label_text': self.label_text,
-            # 'label_color': self.label_color
+            'category': self.category,
+            'label_text': self.label_text,
+            'label_color': self.label_color
         }
 
     def save(self):

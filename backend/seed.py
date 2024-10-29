@@ -23,7 +23,7 @@ conn_details = psycopg2.connect(
 # create tables 
 cursor = conn_details.cursor()
 Table_creation = '''
-    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, friendrequests, groups, public_events, memberships, registrations CASCADE;    
+    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, friendrequests, groups, public_events, memberships, registrations, category CASCADE;    
     
     CREATE TABLE accounts (
         account_id SERIAL PRIMARY KEY,
@@ -56,7 +56,9 @@ Table_creation = '''
         location VARCHAR(30),
         start_date TIMESTAMP NOT NULL,
         end_date TIMESTAMP NOT NULL,
-        category VARCHAR(30)
+        category VARCHAR(30),
+        label_text VARCHAR(100),
+        label_color VARCHAR(20)
     );
     
     CREATE TABLE task (
@@ -128,6 +130,7 @@ Table_creation = '''
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 
+    
     CREATE TABLE groups (
         group_id SERIAL PRIMARY KEY,
         group_name VARCHAR(50) UNIQUE NOT NULL,
@@ -158,6 +161,8 @@ Table_creation = '''
     );
 '''
 cursor.execute(Table_creation)
+
+
 
 
 # generating test data
@@ -191,24 +196,27 @@ for _ in range(7):
     end_time = (datetime.combine(s_date.date(), start_time) + timedelta(hours=random.randint(1, 5), minutes=random.randint(0, 59))).time()
     e_date = datetime.combine(s_date.date(), end_time) 
     category = random.choice(['club', 'personal', 'school', 'work'])
-    
-    cursor.execute('''
-        INSERT INTO events (name, location, start_date, end_date, category)
-        VALUES (%s, %s, %s, %s, %s)
-    ''', (event_name, event_location, s_date, e_date, category))
-
-
-# tasks test data
-for _ in range (8):
-    due_time = faker.date_time_this_year() 
-    task_name = faker.word()
-    category = random.choice(['club', 'personal', 'school', 'work'])
-    complete = random.choice([True, False])
+    account_id = random.randint(1, 6)
+    label_text = faker.word()  # Random word for label text
+    label_color = faker.color_name()  # Random color name for label color
 
     cursor.execute('''
-        INSERT INTO task (due_time, task_name, category, complete)
-        VALUES (%s, %s, %s, %s)
-    ''', (due_time, task_name, category, complete))
+        INSERT INTO events (name, location, start_date, end_date, category, account_id, label_text, label_color)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    ''', (event_name, event_location, s_date, e_date, category, account_id, label_text, label_color))
+
+
+# # tasks test data
+# for _ in range (8):
+#     due_time = faker.date_time_this_year() 
+#     task_name = faker.word()
+#     category = random.choice(['club', 'personal', 'school', 'work'])
+#     complete = random.choice([True, False])
+
+#     cursor.execute('''
+#         INSERT INTO task (due_time, task_name, category, complete)
+#         VALUES (%s, %s, %s, %s)
+#     ''', (due_time, task_name, category, complete))
 
 
 # commit changes to save
