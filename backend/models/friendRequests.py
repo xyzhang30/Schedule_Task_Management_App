@@ -10,7 +10,7 @@ class FriendRequest(Base):
     account_id_from = Column(Integer, ForeignKey('accounts.account_id'))
     account_id_to = Column(Integer, ForeignKey('accounts.account_id'))
     message = Column(String, unique=False)
-    is_read = Column(Boolean, unique=False)
+    is_pending = Column(Boolean, unique=False)
     created_at = Column(TIMESTAMP, unique=False)
 	
     def __repr__(self):
@@ -23,6 +23,10 @@ class FriendRequest(Base):
     @classmethod
     def get_messages_for_id(cls, id):
         return db_session.query(cls).filter_by(account_id_to=id).all()
+    
+    @classmethod
+    def get_pending_requests_from_id(cls, id):
+        return db_session.query(cls).filter_by(account_id_from=id, is_pending=True).all()
 
     def save_request(self):
         db_session.add(self)

@@ -16,9 +16,6 @@ def get_friends():
     '''
     Gets all the friends for a specific account by account_id
     '''
-
-    print("______: ", session)
-
     account_id = session['user']
     friends = Friend.get_friends_by_id(account_id)
     if friends is None:
@@ -51,8 +48,10 @@ def removeFriend():
     '''
     removes a friend account pair from database 
     '''
-    account_id1 = int(request.form.get("account_id1"))
+    account_id1 = session['user']
     account_id2 = int(request.form.get("account_id2"))
+    if account_id1 > account_id2:
+        account_id1, account_id2 = account_id2, account_id1
     friend = Friend.get_pair_by_ids(account_id1, account_id2)
     if friend:
         friend.delete()

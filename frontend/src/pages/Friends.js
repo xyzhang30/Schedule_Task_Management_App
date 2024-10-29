@@ -14,7 +14,9 @@ const Friends = () => {
   const [selectedFriend, setSelectedFriend] = useState(null); 
   const [searchQuery, setSearchQuery] = useState(''); 
   const [showAddFriendsPopup, setShowAddFriendsPopup] = useState(false); 
-  const [requestedFriends, setRequestedFriends] = useState([]);
+  const [requests, setRequests] = useState([]);
+  const [pendingFriends, setPendingFriends] = useState([])
+  const [showFriendRequestPopup, setShowFriendRequestPopup] = useState(false);
 
   useEffect(() => {
     const fetchFriends = async () => {
@@ -49,10 +51,30 @@ const Friends = () => {
     }
   };
 
+  const fetchFriendRequestNotifications = async () => {
+    try {
+      const requestsResponse = await axios.get(`${baseUrl}/friend_request/get-requests`, { withCredentials: true });
+      console.log("REQUESTED: ", requestsResponse.data)
+      setRequests(requestsResponse.data)
+    } catch (err) {
+      console.error("Error fetching friend request notifications:", err);
+      setError('Failed to fetch friend request notifications.');
+    }
+  }
+
+  const fetchPendingFriends = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/friend_request/get-pending-friends`, { withCredentials: true });
+      setPendingFriends(response.data)
+    }  catch (err) {
+      console.error("Error fetching pending friends:", err);
+      setError('Failed to fetch pending friends.');
+    }
+  }
+
   const filteredFriends = friends.filter(friend =>
     friend.username.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
 
   const handleFriendClick = (friend) => {
     if (selectedFriend && selectedFriend.account_id === friend.account_id) {
@@ -69,21 +91,21 @@ const Friends = () => {
     }
   };
 
+  const toggleFrendRequestPopup = () => {
+    setShowFriendRequestPopup(!showFriendRequestPopup);
+    fetchFriendRequestNotifications();
+  }
+
   const handleAddFriendClick = async (account_id) => {
     try {
-      console.log("____ACCOUNTID: ", account_id)
       const formData = new FormData();
       // formData.append("account_id_from", 8); 
       formData.append("account_id_to", account_id);
       formData.append("message", "requested to add you as a friend");
 
-      const response = await axios.post(`${baseUrl}/friend_request/send-request`, formData, {
-          // headers: {
-          //     'Content-Type': 'multipart/form-data', // Specify the content type for FormData
-          // }
-      });
+      const response = await axios.post(`${baseUrl}/friend_request/send-request`, formData, {withCredentials: true});
       // setFriends(response.data);
-      setRequestedFriends((prevRequested) => [...prevRequested, account_id]);
+      // setRequestedFriends((prevRequested) => [...prevRequested, account_id]);
     } catch (err) {
       console.error('Error sending friend request:', err);
       setError('Failed to send friend request.');
@@ -94,6 +116,12 @@ const Friends = () => {
     <div className="friends-page-container">
       <div className="friends-header">
         <h2>Friends</h2>
+        <button
+          className='friend-request-button'
+          onClick={toggleFrendRequestPopup}
+          >
+          Requests
+        </button>
         <button 
           className="add-friends-button"
           onClick={toggleAddFriendsPopup}
@@ -151,6 +179,7 @@ const Friends = () => {
               {allUsers.length > 0 ? (
                 allUsers.map((user) => {
                   const isFriend = friends.some(friend => friend.account_id === user.account_id);
+                  const isRequested = pendingFriends.some(acc => acc.account_id === user.account_id);
                   return (
                     <div key={user.account_id} className="user-item">
                       <div className="user-info">
@@ -159,6 +188,8 @@ const Friends = () => {
                       <div className="modal-actions">
                         {isFriend ? (
                           <span className="friend-status">Friend</span>
+                        ) : isRequested ?(
+                          <span className="friend-status">Requested</span> 
                         ) : (
                           <button 
                             className="add-friend-button" 
