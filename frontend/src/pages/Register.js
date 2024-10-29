@@ -6,9 +6,10 @@ const Register = () => {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
+    confirm_password: '',
     email: '',
     phone_number: '',
-    year: ''  // Year field
+    year: ''  
   });
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
@@ -53,6 +54,10 @@ const Register = () => {
         <div>
           <label>Password:</label>
           <input type="password" name="password" value={formData.password} onChange={handleChange} required />
+        </div>
+        <div>
+          <label>Confirm Password:</label>
+          <input type="password" name="confirm_password" value={formData.confirm_password} onChange={handleChange} required />
         </div>
         <div>
           <label>Email:</label>
