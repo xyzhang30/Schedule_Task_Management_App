@@ -55,7 +55,7 @@ def change_number():
     '''
     account = Account.get_acc_by_id(session['user'])
     new_number = request.form['new_number']
-    
+
     try: 
         account.phone = new_number
         account.save()
@@ -66,4 +66,13 @@ def change_number():
         response_message = {'msg': 'Phone number already taken'}
         status_code = 409
     
+    return jsonify(response_message), status_code
+
+@bp.route('/get_username', methods = ['GET'])
+@is_logged_in
+def get_username():
+    account = Account.get_acc_by_id(session['user'])
+    username = account.username
+    response_message = {'username': username}
+    status_code = 200
     return jsonify(response_message), status_code
