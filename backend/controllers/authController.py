@@ -10,7 +10,9 @@ bp = Blueprint('auth', __name__, url_prefix = '/auth')
 
 @bp.route('/session_status', methods=['GET'])
 def session_status(): 
-    """Checks if a user is logged in based on session data - used for frontend rendering based on authentication."""
+    '''
+    Checks if a user is logged in based on session data - used for frontend rendering based on authentication.
+    '''
     if 'user' in session:
         return jsonify({'loggedIn': True, 'user': session['user']})
     else:
@@ -18,7 +20,9 @@ def session_status():
 
 @bp.route('/login', methods = ['POST'])
 def login():
-    """Logs a user in if they provide the correct credentials."""
+    '''
+    Logs a user in if they provide the correct credentials.
+    '''
     user_inputted_username = request.form['username']
     user_inputted_password = request.form['password']
 
@@ -43,7 +47,9 @@ def login():
 
 @bp.route('/register', methods = ['POST'])
 def register():
-    """Registers a user if they provide proper credentials."""
+    '''
+    Registers a user if they provide proper credentials.
+    '''
     user_inputted_username = request.form['username']
     user_inputted_password = request.form['password']
     user_inputted_confirm_password = request.form['confirm_password']
@@ -81,7 +87,9 @@ def register():
 @bp.route('/logout', methods = ['POST'])
 @is_logged_in
 def logout():
-    """Logs the user out by modifying session data."""
+    '''
+    Logs the user out by modifying session data.
+    '''
     session.pop('user', None) #Remove user key to log the user out
     response_message = {'msg': 'Successfully logged out'}
     status_code = 200
@@ -90,7 +98,9 @@ def logout():
 @bp.route('/change_password', methods = ['POST'])
 @is_logged_in
 def change_password():
-    """Changes a user's password while they are logged in, if they correctly provide their old password."""
+    '''
+    Changes a user's password while they are logged in, if they correctly provide their old password.
+    '''
     account = Account.get_acc_by_id(session['user'])
     original_password = request.form['original_password']
 
@@ -109,7 +119,9 @@ def change_password():
     
 @bp.route('/forgot_password', methods = ['POST']) 
 def forgot_password():
-    """Retrieves and verifies an email from the user and sends a password reset link to the email."""
+    '''
+    Retrieves and verifies an email from the user and sends a password reset link to the email.
+    '''
     user_inputted_email = request.form['email']
     account = Account.get_acc_by_email(user_inputted_email)
     
@@ -128,10 +140,10 @@ def forgot_password():
 
 @bp.route('/forgot_password/<url_key>', methods = ['GET'])
 def check_reset_key(url_key):  
-    """
+    '''
     Verifies the existence and validity of the reset key passed in through the url. 
     Redirects to the frontend reset-password route if valid.
-    """
+    '''
     reset_key = ResetKeys.get_all_by_reset_key(url_key)
     
     if reset_key is None: 
@@ -152,7 +164,9 @@ def check_reset_key(url_key):
 
 @bp.route('/reset_password', methods = ['POST'])
 def reset_password():
-    """Resets the user's password if their session data contains a valid reset_key."""
+    '''
+    Resets the user's password if their session data contains a valid reset_key.
+    '''
     if 'reset_key' in session:
         account_id = ResetKeys.get_all_by_reset_key(session['reset_key']).account_id #Gets the account_id associated with the reset key
 
