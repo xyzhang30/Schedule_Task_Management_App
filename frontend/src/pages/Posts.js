@@ -15,6 +15,7 @@ const Posts = () => {
   const [newPost, setNewPost] = useState({ title: '', content: '', image_url: '' });
   const [newComment, setNewComment] = useState('');
 
+  // fetch posts and comments
   const fetchPosts = async () => {
     try {
       // Fetch friends' posts
@@ -59,11 +60,11 @@ const Posts = () => {
     }
   };
 
-  // UseEffect to fetch posts when the component mounts
   useEffect(() => {
     fetchPosts();
   }, []);
 
+  // posts
   const handlePostClick = async (post_id) => {
     try {
       // Fetch the specific post
@@ -108,6 +109,7 @@ const Posts = () => {
     }
   };
 
+  // comments
   const handleCommentSubmit = async (e) => {
   e.preventDefault();
   if (!newComment) return;
@@ -146,6 +148,7 @@ const Posts = () => {
     }
   };
 
+  // likes and saves
   const handleLike = async (post_id) => {
     try {
       const formData = new FormData();
@@ -244,6 +247,7 @@ const Posts = () => {
     }
   };
 
+  // update post
   const handleUpdatePost = async () => {
     const formData = new FormData();
     formData.append('title', newPost.title);
@@ -283,11 +287,16 @@ const Posts = () => {
     setShowModal(true);
   };
   
+  // delete post
   const handleDeletePost = async (post_id) => {
     try {
       await axios.delete(`${baseUrl}/post/remove-post/${post_id}`, { withCredentials: true });
       setPosts((prevPosts) => prevPosts.filter((p) => p.post_id !== post_id));
-    } catch (err) {
+      
+      setSelectedPost(null);
+    } 
+    
+    catch (err) {
       console.error("Error deleting post:", err);
       setError('Failed to delete post.');
     }
@@ -316,8 +325,6 @@ const Posts = () => {
                 <button onClick={() => handleToggleSave(post.post_id)}>
                   {post.isSaved ? "Unsave" : "Save"}
                 </button>
-                <button onClick={() => handleUpdatePostClick(post)}>Update</button>
-                <button onClick={() => handleDeletePost(post.post_id)}>Delete</button>
               </div>
             ))
           ) : (
@@ -350,6 +357,9 @@ const Posts = () => {
                 onChange={(e) => setNewComment(e.target.value)}
               />
               <button onClick={handleCommentSubmit}>Submit Comment</button>
+
+              <button onClick={() => handleUpdatePostClick(selectedPost)}>Update</button> 
+              <button onClick={() => handleDeletePost(selectedPost.post_id)}>Delete</button>
             </div>
           ) : (
             <p>Select a post to view details.</p>

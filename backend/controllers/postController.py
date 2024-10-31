@@ -108,6 +108,23 @@ def update_post(post_id):
     return jsonify(post.to_dict()), 200
 
 
+def remove_all(post_id):
+    '''
+    Removes all likes, saves, and comments of a post by post_id
+    '''
+    likes = Like.get_likes_by_post_id(post_id)
+    for like in likes:
+        like.delete()
+
+    saves = Save.get_saves_by_post_id(post_id)
+    for save in saves:
+        save.delete()
+
+    comments = Comment.get_comments_by_post_id(post_id)
+    for comment in comments:
+        comment.delete()
+
+
 @bp.route('/remove-post/<int:post_id>', methods=['DELETE'])
 def remove_post(post_id):
     '''
@@ -115,8 +132,9 @@ def remove_post(post_id):
     '''
     post = Post.get_post_by_id(post_id)
     if post:
+        remove_all(post_id)
         post.delete()
-        return jsonify({"message": "Post removed successfully."}), 200
+        return jsonify({"message": "Post and all related data removed successfully."}), 200
     else:
         return jsonify({"error": "Post not found."}), 404
 
