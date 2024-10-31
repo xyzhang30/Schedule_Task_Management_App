@@ -129,8 +129,6 @@ const Friends = () => {
       removePendingStatus(request_id);
       fetchFriendRequestNotifications();
       fetchFriends();
-      // setFriends(response.data);
-      // setRequestedFriends((prevRequested) => [...prevRequested, account_id]);
     } catch (err) {
       console.error('Error adding friends:', err);
       setError('Failed to add friends.');
