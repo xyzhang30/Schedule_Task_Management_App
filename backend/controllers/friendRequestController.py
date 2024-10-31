@@ -30,7 +30,8 @@ def send_request():
         account_id_from=account_id_from,
         account_id_to=account_id_to,
         message=message,
-        created_at=datetime.now()
+        created_at=datetime.now(),
+        is_pending=True
     )
     
     friendRequest.save_request()
@@ -43,3 +44,18 @@ def get_pending_friends():
     pendingFriends = FriendRequest.get_pending_requests_from_id(account_id)
     pendingList = [p.to_dict() for p in pendingFriends]
     return jsonify(pendingList), 200
+
+
+@bp.route('/update-request', methods=['POST'])
+def update_request():
+    """
+    Update pending status of a friend request.
+    """
+    request_id = int(request.form.get("request_id"))
+    friend_request = FriendRequest.get_request_by_request_id(request_id)
+    if not friend_request:
+        return jsonify({'error': 'Friend request not found'}), 404
+    
+    friend_request.update_pending_status()
+    return jsonify({'message': 'Request no longer pending'}), 200
+ 

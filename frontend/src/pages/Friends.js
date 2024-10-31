@@ -19,19 +19,20 @@ const Friends = () => {
   const [showFriendRequestPopup, setShowFriendRequestPopup] = useState(false);
 
   useEffect(() => {
-    const fetchFriends = async () => {
-      try {
-        const response = await axios.get(`${baseUrl}/friend/get-friends`, {withCredentials: true});
-        setFriends(response.data); 
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching friends:", err);
-        setError('Failed to fetch friends.');
-        setLoading(false);
-      }
-    };
     fetchFriends();
   }, []); 
+
+  const fetchFriends = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/friend/get-friends`, {withCredentials: true});
+      setFriends(response.data); 
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching friends:", err);
+      setError('Failed to fetch friends.');
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return <div>Loading friends...</div>;
@@ -85,6 +86,8 @@ const Friends = () => {
   };
 
   const toggleAddFriendsPopup = () => {
+    fetchPendingFriends();
+
     setShowAddFriendsPopup(!showAddFriendsPopup);
     if (!allUsers.length) {
       fetchAllUsers();
@@ -104,13 +107,51 @@ const Friends = () => {
       formData.append("message", "requested to add you as a friend");
 
       const response = await axios.post(`${baseUrl}/friend_request/send-request`, formData, {withCredentials: true});
-      // setFriends(response.data);
-      // setRequestedFriends((prevRequested) => [...prevRequested, account_id]);
+      fetchPendingFriends();
     } catch (err) {
       console.error('Error sending friend request:', err);
       setError('Failed to send friend request.');
     }
   };
+
+  const handleAcceptRequest = async (account_id, request_id) => {
+    try {
+      // adding the friend pair to friend table
+      const formData = new FormData();
+      formData.append("account_id2", account_id);
+      const response = await axios.post(`${baseUrl}/friend/add-friend`, formData, {withCredentials: true});
+      
+      removePendingStatus(request_id);
+      fetchFriendRequestNotifications();
+      fetchFriends();
+      // setFriends(response.data);
+      // setRequestedFriends((prevRequested) => [...prevRequested, account_id]);
+    } catch (err) {
+      console.error('Error adding friends:', err);
+      setError('Failed to add friends.');
+    }
+  };
+
+  const handleDeclineRequest = async (request_id) => {
+    try {
+      removePendingStatus(request_id);
+      fetchFriendRequestNotifications();
+    } catch (err) {
+      console.error('Error declining request:', err);
+      setError('Failed to decline request.');
+    }
+  };
+
+  const removePendingStatus = async (request_id) => {
+    try {
+      const formData = new FormData();
+      formData.append("request_id", request_id);
+      const response = await axios.post(`${baseUrl}/friend_request/update-request`, formData, {withCredentials: true});
+    } catch (err) {
+      console.error('Error updating friend request pending status: ', err);
+      setError('Failed to update friend request pending status.');
+    }
+  }
 
   return (
     <div className="friends-page-container">
@@ -170,6 +211,31 @@ const Friends = () => {
       </div>
       )}
 
+      {showFriendRequestPopup && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Friend Requests</h3>
+            <button className="close-popup" onClick={toggleFrendRequestPopup}>Close</button>
+            <div className="friend-requests-list">
+              {requests.length > 0 ? (
+                requests.map((request) => (
+                  <div key={request.notification_id} className="request-item">
+                    <p>{request.account_id_from} {request.message}.</p>
+                    <p>{request.created_at}</p>
+                    <div className="request-actions">
+                      <button onClick={() => handleAcceptRequest(request.account_id_from, request.notification_id)}>Accept</button>
+                      <button onClick={() => handleDeclineRequest(request.notification_id)}>Decline</button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p>No new friend requests.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {showAddFriendsPopup && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -179,7 +245,7 @@ const Friends = () => {
               {allUsers.length > 0 ? (
                 allUsers.map((user) => {
                   const isFriend = friends.some(friend => friend.account_id === user.account_id);
-                  const isRequested = pendingFriends.some(acc => acc.account_id === user.account_id);
+                  const isRequested = pendingFriends.some(request => request.account_id_to === user.account_id);
                   return (
                     <div key={user.account_id} className="user-item">
                       <div className="user-info">
