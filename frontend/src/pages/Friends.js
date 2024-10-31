@@ -17,6 +17,7 @@ const Friends = () => {
   const [requests, setRequests] = useState([]);
   const [pendingFriends, setPendingFriends] = useState([])
   const [showFriendRequestPopup, setShowFriendRequestPopup] = useState(false);
+  const [addFriendSearchQuery, setAddFriendSearchQuery] = useState('')
 
   useEffect(() => {
     fetchFriends();
@@ -75,6 +76,10 @@ const Friends = () => {
 
   const filteredFriends = friends.filter(friend =>
     friend.username.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredAccounts = allUsers.filter(user =>
+    user.username.toLowerCase().includes(addFriendSearchQuery.toLowerCase())
   );
 
   const handleFriendClick = (friend) => {
@@ -241,9 +246,19 @@ const Friends = () => {
           <div className="modal-content">
             <h3>Add Friends</h3>
             <button className="close-popup" onClick={toggleAddFriendsPopup}>Close</button>
+            
+            <div>
+              <input
+                type='text'
+                placeholder='Search users'
+                value={addFriendSearchQuery}
+                onChange={(e) => setAddFriendSearchQuery(e.target.value)}
+              />
+            </div>
+            
             <div className="user-list">
-              {allUsers.length > 0 ? (
-                allUsers.map((user) => {
+              {filteredAccounts.length > 0 ? (
+                filteredAccounts.map((user) => {
                   const isFriend = friends.some(friend => friend.account_id === user.account_id);
                   const isRequested = pendingFriends.some(request => request.account_id_to === user.account_id);
                   return (
@@ -269,7 +284,7 @@ const Friends = () => {
                   );
                 })
               ) : (
-                <p>Loading users...</p>
+                <p>No users found.</p>
               )}
             </div>
           </div>
