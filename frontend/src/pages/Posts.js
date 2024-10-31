@@ -14,6 +14,7 @@ const Posts = () => {
   const [isEditing, setIsEditing] = useState(false); // tracks if editing or adding a post
   const [newPost, setNewPost] = useState({ title: '', content: '', image_url: '' });
   const [newComment, setNewComment] = useState('');
+  const [isOwner, setIsOwner] = useState(false);
 
   // fetch posts and comments
   const fetchPosts = async () => {
@@ -302,6 +303,24 @@ const Posts = () => {
     }
   }; 
 
+  // check ID
+  const checkIfSelf = async (post_id) => {
+    try {
+      const response = await axios.get(`${baseUrl}/post/checkid/${post_id}`, { withCredentials: true });
+      setIsOwner(response.data.is_self);
+    } catch (error) {
+      console.error("Error checking post ownership:", error);
+      setIsOwner(false);
+    }
+  };
+  
+  useEffect(() => {
+    if (selectedPost) {
+      checkIfSelf(selectedPost.post_id);
+    }
+  }, [selectedPost]);
+
+
   return (
     <div className="split-screen-container">
       <div className="split-screen-left">
@@ -358,8 +377,12 @@ const Posts = () => {
               />
               <button onClick={handleCommentSubmit}>Submit Comment</button>
 
-              <button onClick={() => handleUpdatePostClick(selectedPost)}>Update</button> 
-              <button onClick={() => handleDeletePost(selectedPost.post_id)}>Delete</button>
+              {isOwner && (
+              <>
+                <button onClick={() => handleUpdatePostClick(selectedPost)}>Update</button> 
+                <button onClick={() => handleDeletePost(selectedPost.post_id)}>Delete</button>
+              </>
+              )}
             </div>
           ) : (
             <p>Select a post to view details.</p>

@@ -28,7 +28,7 @@ class Post(Base):
         '''
         Gets a post by its id
         '''
-        return db_session.query(cls).get(post_id)
+        return db_session.query(cls).filter_by(post_id=post_id).first()
     
     @classmethod
     def get_posts_by_poster_id(cls, poster_id):

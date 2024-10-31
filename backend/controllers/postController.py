@@ -269,3 +269,15 @@ def get_comments(post_id):
                      "text": comment.text,
                      "comment_id": comment.comment_id} for comment in comments]
     return jsonify(comment_list), 200
+
+# check id
+@bp.route('/checkid/<int:post_id>', methods=['GET'])
+def is_self(post_id):
+    post = Post.get_post_by_id(post_id)
+
+    if not post:
+        return jsonify({"error": "Post not found."}), 404
+
+    if post:
+        is_self = post.poster_id == session['user']
+        return jsonify({'is_self': is_self}), 200
