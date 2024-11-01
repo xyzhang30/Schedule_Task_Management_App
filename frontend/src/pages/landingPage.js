@@ -44,6 +44,7 @@ const LandingPage = () => {
             <button className="btn change-password" onClick={() => navigate('/change-password')}>Change Password</button>
             <button className="btn change-phone" onClick={() => navigate('/change-phone-number')}>Change Phone Number</button>
             <button className="btn forgot-password" onClick={() => navigate('/forgot-password')}>Forgot Password</button>
+            <button className="btn profile" onClick={() => navigate('/profile')}>View Your Profile</button>
           </div>
         )}
       </section>
