@@ -2,12 +2,7 @@ import os
 from flask import Flask
 from flask_cors import CORS
 from flask_mail import Mail
-<<<<<<< HEAD
 from app.controllers import accountController, availabilityController, friendController, groupController, taskController, postController, authController, friendRequestController, eventController
-=======
-from app.controllers import accountController, availabilityController, friendController, taskController, postController, authController, friendRequestController, eventController
-from app.controllers import accountController, availabilityController, friendController, groupController
->>>>>>> David
 from .db import init_db
 
 mail = Mail() #create mail instance for importing
