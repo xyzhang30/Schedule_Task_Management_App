@@ -1,41 +1,54 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, session
 from flask import request
 from ..models.task import Task, Category
 
 bp = Blueprint('task', __name__, url_prefix='/task')
 
 #get all tasks 
-@bp.route('/', methods = ['GET'])
+@bp.route('/all', methods = ['GET'])
 def index():
     tasks = Task.all()
     tasks_list = [a.to_dict() for a in tasks]
     return jsonify(tasks_list)
 
 #get all tasks by account_id
-@bp.route('/<int:account_id>', methods = ['GET'])
-def get_tasks(account_id):
+@bp.route('/', methods = ['GET'])
+def get_tasks():
+    account_id = session['user']
     tasks = Task.get_by_account(account_id)
     tasks_list = [a.to_dict() for a in tasks]
     return jsonify(tasks_list)
 
-#get all tasks by account_id in forms of a (date, tasks) map/dictionary
-@bp.route('/<int:account_id>/sorted', methods=['GET'])
-def get_tasks_grouped_by_date(account_id):
+#get all tasks by account_id in forms of a (date, tasks) map/dictionary, where tasks are sorted by complete and due_time
+@bp.route('/sorted', methods=['GET'])
+def get_tasks_grouped_by_date():
+    account_id = session['user']
     map = Task.get_tasks_by_account_dic(account_id)
-    tasks_dict = {str(date): [task.to_dict() for task in tasks] for date, tasks in map.items()}
+    
+    tasks_dict = {}
+    for date, tasks in map.items():
+        uncompleted_tasks = [task for task in tasks if not task.complete]
+        completed_tasks = [task for task in tasks if task.complete]
+        uncompleted_tasks.sort(key=lambda task: task.due_time)
+        completed_tasks.sort(key=lambda task: task.due_time)
+        sorted_tasks = uncompleted_tasks + completed_tasks
+        tasks_dict[str(date)] = [task.to_dict() for task in sorted_tasks]
+    
     return jsonify(tasks_dict)
 
 #get all tasks by due dates for a user
-@bp.route('/date/<int:account_id>/<string:due_date>', methods = ['GET'])
-def get_tasks_by_date(account_id, due_date):
+@bp.route('/date/<string:due_date>', methods = ['GET'])
+def get_tasks_by_date(due_date):
+    account_id = session['user']
     tasks = Task.get_by_date(account_id, due_date)
     tasks_list = [task.to_dict() for task in tasks]
     tasks_list.sort(key=lambda x: x['due_time'])
     return jsonify(tasks_list)
 
 #get all tasks by category for a user
-@bp.route('/category/<int:account_id>/<string:category>', methods=['GET'])
-def get_tasks_by_category(account_id, category):
+@bp.route('/category/<string:category>', methods=['GET'])
+def get_tasks_by_category(category):
+    account_id = session['user']
     tasks = Task.get_by_category(account_id, category)
     tasks_list = [task.to_dict() for task in tasks]
     return jsonify(tasks_list)
@@ -55,7 +68,7 @@ def createTask():
     task_name = request.form.get("task_name")
     category = request.form.get("category")
     due_time = request.form.get("due_time")
-    account_id = (int)(request.form.get("account_id"))
+    account_id = session['user']
 
     if not task_name or not due_time or not account_id:
         return jsonify({'error': 'Missing required fields'}), 400
@@ -110,11 +123,6 @@ def removeTask(task_id):
         task.delete()
         return jsonify({"message": "Task removed successfully."}), 200
     return jsonify({"error": "Task not found."}), 404
-
-
-#To-do:
-# - completed tasks at the end, marked
-
 
 #get all categories
 @bp.route('/category/all', methods = ['GET'])
