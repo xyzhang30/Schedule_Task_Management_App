@@ -5,6 +5,7 @@ import os
 from faker import Faker
 import random
 from datetime import datetime, timedelta
+import bcrypt 
 
 # get database connection information from env vars.
 db_user = os.environ.get("POSTGRES_USER")
@@ -23,7 +24,7 @@ conn_details = psycopg2.connect(
 # create tables 
 cursor = conn_details.cursor()
 Table_creation = '''
-    DROP TABLE IF EXISTS category, assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, friendrequests, groups, public_events, memberships, registrations CASCADE;    
+    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, friendrequests, groups, public_events, memberships, registrations, category CASCADE;    
     
     CREATE TABLE accounts (
         account_id SERIAL PRIMARY KEY,
@@ -124,7 +125,7 @@ Table_creation = '''
         account_id_to INTEGER REFERENCES accounts(account_id),
         account_id_from INTEGER REFERENCES accounts(account_id),
         message VARCHAR(255),
-        is_read BOOLEAN DEFAULT FALSE,
+        is_pending BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 
@@ -170,7 +171,9 @@ usernames = ['alisha', 'david', 'alina', 'olivia', 'carrie', 'vivian']
 accounts = [1, 2, 3, 4, 5, 6]
 for n in range(6):
     username = usernames[n]
-    password = 'my_password'
+    password = username
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
     email = faker.email()
     phone = faker.phone_number()[:12]
     avatar = None
@@ -179,7 +182,17 @@ for n in range(6):
     cursor.execute('''
         INSERT INTO accounts (username, password, email, phone, avatar, year_created)
         VALUES (%s, %s, %s, %s, %s, %s)
-    ''', (username, password, email, phone, avatar, year_created))
+    ''', (username, hashed_password, email, phone, avatar, year_created))
+
+# friends test data
+for n in range (3):
+    account_id1 = n + 1
+    account_id2 = n + 4
+    cursor.execute('''
+        INSERT INTO friend (account_id1, account_id2)
+        VALUES (%s, %s)
+    ''', (account_id1, account_id2))
+
 
 # events test data
 for _ in range(7):
@@ -199,33 +212,20 @@ for _ in range(7):
 
 
 # tasks test data
-for _ in range (8):
+for _ in range (9):
     due_time = faker.date_time_this_year() 
     task_name = faker.word()
     category = random.choice(['club', 'personal', 'school', 'work'])
     complete = random.choice([True, False])
+    account_id = random.randint(1, 7)
 
     cursor.execute('''
-        INSERT INTO task (due_time, task_name, category, complete)
-        VALUES (%s, %s, %s, %s)
-    ''', (due_time, task_name, category, complete))
+        INSERT INTO task (account_id, due_time, task_name, category, complete)
+        VALUES (%s, %s, %s, %s, %s)
+    ''', (account_id, due_time, task_name, category, complete))
 
 
 # commit changes to save
 conn_details.commit()
 cursor.close()
 conn_details.close()
-
-
-# CREATE TABLE commenters(
-#         post_id INTEGER REFERENCES post(post_id),
-#         commenter_id INTEGER REFERENCES accounts(account_id)
-#         PRIMARY KEY (commenter_id, post_id)
-#     );
-
-#     CREATE TABLE comments(
-#         commenter_id INTEGER REFERENCES accounts(account_id),
-#         timestamp NUMERIC NOT NULL,
-#         text VARCHAR(200) NOT NULL,
-#         PRIMARY KEY (commenter_id, timestamp)
-#     );
