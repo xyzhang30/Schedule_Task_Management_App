@@ -1,9 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Events.css';
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
+
+axios.defaults.withCredentials = true;
 
 const Events = () => {
   const [events, setEvents] = useState({});
@@ -19,8 +20,12 @@ const Events = () => {
     category: '',
     customCategory: '',
   });
-  const [categories, setCategories] = useState(['personal', 'academic']);
+  const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
+  const [labels, setLabels] = useState([]);
+  const [selectedLabel, setSelectedLabel] = useState('');
   const [showUpdateEventModal, setShowUpdateEventModal] = useState(false);
   const [updatedEvent, setUpdatedEvent] = useState({});
   const [showLabelModal, setShowLabelModal] = useState(false);
@@ -28,20 +33,31 @@ const Events = () => {
   const [labelData, setLabelData] = useState({ label_text: '', label_color: '#ffffff' });
   const [alertEvent, setAlertEvent] = useState(null);
 
+  
+
+  // useEffect(() => {
+  //   if (!account_id) {
+  //     window.location.href = '/login';
+  //   }
+  // }, [account_id]);
+
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await axios.get(`${baseUrl}/event/getEventsByAccount/1`);
+        const response = await axios.get(`${baseUrl}/event/getEventsByAccount`);
         const eventData = response.data.events || [];
         eventData.forEach(event => {
           event.alerted = false;
         });
         const groupedEvents = groupEventsByDate(eventData);
         setEvents(groupedEvents);
-        extractCategories(eventData);
+        extractLabels(eventData);
       } catch (error) {
         console.error("There was an error fetching the events!", error);
         setError('Failed to fetch events.');
+        if (error.response && error.response.status === 401) {
+          window.location.href = '/login';
+        }
       } finally {
         setLoading(false);
       }
@@ -50,13 +66,28 @@ const Events = () => {
   }, []);
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(`${baseUrl}/event/category/all`);
+        setCategories(response.data.map(cat => cat.category_name));
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+        setError('Failed to fetch categories.');
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    
     const checkEvents = () => {
       const now = new Date();
       for (const date in events) {
         for (const event of events[date]) {
           if (!event.alerted) {
             const eventStart = new Date(event.start_date);
-            if (Math.abs(eventStart - now) < 60000) { 
+            if (Math.abs(eventStart - now) < 60000) {
               setAlertEvent(event);
               event.alerted = true;
             }
@@ -66,7 +97,7 @@ const Events = () => {
     };
 
     checkEvents();
-    const interval = setInterval(checkEvents, 60000); 
+    const interval = setInterval(checkEvents, 60000);
     return () => clearInterval(interval);
   }, [events]);
 
@@ -82,23 +113,28 @@ const Events = () => {
     return grouped;
   };
 
-  const extractCategories = (events) => {
-    const categorySet = new Set(categories);
+  const extractLabels = (events) => {
+    const labelSet = new Set();
     events.forEach(event => {
-      if (event.category) {
-        categorySet.add(event.category);
+      if (event.label_text) {
+        labelSet.add(event.label_text);
       }
     });
-    setCategories([...categorySet]);
+    setLabels([...labelSet]);
   };
 
   const handleCategoryChange = (e) => {
     setSelectedCategory(e.target.value);
   };
 
+  const handleLabelChange = (e) => {
+    setSelectedLabel(e.target.value);
+  };
+
   const filteredEvents = Object.keys(events).reduce((filtered, date) => {
     const eventsForDate = events[date].filter(event =>
-      selectedCategory === '' || event.category === selectedCategory
+      (selectedCategory === '' || event.category === selectedCategory) &&
+      (selectedLabel === '' || event.label_text === selectedLabel)
     );
     if (eventsForDate.length) {
       filtered[date] = eventsForDate;
@@ -125,27 +161,31 @@ const Events = () => {
 
   const handleAddEvent = async (e) => {
     e.preventDefault();
-    try {
-      const formData = {
-        ...newEvent,
-        category: newEvent.category === 'custom' ? newEvent.customCategory : newEvent.category,
-        account_id: '1',
-      };
-      delete formData.customCategory;
+    const formData = {
+      ...newEvent,
+      category: newEvent.category === 'custom' ? newEvent.customCategory : newEvent.category,
+      // account_id: account_id,
+    };
+    delete formData.customCategory;
 
-      const response = await axios.post(`${baseUrl}/event/createEvent`, formData);
+    if (new Date(formData.end_date) <= new Date(formData.start_date)) {
+      alert('End date must be after start date.');
+      return;
+    }
+
+    try {
+      await axios.post(`${baseUrl}/event/createEvent`, formData);
       setShowAddEventModal(false);
       setNewEvent({ name: '', location: '', start_date: '', end_date: '', category: '', customCategory: '' });
 
-      
-      const updatedEventsResponse = await axios.get(`${baseUrl}/event/getEventsByAccount/1`);
+      const updatedEventsResponse = await axios.get(`${baseUrl}/event/getEventsByAccount`);
       const eventData = updatedEventsResponse.data.events || [];
       eventData.forEach(event => {
         event.alerted = false;
       });
       const groupedEvents = groupEventsByDate(eventData);
       setEvents(groupedEvents);
-      extractCategories(eventData);
+      extractLabels(eventData);
     } catch (error) {
       console.error("There was an error creating the event!", error.response?.data || error.message);
       setError('Failed to create event.');
@@ -155,7 +195,6 @@ const Events = () => {
   const handleDeleteEvent = async (eventId) => {
     try {
       await axios.delete(`${baseUrl}/event/deleteEvent/${eventId}`);
-      // Remove the event from the state
       setEvents(prevEvents => {
         const updatedEvents = { ...prevEvents };
         for (const date in updatedEvents) {
@@ -190,29 +229,32 @@ const Events = () => {
 
   const handleUpdateEventSubmit = async (e) => {
     e.preventDefault();
-    try {
-      const eventId = updatedEvent.event_id;
-      const formData = {
-        ...updatedEvent,
-        category: updatedEvent.category === 'custom' ? updatedEvent.customCategory : updatedEvent.category,
-      };
-      delete formData.event_id;
-      delete formData.customCategory;
+    const eventId = updatedEvent.event_id;
+    const formData = {
+      ...updatedEvent,
+      category: updatedEvent.category === 'custom' ? updatedEvent.customCategory : updatedEvent.category,
+    };
+    delete formData.event_id;
+    delete formData.customCategory;
 
+    if (new Date(formData.end_date) <= new Date(formData.start_date)) {
+      alert('End date must be after start date.');
+      return;
+    }
+
+    try {
       await axios.put(`${baseUrl}/event/updateEvent/${eventId}`, formData);
       setShowUpdateEventModal(false);
 
-      
-      const updatedEventsResponse = await axios.get(`${baseUrl}/event/getEventsByAccount/1`);
+      const updatedEventsResponse = await axios.get(`${baseUrl}/event/getEventsByAccount`);
       const eventData = updatedEventsResponse.data.events || [];
       eventData.forEach(event => {
         event.alerted = false;
       });
       const groupedEvents = groupEventsByDate(eventData);
       setEvents(groupedEvents);
-      extractCategories(eventData);
+      extractLabels(eventData);
 
-      
       setSelectedEvent(prevEvent => (prevEvent && prevEvent.event_id === eventId ? { ...prevEvent, ...formData } : prevEvent));
     } catch (error) {
       console.error('Error updating event:', error);
@@ -242,7 +284,6 @@ const Events = () => {
 
       await axios.put(`${baseUrl}/event/updateEvent/${eventId}`, formData);
 
-      // Update the event in the state
       setEvents(prevEvents => {
         const updatedEvents = { ...prevEvents };
         for (const date in updatedEvents) {
@@ -263,16 +304,142 @@ const Events = () => {
     }
   };
 
+  const handleAddCategory = async (e) => {
+    e.preventDefault();
+    try {
+      const data = { category_name: newCategoryName };
+      await axios.post(`${baseUrl}/event/category/create`, data);
+      setShowAddCategoryModal(false);
+      setNewCategoryName('');
+      // Fetch updated categories
+      const categoriesResponse = await axios.get(`${baseUrl}/event/category/all`);
+      setCategories(categoriesResponse.data.map(cat => cat.category_name));
+    } catch (err) {
+      console.error('Error creating category:', err);
+      setError('Failed to create category.');
+    }
+  };
+
   const navigateTo = (link) => {
     const fullLink = `http://localhost:3000${link}`;
-    console.log(`Navigating to ${fullLink}`);
     window.location.href = fullLink;
   };
 
   return (
     <div className="events-page-container">
-      <div className="events-header">
+      {/* <div className="events-header">
         <h2>Events</h2>
+      </div> */}
+
+      <div className="events-content">
+        <div className="filter-container">
+          <h2>Events</h2>
+          <div className="filter-group">
+            <label htmlFor="categoryFilter">Filter by Category: </label>
+            <select id="categoryFilter" value={selectedCategory} onChange={handleCategoryChange}>
+              <option value="">All Categories</option>
+              {categories.map(categoryOption => (
+                <option key={categoryOption} value={categoryOption}>
+                  {categoryOption}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="filter-group">
+            <label htmlFor="labelFilter">Filter by Label: </label>
+            <select id="labelFilter" value={selectedLabel} onChange={handleLabelChange}>
+              <option value="">All Labels</option>
+              {labels.map(labelOption => (
+                <option key={labelOption} value={labelOption}>
+                  {labelOption}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="button-group">
+            <button className="add-category-button" onClick={() => setShowAddCategoryModal(true)}>
+              Add Category
+            </button>
+            <button className="add-event-button" onClick={() => setShowAddEventModal(true)}>
+              Add Event
+            </button>
+            
+          </div>
+        </div>
+
+        {loading ? (
+          <p>Loading events...</p>
+        ) : error ? (
+          <p>{error}</p>
+        ) : (
+          <div className="events-list">
+            {Object.keys(filteredEvents).map(date => (
+              <div key={date} className="events-date">
+                <h3>{date}</h3>
+                {filteredEvents[date].map(event => (
+                  <div key={event.event_id} className="event-item-container">
+                    <div
+                      className="event-item"
+                      onClick={() => handleEventClick(event)}
+                    >
+                      {event.name}
+                      {event.label_text && (
+                        <span
+                          className="event-label"
+                          style={{ backgroundColor: event.label_color }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAddLabelClick(event);
+                          }}
+                        >
+                          {event.label_text}
+                        </span>
+                      )}
+                    </div>
+                    <button
+                      className="add-label-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleAddLabelClick(event);
+                      }}
+                    >
+                      +
+                    </button>
+                    <button
+                      className="delete-event-button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteEvent(event.event_id);
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="event-details">
+          {selectedEvent ? (
+            <div className="event-details-content">
+              <h2>{selectedEvent.name}</h2>
+              <p>Location: {selectedEvent.location}</p>
+              <p>Category: {selectedEvent.category}</p>
+              <p>Start Date: {formatDateTime(selectedEvent.start_date)}</p>
+              <p>End Date: {formatDateTime(selectedEvent.end_date)}</p>
+              <button
+                className="update-event-button"
+                onClick={() => handleUpdateEventClick(selectedEvent)}
+              >
+                Update Event
+              </button>
+            </div>
+          ) : (
+            <p></p>
+          )}
+        </div>
       </div>
 
       {/* <div className="sidebar">
@@ -324,6 +491,7 @@ const Events = () => {
                   name="end_date"
                   value={newEvent.end_date}
                   onChange={handleInputChange}
+                  min={newEvent.start_date}
                   required
                 />
               </label>
@@ -407,6 +575,7 @@ const Events = () => {
                   name="end_date"
                   value={updatedEvent.end_date}
                   onChange={handleUpdateInputChange}
+                  min={updatedEvent.start_date}
                   required
                 />
               </label>
@@ -494,95 +663,31 @@ const Events = () => {
         </div>
       )}
 
-      {loading ? (
-        <p>Loading events...</p>
-      ) : error ? (
-        <p>{error}</p>
-      ) : (
-        <div className="events-list">
-          {Object.keys(filteredEvents).map(date => (
-            <div key={date} className="events-date">
-              <h3>{date}</h3>
-              {filteredEvents[date].map(event => (
-                <div key={event.event_id} className="event-item-container">
-                  <div
-                    className="event-item"
-                    onClick={() => handleEventClick(event)}
-                  >
-                    {event.name}
-                    {event.label_text && (
-                      <span
-                        className="event-label"
-                        style={{ backgroundColor: event.label_color }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddLabelClick(event);
-                        }}
-                      >
-                        {event.label_text}
-                      </span>
-                    )}
-                  </div>
-                  <button
-                    className="add-label-button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleAddLabelClick(event);
-                    }}
-                  >
-                    +
-                  </button>
-                  <button
-                    className="delete-event-button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteEvent(event.event_id);
-                    }}
-                  >
-                    Delete
-                  </button>
-                </div>
-              ))}
-            </div>
-          ))}
+      {showAddCategoryModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Add a New Category</h2>
+            <form onSubmit={handleAddCategory}>
+              <label>
+                Category Name:
+                <input
+                  type="text"
+                  name="category_name"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  required
+                />
+              </label>
+              <div className="modal-actions">
+                <button type="submit">Create Category</button>
+                <button type="button" onClick={() => setShowAddCategoryModal(false)}>
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
-
-      <div className="filter-container">
-        <h2>Events</h2>
-        <label htmlFor="categoryFilter">Filter by Category: </label>
-        <select id="categoryFilter" value={selectedCategory} onChange={handleCategoryChange}>
-          <option value="">All Categories</option>
-          {categories.map(categoryOption => (
-            <option key={categoryOption} value={categoryOption}>
-              {categoryOption}
-            </option>
-          ))}
-        </select>
-        <button className="add-event-button" onClick={() => setShowAddEventModal(true)}>
-          Add Event
-        </button>
-      </div>
-
-      <div className="event-details">
-        {selectedEvent ? (
-          <div className="event-details-content">
-            <h2>{selectedEvent.name}</h2>
-            <p>Location: {selectedEvent.location}</p>
-            <p>Category: {selectedEvent.category}</p>
-            <p>Start Date: {formatDateTime(selectedEvent.start_date)}</p>
-            <p>End Date: {formatDateTime(selectedEvent.end_date)}</p>
-            <button
-              className="update-event-button"
-              onClick={() => handleUpdateEventClick(selectedEvent)}
-            >
-              Update Event
-            </button>
-          </div>
-        ) : (
-          <p></p>
-        )}
-      </div>
     </div>
   );
 };
