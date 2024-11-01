@@ -76,3 +76,21 @@ def get_username():
     response_message = {'username': username}
     status_code = 200
     return jsonify(response_message), status_code
+
+@bp.route('/get_phone_number', methods = ['GET'])
+@is_logged_in
+def get_phone_number():
+    account = Account.get_acc_by_id(session['user'])
+    phone_number = account.phone
+    response_message = {'phone_number': phone_number}
+    status_code = 200
+    return jsonify(response_message), status_code
+
+@bp.route('/get_year', methods = ['GET'])
+@is_logged_in
+def get_year_created():
+    account = Account.get_acc_by_id(session['user'])
+    year_created = account.year_created
+    response_message = {'year_created': year_created}
+    status_code = 200
+    return jsonify(response_message), status_code
