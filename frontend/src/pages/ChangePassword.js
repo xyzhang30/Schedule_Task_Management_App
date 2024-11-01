@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom'
 
 const ChangePassword = () => {
   const [originalPassword, setOriginalPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [showLogin, setShowLogin] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -24,11 +26,11 @@ const ChangePassword = () => {
 
       if (response.status === 201) {
         setSuccess('Password successfully changed!');
-      } else {
-        setError('Failed to change password. Please try again.');
+        setShowLogin(false)
       }
     } catch (error) {
-      setError('Failed to change password. Please try again.');
+      setError(error.response.data.msg);
+      setShowLogin(true)
     }
   };
 
@@ -57,6 +59,7 @@ const ChangePassword = () => {
         <button type="submit">Change Password</button>
       </form>
       {error && <p style={{ color: 'red' }}>{error}</p>}
+      {showLogin && <Link to = "/login"> Login </Link>}
       {success && <p style={{ color: 'green' }}>{success}</p>}
     </div>
   );

@@ -233,9 +233,9 @@ for _ in range (9):
     account_id = random.randint(1, 7)
 
     cursor.execute('''
-        INSERT INTO task (account_id, due_time, task_name, category, complete)
-        VALUES (%s, %s, %s, %s, %s)
-    ''', (account_id, due_time, task_name, category, complete))
+        INSERT INTO task (due_time, task_name, category, complete)
+        VALUES (%s, %s, %s, %s)
+    ''', (due_time, task_name, category, complete))
 
 
 # commit changes to save

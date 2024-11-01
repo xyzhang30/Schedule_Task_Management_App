@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const ChangeUsername = () => {
-  const [newUsername, setNewUsername] = useState('');
+const ForgotPassword = () => {
+  const [email, setEmail] = useState('');
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
@@ -11,39 +11,41 @@ const ChangeUsername = () => {
 
     try {
       const formData = new URLSearchParams();
-      formData.append('new_username', newUsername);
+      formData.append('email', email);
 
-      const response = await axios.post('http://localhost:8080/account/change_username', formData, {
+      const response = await axios.post('http://localhost:8080/auth/forgot_password', formData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
         withCredentials: true
       });
 
-      if (response.status === 201) {
-        setSuccess('Username successfully changed!');
+      if (response.status === 200) {
+        setSuccess(response.data.msg);
+        setError('');
       } else {
-        setError('Failed to change username. Please try again.');
+        setError(response.data.msg);
+        setSuccess('');
       }
     } catch (error) {
-      setError('Failed to change username. Please try again.');
+      setError('Failed to send an email with a reset link. Please try again');
     }
   };
 
   return (
     <div>
-      <h2>Change Username</h2>
+      <h2>Forgot Password</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>New Username:</label>
+          <label>Enter your email: </label>
           <input
-            type="text"
-            value={newUsername}
-            onChange={(e) => setNewUsername(e.target.value)}
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>
-        <button type="submit">Change Username</button>
+        <button type="submit">Forgot Password</button>
       </form>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {success && <p style={{ color: 'green' }}>{success}</p>}
@@ -51,4 +53,4 @@ const ChangeUsername = () => {
   );
 };
 
-export default ChangeUsername;
+export default ForgotPassword;

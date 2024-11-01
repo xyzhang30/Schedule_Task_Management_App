@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 const Login = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [email, setEmail] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const navigate = useNavigate();
@@ -17,7 +16,6 @@ const Login = () => {
     const formData = new FormData();
     formData.append('username', username);
     formData.append('password', password);
-    formData.append('email', email);
 
     try {
       const response = await axios.post('http://localhost:8080/auth/login', formData, {
@@ -49,15 +47,6 @@ const Login = () => {
             type="text"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-        </div>
-        <div>
-          <label>Email:</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
             required
           />
         </div>

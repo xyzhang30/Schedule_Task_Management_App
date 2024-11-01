@@ -28,5 +28,10 @@ def init_db():
     # from app.models.event import Event
     from app.models.post import Post
     from app.models.friendRequests import FriendRequest
+<<<<<<< HEAD
     from app.models.task import Category
+=======
+    from app.models.resetKeys import ResetKeys
+    # from flask_mvc_walkthrough.models.album import Album
+>>>>>>> David
     Base.metadata.create_all(bind=engine)
