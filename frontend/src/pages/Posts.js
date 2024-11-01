@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Posts.css'; 
 import './SplitScreen.css';
+import '../App.css'
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
