@@ -13,12 +13,12 @@
     align-items: center;
   }
   
-  .add-friends-button {
+  /* .add-friends-button {
     padding: 10px 20px;
     background-color: #f0f0f0;
     border: none;
     cursor: pointer;
-  }
+  } */
   
   .search-bar {
     grid-column: 1 / span 2;

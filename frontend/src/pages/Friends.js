@@ -1,6 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import './Friends.css'; 
+import '../App.css'
+import './SplitScreen.css'
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
@@ -12,22 +14,26 @@ const Friends = () => {
   const [selectedFriend, setSelectedFriend] = useState(null); 
   const [searchQuery, setSearchQuery] = useState(''); 
   const [showAddFriendsPopup, setShowAddFriendsPopup] = useState(false); 
-  const [requestedFriends, setRequestedFriends] = useState([]);
+  const [requests, setRequests] = useState([]);
+  const [pendingFriends, setPendingFriends] = useState([])
+  const [showFriendRequestPopup, setShowFriendRequestPopup] = useState(false);
+  const [addFriendSearchQuery, setAddFriendSearchQuery] = useState('')
 
   useEffect(() => {
-    const fetchFriends = async () => {
-      try {
-        const response = await axios.get(`${baseUrl}/friend/get-friends/1`);
-        setFriends(response.data); 
-        setLoading(false);
-      } catch (err) {
-        console.error("Error fetching friends:", err);
-        setError('Failed to fetch friends.');
-        setLoading(false);
-      }
-    };
     fetchFriends();
   }, []); 
+
+  const fetchFriends = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/friend/get-friends`, {withCredentials: true});
+      setFriends(response.data); 
+      setLoading(false);
+    } catch (err) {
+      console.error("Error fetching friends:", err);
+      setError('Failed to fetch friends.');
+      setLoading(false);
+    }
+  };
 
   if (loading) {
     return <div>Loading friends...</div>;
@@ -47,10 +53,34 @@ const Friends = () => {
     }
   };
 
+  const fetchFriendRequestNotifications = async () => {
+    try {
+      const requestsResponse = await axios.get(`${baseUrl}/friend_request/get-requests`, { withCredentials: true });
+      console.log("REQUESTED: ", requestsResponse.data)
+      setRequests(requestsResponse.data)
+    } catch (err) {
+      console.error("Error fetching friend request notifications:", err);
+      setError('Failed to fetch friend request notifications.');
+    }
+  }
+
+  const fetchPendingFriends = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/friend_request/get-pending-friends`, { withCredentials: true });
+      setPendingFriends(response.data)
+    }  catch (err) {
+      console.error("Error fetching pending friends:", err);
+      setError('Failed to fetch pending friends.');
+    }
+  }
+
   const filteredFriends = friends.filter(friend =>
     friend.username.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const filteredAccounts = allUsers.filter(user =>
+    user.username.toLowerCase().includes(addFriendSearchQuery.toLowerCase())
+  );
 
   const handleFriendClick = (friend) => {
     if (selectedFriend && selectedFriend.account_id === friend.account_id) {
@@ -61,42 +91,81 @@ const Friends = () => {
   };
 
   const toggleAddFriendsPopup = () => {
+    fetchPendingFriends();
+
     setShowAddFriendsPopup(!showAddFriendsPopup);
     if (!allUsers.length) {
       fetchAllUsers();
     }
   };
 
+  const toggleFrendRequestPopup = () => {
+    setShowFriendRequestPopup(!showFriendRequestPopup);
+    fetchFriendRequestNotifications();
+  }
+
   const handleAddFriendClick = async (account_id) => {
     try {
-      console.log("____ACCOUNTID: ", account_id)
-      // const response = await axios.post(`${baseUrl}/friend_request/send-request`, {
-      //   account_id_to: account_id, //default to 1 as dummy user now
-      //   account_id_from: 1,
-      //   message: "requested to add you as a friend"
-      // });
       const formData = new FormData();
-      formData.append("account_id_from", 1);  // Replace this with the actual user ID in production
+      // formData.append("account_id_from", 8); 
       formData.append("account_id_to", account_id);
       formData.append("message", "requested to add you as a friend");
 
-      const response = await axios.post(`${baseUrl}/friend_request/send-request`, formData, {
-          // headers: {
-          //     'Content-Type': 'multipart/form-data', // Specify the content type for FormData
-          // }
-      });
-      // setFriends(response.data);
-      setRequestedFriends((prevRequested) => [...prevRequested, account_id]);
+      const response = await axios.post(`${baseUrl}/friend_request/send-request`, formData, {withCredentials: true});
+      fetchPendingFriends();
     } catch (err) {
       console.error('Error sending friend request:', err);
       setError('Failed to send friend request.');
     }
   };
 
+  const handleAcceptRequest = async (account_id, request_id) => {
+    try {
+      // adding the friend pair to friend table
+      const formData = new FormData();
+      formData.append("account_id2", account_id);
+      const response = await axios.post(`${baseUrl}/friend/add-friend`, formData, {withCredentials: true});
+      
+      removePendingStatus(request_id);
+      fetchFriendRequestNotifications();
+      fetchFriends();
+    } catch (err) {
+      console.error('Error adding friends:', err);
+      setError('Failed to add friends.');
+    }
+  };
+
+  const handleDeclineRequest = async (request_id) => {
+    try {
+      removePendingStatus(request_id);
+      fetchFriendRequestNotifications();
+    } catch (err) {
+      console.error('Error declining request:', err);
+      setError('Failed to decline request.');
+    }
+  };
+
+  const removePendingStatus = async (request_id) => {
+    try {
+      const formData = new FormData();
+      formData.append("request_id", request_id);
+      const response = await axios.post(`${baseUrl}/friend_request/update-request`, formData, {withCredentials: true});
+    } catch (err) {
+      console.error('Error updating friend request pending status: ', err);
+      setError('Failed to update friend request pending status.');
+    }
+  }
+
   return (
     <div className="friends-page-container">
       <div className="friends-header">
         <h2>Friends</h2>
+        <button
+          className='friend-request-button'
+          onClick={toggleFrendRequestPopup}
+          >
+          Requests
+        </button>
         <button 
           className="add-friends-button"
           onClick={toggleAddFriendsPopup}
@@ -145,23 +214,61 @@ const Friends = () => {
       </div>
       )}
 
+      {showFriendRequestPopup && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Friend Requests</h3>
+            <button className="close-popup" onClick={toggleFrendRequestPopup}>Close</button>
+            <div className="friend-requests-list">
+              {requests.length > 0 ? (
+                requests.map((request) => (
+                  <div key={request.notification_id} className="request-item">
+                    <p>{request.account_id_from} {request.message}.</p>
+                    <p>{request.created_at}</p>
+                    <div className="request-actions">
+                      <button onClick={() => handleAcceptRequest(request.account_id_from, request.notification_id)}>Accept</button>
+                      <button onClick={() => handleDeclineRequest(request.notification_id)}>Decline</button>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p>No new friend requests.</p>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
       {showAddFriendsPopup && (
-        <div className="popup-overlay">
-          <div className="popup-content">
+        <div className="modal-overlay">
+          <div className="modal-content">
             <h3>Add Friends</h3>
             <button className="close-popup" onClick={toggleAddFriendsPopup}>Close</button>
+            
+            <div>
+              <input
+                type='text'
+                placeholder='Search users'
+                value={addFriendSearchQuery}
+                onChange={(e) => setAddFriendSearchQuery(e.target.value)}
+              />
+            </div>
+            
             <div className="user-list">
-              {allUsers.length > 0 ? (
-                allUsers.map((user) => {
+              {filteredAccounts.length > 0 ? (
+                filteredAccounts.map((user) => {
                   const isFriend = friends.some(friend => friend.account_id === user.account_id);
+                  const isRequested = pendingFriends.some(request => request.account_id_to === user.account_id);
                   return (
                     <div key={user.account_id} className="user-item">
                       <div className="user-info">
                         <p>{user.username}</p>
                       </div>
-                      <div className="user-action">
+                      <div className="modal-actions">
                         {isFriend ? (
                           <span className="friend-status">Friend</span>
+                        ) : isRequested ?(
+                          <span className="friend-status">Requested</span> 
                         ) : (
                           <button 
                             className="add-friend-button" 
@@ -175,7 +282,7 @@ const Friends = () => {
                   );
                 })
               ) : (
-                <p>Loading users...</p>
+                <p>No users found.</p>
               )}
             </div>
           </div>

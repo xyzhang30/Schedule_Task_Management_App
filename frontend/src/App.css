@@ -35,6 +35,13 @@
   color: #61dafb;
 }
 
+/* .main-container {
+  display: grid;
+  grid-template-columns: 200px 1fr; 
+  height: 100vh; 
+} 
+*/
+
 @keyframes App-logo-spin {
   from {
     transform: rotate(0deg);
@@ -43,7 +50,6 @@
     transform: rotate(360deg);
   }
 }
-
 
 .modal-overlay {
   position: fixed;
@@ -64,9 +70,11 @@
   border-radius: 10px;
   max-width: 500px;
   width: 90%;
+  max-height: 500px;
   z-index: 1001;
   position: relative;
   animation: zoomIn 0.5s ease;
+  overflow-y: scroll;
 }
 
 @keyframes zoomIn {
@@ -266,4 +274,14 @@
   .event-details {
     margin-top: 20px;
   }
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+button {
+  background-color: #20a0b1;
+  color: #FFF;
+  padding-top: 3px;
 }

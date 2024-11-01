@@ -53,7 +53,9 @@ Table_creation = '''
         event_location VARCHAR(30),
         s_date TIMESTAMP NOT NULL,
         e_date TIMESTAMP NOT NULL,
-        category VARCHAR(30)
+        category VARCHAR(30),
+        label_txt VARCHAR(100),
+        label_color VARCHAR(20),
     );
 
     CREATE TABLE task (

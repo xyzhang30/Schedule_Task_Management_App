@@ -77,5 +77,7 @@ CREATE TABLE Event (
     event_location VARCHAR(30),
     s_date VARCHAR(20),
     e_date VARCHAR(20),
-    category VARCHAR(30)
+    category VARCHAR(30),
+    label_txt VARCHAR(100),
+    label_color VARCHAR(20),
 );

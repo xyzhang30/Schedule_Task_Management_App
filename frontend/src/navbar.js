@@ -21,6 +21,7 @@ const NavBar = () => {
         <button onClick={() => navigateTo('/tasks')}><i className="fas fa-calendar"></i> <span>Tasks</span></button>
         <button onClick={() => navigateTo('/posts')}><i className="fas fa-cog"></i> <span>Posts</span></button>
         <button onClick={() => navigateTo('/friends')}><i className="fas fa-info-circle"></i> <span>Friends</span></button>
+        <button onClick={() => navigateTo('/event')}><i className="fas fa-info-circle"></i> <span>Events</span></button>
       </div>
       </div>  
       

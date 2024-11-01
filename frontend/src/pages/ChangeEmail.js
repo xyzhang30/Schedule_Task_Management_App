@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const ChangePhoneNumber = () => {
-  const [newPhoneNumber, setNewPhoneNumber] = useState('');
+const ChangeEmail = () => {
+  const [newEmail, setNewEmail] = useState('');
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
@@ -11,9 +11,9 @@ const ChangePhoneNumber = () => {
 
     try {
       const formData = new URLSearchParams();
-      formData.append('new_number', newPhoneNumber);
+      formData.append('new_email', newEmail);
 
-      const response = await axios.post('http://localhost:8080/account/change_number', formData, {
+      const response = await axios.post('http://localhost:8080/account/change_email', formData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
@@ -21,29 +21,32 @@ const ChangePhoneNumber = () => {
       });
 
       if (response.status === 201) {
-        setSuccess('Phone number successfully changed!');
+        setSuccess(response.data.msg);
+        setError('')
       } else {
-        setError('Failed to change phone number. Please try again.');
+        setError(response.data.msg);
+        setSuccess('')
       }
     } catch (error) {
-      setError('Failed to change phone number. Please try again.');
+      setError('Failed to change email. Please try again.');
+      setSuccess('')
     }
   };
 
   return (
     <div>
-      <h2>Change Phone Number</h2>
+      <h2>Change Email</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>New Phone Number:</label>
+          <label>New Email:</label>
           <input
             type="text"
-            value={newPhoneNumber}
-            onChange={(e) => setNewPhoneNumber(e.target.value)}
+            value={newEmail}
+            onChange={(e) => setNewEmail(e.target.value)}
             required
           />
         </div>
-        <button type="submit">Change Phone Number</button>
+        <button type="submit">Change Username</button>
       </form>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {success && <p style={{ color: 'green' }}>{success}</p>}
@@ -51,4 +54,4 @@ const ChangePhoneNumber = () => {
   );
 };
 
-export default ChangePhoneNumber;
+export default ChangeEmail;
