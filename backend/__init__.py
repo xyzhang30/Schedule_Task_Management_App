@@ -53,7 +53,6 @@ def create_app(test_config=None):
     app.register_blueprint(authController.bp)
     app.register_blueprint(friendRequestController.bp)
     app.register_blueprint(postController.bp)
-    app.register_blueprint(groupController.bp)
 
     init_db()
     return app

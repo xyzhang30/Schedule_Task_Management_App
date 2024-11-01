@@ -2,12 +2,14 @@ from flask import Blueprint, request, jsonify, session
 from ..models.event import Event, EventCategory
 from datetime import datetime
 import logging
+from ..decorators import is_logged_in
 logging.basicConfig(level=logging.DEBUG)
 
 bp = Blueprint('event', __name__, url_prefix='/event')
 
 # Create Event
 @bp.route('/createEvent', methods=['POST'])
+@is_logged_in
 def create_event():
     data = request.json
     logging.debug(f"Incoming data: {data}")
