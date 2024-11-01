@@ -60,6 +60,10 @@ Table_creation = '''
         label_text VARCHAR(100),
         label_color VARCHAR(20)
     );
+
+    CREATE TABLE event_category (
+        category_name VARCHAR(100) PRIMARY KEY
+    );
     
     CREATE TABLE task (
         task_id SERIAL PRIMARY KEY,

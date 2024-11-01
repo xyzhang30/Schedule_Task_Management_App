@@ -4,7 +4,6 @@ import './Events.css';
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
-
 axios.defaults.withCredentials = true;
 
 const Events = () => {
@@ -21,8 +20,10 @@ const Events = () => {
     category: '',
     customCategory: '',
   });
-  const [categories, setCategories] = useState(['personal', 'academic']);
+  const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState('');
   const [labels, setLabels] = useState([]);
   const [selectedLabel, setSelectedLabel] = useState('');
   const [showUpdateEventModal, setShowUpdateEventModal] = useState(false);
@@ -50,13 +51,11 @@ const Events = () => {
         });
         const groupedEvents = groupEventsByDate(eventData);
         setEvents(groupedEvents);
-        extractCategories(eventData);
         extractLabels(eventData);
       } catch (error) {
         console.error("There was an error fetching the events!", error);
         setError('Failed to fetch events.');
         if (error.response && error.response.status === 401) {
-          
           window.location.href = '/login';
         }
       } finally {
@@ -67,6 +66,21 @@ const Events = () => {
   }, []);
 
   useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(`${baseUrl}/event/category/all`);
+        setCategories(response.data.map(cat => cat.category_name));
+      } catch (err) {
+        console.error("Error fetching categories:", err);
+        setError('Failed to fetch categories.');
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  useEffect(() => {
+    
     const checkEvents = () => {
       const now = new Date();
       for (const date in events) {
@@ -97,16 +111,6 @@ const Events = () => {
       grouped[date].push(event);
     });
     return grouped;
-  };
-
-  const extractCategories = (events) => {
-    const categorySet = new Set(categories);
-    events.forEach(event => {
-      if (event.category) {
-        categorySet.add(event.category);
-      }
-    });
-    setCategories([...categorySet]);
   };
 
   const extractLabels = (events) => {
@@ -181,7 +185,6 @@ const Events = () => {
       });
       const groupedEvents = groupEventsByDate(eventData);
       setEvents(groupedEvents);
-      extractCategories(eventData);
       extractLabels(eventData);
     } catch (error) {
       console.error("There was an error creating the event!", error.response?.data || error.message);
@@ -250,7 +253,6 @@ const Events = () => {
       });
       const groupedEvents = groupEventsByDate(eventData);
       setEvents(groupedEvents);
-      extractCategories(eventData);
       extractLabels(eventData);
 
       setSelectedEvent(prevEvent => (prevEvent && prevEvent.event_id === eventId ? { ...prevEvent, ...formData } : prevEvent));
@@ -302,6 +304,22 @@ const Events = () => {
     }
   };
 
+  const handleAddCategory = async (e) => {
+    e.preventDefault();
+    try {
+      const data = { category_name: newCategoryName };
+      await axios.post(`${baseUrl}/event/category/create`, data);
+      setShowAddCategoryModal(false);
+      setNewCategoryName('');
+      // Fetch updated categories
+      const categoriesResponse = await axios.get(`${baseUrl}/event/category/all`);
+      setCategories(categoriesResponse.data.map(cat => cat.category_name));
+    } catch (err) {
+      console.error('Error creating category:', err);
+      setError('Failed to create category.');
+    }
+  };
+
   const navigateTo = (link) => {
     const fullLink = `http://localhost:3000${link}`;
     window.location.href = fullLink;
@@ -314,7 +332,6 @@ const Events = () => {
       </div> */}
 
       <div className="events-content">
-
         <div className="filter-container">
           <h2>Events</h2>
           <div className="filter-group">
@@ -339,9 +356,15 @@ const Events = () => {
               ))}
             </select>
           </div>
-          <button className="add-event-button" onClick={() => setShowAddEventModal(true)}>
-            Add Event
-          </button>
+          <div className="button-group">
+            <button className="add-category-button" onClick={() => setShowAddCategoryModal(true)}>
+              Add Category
+            </button>
+            <button className="add-event-button" onClick={() => setShowAddEventModal(true)}>
+              Add Event
+            </button>
+            
+          </div>
         </div>
 
         {loading ? (
@@ -419,12 +442,12 @@ const Events = () => {
         </div>
       </div>
 
-      <div className="sidebar">
+      {/* <div className="sidebar">
         <button onClick={() => navigateTo(``)}><i className="fas fa-home"></i> <span>Home</span></button>
         <button onClick={() => navigateTo('/tasks')}><i className="fas fa-calendar"></i> <span>Tasks</span></button>
         <button onClick={() => navigateTo('/posts')}><i className="fas fa-cog"></i> <span>Posts</span></button>
         <button onClick={() => navigateTo('/friends')}><i className="fas fa-info-circle"></i> <span>Friends</span></button>
-      </div>
+      </div> */}
 
       {showAddEventModal && (
         <div className="modal-overlay">
@@ -640,6 +663,31 @@ const Events = () => {
         </div>
       )}
 
+      {showAddCategoryModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2>Add a New Category</h2>
+            <form onSubmit={handleAddCategory}>
+              <label>
+                Category Name:
+                <input
+                  type="text"
+                  name="category_name"
+                  value={newCategoryName}
+                  onChange={(e) => setNewCategoryName(e.target.value)}
+                  required
+                />
+              </label>
+              <div className="modal-actions">
+                <button type="submit">Create Category</button>
+                <button type="button" onClick={() => setShowAddCategoryModal(false)}>
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

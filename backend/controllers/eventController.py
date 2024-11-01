@@ -1,6 +1,5 @@
-# eventController.py
 from flask import Blueprint, request, jsonify, session
-from ..models.event import Event
+from ..models.event import Event, EventCategory
 from datetime import datetime
 import logging
 logging.basicConfig(level=logging.DEBUG)
@@ -12,10 +11,7 @@ bp = Blueprint('event', __name__, url_prefix='/event')
 def create_event():
     data = request.json
     logging.debug(f"Incoming data: {data}")
-    account_id = 7
-    # account_id = session.get('user')
-    # if not account_id:
-    #     return jsonify({'message': 'User not logged in'}), 401
+    account_id = 7  # Replace with actual account ID retrieval logic
     new_event = Event(
         account_id=account_id,
         name=data['name'],
@@ -25,14 +21,14 @@ def create_event():
         category=data.get('category'),
         label_text=data.get('label_text'),
         label_color=data.get('label_color')
-        )
+    )
     new_event.save()
     return jsonify({'message': 'Event created successfully', 'event': new_event.to_dict()}), 201
 
 # Update Event
 @bp.route('/updateEvent/<int:event_id>', methods=['PUT'])
 def update_event(event_id):
-    account_id = session.get('user')
+    account_id = session.get('user')  # Replace with actual account ID retrieval logic
     if not account_id:
         return jsonify({'message': 'User not logged in'}), 401
     event = Event.get_event(event_id)
@@ -56,7 +52,7 @@ def update_event(event_id):
 # Delete Event
 @bp.route('/deleteEvent/<int:event_id>', methods=['DELETE'])
 def delete_event(event_id):
-    account_id = session.get('user')
+    account_id = session.get('user')  # Replace with actual account ID retrieval logic
     if not account_id:
         return jsonify({'message': 'User not logged in'}), 401
     event = Event.get_event(event_id)
@@ -78,9 +74,28 @@ def get_event(event_id):
 # Fetch Events by Account ID
 @bp.route('/getEventsByAccount', methods=['GET'])
 def get_events_by_account():
-    account_id = session.get('user')
+    account_id = session.get('user')  # Replace with actual account ID retrieval logic
     if not account_id:
         return jsonify({'message': 'User not logged in'}), 401
     events = Event.get_events_by_account(account_id)
     events_list = [event.to_dict() for event in events]
     return jsonify({'events': events_list}), 200
+
+# Get all categories
+@bp.route('/category/all', methods=['GET'])
+def getAllCategory():
+    categories = EventCategory.all()
+    categories_list = [a.to_dict() for a in categories]
+    return jsonify(categories_list)
+
+# Create category
+@bp.route('/category/create', methods=['POST'])
+def createCategory():
+    data = request.json
+    category_name = data.get("category_name")
+    if not category_name:
+        return jsonify({'message': 'Category name is required'}), 400
+
+    category = EventCategory(category_name=category_name)
+    category.save()
+    return jsonify({'message': 'Category created successfully'}), 201

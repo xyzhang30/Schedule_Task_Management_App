@@ -1,3 +1,13 @@
+.navbar {
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(to right, #f8f9fa, #e9ecef);
+  font-family: 'Roboto', sans-serif;
+  gap: 20px;
+}
+
+
 .sidebar {
   width: 60px;
   background-color: #e6e6e6;
@@ -6,9 +16,9 @@
   align-items: center;
   padding-top: 20px;
   transition: width 0.3s ease;
-  position: relative;
-  position: fixed;
-  left: 0;
+  left: 0; 
+  position: relative; 
+  
   top: 0;
   height: 100%;
 }
