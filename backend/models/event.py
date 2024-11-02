@@ -56,7 +56,7 @@ class Event(Base):
     def update(self):
         db_session.commit()
 
-# Add Category model
+# Category model
 class EventCategory(Base):
     __tablename__ = 'event_category'
     category_name = Column(String, primary_key=True)
@@ -69,6 +69,10 @@ class EventCategory(Base):
     
     def save(self):
         db_session.add(self)
+        db_session.commit()
+
+    def delete(self):
+        db_session.delete(self)
         db_session.commit()
 
     @classmethod

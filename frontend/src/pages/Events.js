@@ -33,14 +33,6 @@ const Events = () => {
   const [labelData, setLabelData] = useState({ label_text: '', label_color: '#ffffff' });
   const [alertEvent, setAlertEvent] = useState(null);
 
-  
-
-  // useEffect(() => {
-  //   if (!account_id) {
-  //     window.location.href = '/login';
-  //   }
-  // }, [account_id]);
-
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -49,6 +41,8 @@ const Events = () => {
         eventData.forEach(event => {
           event.alerted = false;
         });
+        // Sort events by start date
+        eventData.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
         const groupedEvents = groupEventsByDate(eventData);
         setEvents(groupedEvents);
         extractLabels(eventData);
@@ -80,7 +74,6 @@ const Events = () => {
   }, []);
 
   useEffect(() => {
-    
     const checkEvents = () => {
       const now = new Date();
       for (const date in events) {
@@ -110,6 +103,12 @@ const Events = () => {
       }
       grouped[date].push(event);
     });
+
+    // Sort the events within each date
+    for (const date in grouped) {
+      grouped[date].sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+    }
+
     return grouped;
   };
 
@@ -164,7 +163,6 @@ const Events = () => {
     const formData = {
       ...newEvent,
       category: newEvent.category === 'custom' ? newEvent.customCategory : newEvent.category,
-      // account_id: account_id,
     };
     delete formData.customCategory;
 
@@ -183,12 +181,21 @@ const Events = () => {
       eventData.forEach(event => {
         event.alerted = false;
       });
+      // Sort events by start date
+      eventData.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
       const groupedEvents = groupEventsByDate(eventData);
       setEvents(groupedEvents);
       extractLabels(eventData);
     } catch (error) {
       console.error("There was an error creating the event!", error.response?.data || error.message);
       setError('Failed to create event.');
+    }
+  };
+
+  const handleDeleteEventClick = (eventId) => {
+    // Show confirmation dialog
+    if (window.confirm('Are you sure you want to delete this event?')) {
+      handleDeleteEvent(eventId);
     }
   };
 
@@ -251,6 +258,8 @@ const Events = () => {
       eventData.forEach(event => {
         event.alerted = false;
       });
+      // Sort events by start date
+      eventData.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
       const groupedEvents = groupEventsByDate(eventData);
       setEvents(groupedEvents);
       extractLabels(eventData);
@@ -320,6 +329,19 @@ const Events = () => {
     }
   };
 
+  const handleCleanCategories = async () => {
+    try {
+      await axios.delete(`${baseUrl}/event/category/clean`);
+      // Fetch updated categories
+      const categoriesResponse = await axios.get(`${baseUrl}/event/category/all`);
+      setCategories(categoriesResponse.data.map(cat => cat.category_name));
+      alert('Unused categories have been cleaned.');
+    } catch (err) {
+      console.error('Error cleaning categories:', err);
+      setError('Failed to clean categories.');
+    }
+  };
+
   const navigateTo = (link) => {
     const fullLink = `http://localhost:3000${link}`;
     window.location.href = fullLink;
@@ -327,10 +349,6 @@ const Events = () => {
 
   return (
     <div className="events-page-container">
-      {/* <div className="events-header">
-        <h2>Events</h2>
-      </div> */}
-
       <div className="events-content">
         <div className="filter-container">
           <h2>Events</h2>
@@ -363,7 +381,9 @@ const Events = () => {
             <button className="add-event-button" onClick={() => setShowAddEventModal(true)}>
               Add Event
             </button>
-            
+            <button className="clean-categories-button" onClick={handleCleanCategories}>
+              Clean Categories
+            </button>
           </div>
         </div>
 
@@ -373,51 +393,55 @@ const Events = () => {
           <p>{error}</p>
         ) : (
           <div className="events-list">
-            {Object.keys(filteredEvents).map(date => (
-              <div key={date} className="events-date">
-                <h3>{date}</h3>
-                {filteredEvents[date].map(event => (
-                  <div key={event.event_id} className="event-item-container">
-                    <div
-                      className="event-item"
-                      onClick={() => handleEventClick(event)}
-                    >
-                      {event.name}
-                      {event.label_text && (
-                        <span
-                          className="event-label"
-                          style={{ backgroundColor: event.label_color }}
+            {Object.keys(filteredEvents)
+              .sort((a, b) => new Date(a) - new Date(b))
+              .map(date => (
+                <div key={date} className="events-date">
+                  <h3>{date}</h3>
+                  {filteredEvents[date]
+                    .sort((a, b) => new Date(a.start_date) - new Date(b.start_date))
+                    .map(event => (
+                      <div key={event.event_id} className="event-item-container">
+                        <div
+                          className="event-item"
+                          onClick={() => handleEventClick(event)}
+                        >
+                          {event.label_text && (
+                            <span
+                              className="event-label"
+                              style={{ backgroundColor: event.label_color }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAddLabelClick(event);
+                              }}
+                            >
+                              {event.label_text}
+                            </span>
+                          )}
+                          {event.name}
+                        </div>
+                        <button
+                          className="add-label-button"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleAddLabelClick(event);
                           }}
                         >
-                          {event.label_text}
-                        </span>
-                      )}
-                    </div>
-                    <button
-                      className="add-label-button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddLabelClick(event);
-                      }}
-                    >
-                      +
-                    </button>
-                    <button
-                      className="delete-event-button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteEvent(event.event_id);
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ))}
+                          +
+                        </button>
+                        <button
+                          className="delete-event-button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteEventClick(event.event_id);
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    ))}
+                </div>
+              ))}
           </div>
         )}
 
@@ -441,13 +465,6 @@ const Events = () => {
           )}
         </div>
       </div>
-
-      {/* <div className="sidebar">
-        <button onClick={() => navigateTo(``)}><i className="fas fa-home"></i> <span>Home</span></button>
-        <button onClick={() => navigateTo('/tasks')}><i className="fas fa-calendar"></i> <span>Tasks</span></button>
-        <button onClick={() => navigateTo('/posts')}><i className="fas fa-cog"></i> <span>Posts</span></button>
-        <button onClick={() => navigateTo('/friends')}><i className="fas fa-info-circle"></i> <span>Friends</span></button>
-      </div> */}
 
       {showAddEventModal && (
         <div className="modal-overlay">

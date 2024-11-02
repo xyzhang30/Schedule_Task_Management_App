@@ -5,6 +5,10 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.css';
 
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faHome, faCalendar, faCog, faUsers, faInfoCircle, faCalendarAlt } from '@fortawesome/free-solid-svg-icons';
+
+library.add(faHome, faCalendar, faCog, faUsers, faInfoCircle, faCalendarAlt);
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
