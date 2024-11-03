@@ -10,6 +10,7 @@ import Register from './pages/Register.js';
 import Logout from './pages/Logout.js';
 import ChangeUsername from './pages/ChangeUsername.js';
 import ChangePassword from './pages/ChangePassword.js';
+import ChangeEmail from './pages/ChangeEmail.js'
 import ChangePhoneNumber from './pages/ChangePhoneNumber.js';
 import ResetPassword from './pages/ResetPassword.js'
 import Tasks from './pages/Tasks.js';
@@ -46,6 +47,7 @@ function App() {
         <Route path="/event" element={<Events />} />
         <Route path="/groups" element={<GroupIndexPage/>} />
         <Route path="/group-info" element={<GroupInfoPage/>} />
+        <Route path="/change-email" element={<ChangeEmail/>} />
       </Routes>
       </div>
     </Router>
