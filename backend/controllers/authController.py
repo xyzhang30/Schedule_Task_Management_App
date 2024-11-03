@@ -1,11 +1,12 @@
 from flask import Blueprint, session, request, jsonify, redirect
 from flask_mail import Message
-import secrets, time, bcrypt
 from ..models.account import Account
 from ..models.resetKeys import ResetKeys
 from ..__init__ import mail
 from ..decorators import is_logged_in
-
+from ..__init__ import uploadParameters
+from werkzeug.utils import secure_filename
+import secrets, time, bcrypt, os
 bp = Blueprint('auth', __name__, url_prefix = '/auth')
 
 @bp.route('/session_status', methods=['GET'])
@@ -55,7 +56,10 @@ def register():
     user_inputted_confirm_password = request.form['confirm_password']
     user_inputted_email = request.form['email']
     user_inputted_phone_number = request.form['phone_number']
+    user_inputted_avatar = request.files['profile_picture']
     user_inputted_year_created = (int)(request.form['year'])
+
+    upload_file(user_inputted_avatar)
 
     if not compare_with_confirm(user_inputted_password, user_inputted_confirm_password): 
         response_message = {'msg': 'Passwords do not match'}
@@ -191,6 +195,13 @@ def reset_password():
     return jsonify(response_message), status_code
     
 #Helper functions
+def upload_file(file):
+    if allowed_file(file.filename):
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(uploadParameters['UPLOAD_FOLDER'], filename))
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in uploadParameters['ALLOWED_EXTENSIONS']
 def new_password(account_id, new_pass):
     account = Account.get_acc_by_id(account_id)
     account.password = salt_and_hash_password(new_pass)
