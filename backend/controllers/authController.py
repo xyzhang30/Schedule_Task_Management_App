@@ -59,9 +59,12 @@ def register():
     user_inputted_avatar = request.files['profile_picture']
     user_inputted_year_created = (int)(request.form['year'])
 
-    upload_file(user_inputted_avatar)
+    filename = upload_file(user_inputted_avatar, user_inputted_username)
 
-    if not compare_with_confirm(user_inputted_password, user_inputted_confirm_password): 
+    if not filename:
+        response_message = {'msg': f'Please upload a file with one of the following extensions: {uploadParameters["ALLOWED_EXTENSIONS"]}'}
+        status_code = 401
+    elif not compare_with_confirm(user_inputted_password, user_inputted_confirm_password): 
         response_message = {'msg': 'Passwords do not match'}
         status_code = 401
     else: 
@@ -73,12 +76,13 @@ def register():
             password = password_to_be_stored,
             email = user_inputted_email,
             phone = user_inputted_phone_number,
-            avatar = "0",
+            avatar = uploadParameters['UPLOAD_FOLDER'] + '/' + filename,
             year_created = user_inputted_year_created
         )
 
         try:
             new_account.save()
+            user_inputted_avatar.save(os.path.join(uploadParameters['UPLOAD_FOLDER'], filename))
             response_message = {'msg': 'Successfully Registered'}
             status_code = 200
             session['user'] = new_account.account_id 
@@ -195,10 +199,12 @@ def reset_password():
     return jsonify(response_message), status_code
     
 #Helper functions
-def upload_file(file):
-    if allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        file.save(os.path.join(uploadParameters['UPLOAD_FOLDER'], filename))
+def upload_file(file, username):
+    if allowed_file(file.filename): #Check the original file they uploaded
+        filename = username + '.' + secure_filename(file.filename).rsplit('.', 1)[1].lower() #Create a unique filename with username + extension of original file
+        return filename
+    else: 
+        return None
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in uploadParameters['ALLOWED_EXTENSIONS']
