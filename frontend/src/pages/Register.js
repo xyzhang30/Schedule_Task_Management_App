@@ -10,7 +10,8 @@ const Register = () => {
     email: '',
     phone_number: '',
     year: '',
-    profile_picture: null // Add a field for the file upload
+    major: '',
+    profile_picture: null
   });
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ const Register = () => {
     if (name === 'profile_picture') {
       setFormData({
         ...formData,
-        profile_picture: files[0], // Update file field
+        profile_picture: files[0], 
       });
     } else {
       setFormData({
@@ -79,6 +80,10 @@ const Register = () => {
         <div>
           <label>Year:</label>
           <input type="text" name="year" value={formData.year} onChange={handleChange} required />
+        </div>
+        <div>
+          <label>Major:</label>
+          <input type="text" name="major" value={formData.major} onChange={handleChange} required />
         </div>
         <div>
           <label>Profile Picture:</label>
