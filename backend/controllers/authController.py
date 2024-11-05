@@ -58,6 +58,7 @@ def register():
     user_inputted_phone_number = request.form['phone_number']
     user_inputted_avatar = request.files['profile_picture']
     user_inputted_year_created = (int)(request.form['year'])
+    user_inputted_major = request.form['major']
 
     filename = upload_file(user_inputted_avatar, user_inputted_username)
 
@@ -77,7 +78,8 @@ def register():
             email = user_inputted_email,
             phone = user_inputted_phone_number,
             avatar = uploadParameters['UPLOAD_FOLDER'] + '/' + filename,
-            year_created = user_inputted_year_created
+            year_created = user_inputted_year_created,
+            major = user_inputted_major
         )
 
         try:
