@@ -20,6 +20,8 @@ const Events = () => {
     end_date: '',
     category: '',
     customCategory: '',
+    frequency: '',
+    repeat_until: '',
   });
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -174,6 +176,7 @@ const Events = () => {
         newEvent.category === 'custom'
           ? newEvent.customCategory
           : newEvent.category,
+      repeat_until: newEvent.repeat_until ? newEvent.repeat_until : null,
     };
     delete formData.customCategory;
 
@@ -184,6 +187,17 @@ const Events = () => {
 
     try {
       await axios.post(`${baseUrl}/event/createEvent`, formData);
+
+      // Update categories if custom category was added
+      if (newEvent.category === 'custom') {
+        setCategories((prevCategories) => {
+          if (!prevCategories.includes(newEvent.customCategory)) {
+            return [...prevCategories, newEvent.customCategory];
+          }
+          return prevCategories;
+        });
+      }
+
       setShowAddEventModal(false);
       setNewEvent({
         name: '',
@@ -192,6 +206,8 @@ const Events = () => {
         end_date: '',
         category: '',
         customCategory: '',
+        frequency: '',
+        repeat_until: '',
       });
       await refreshEvents();
     } catch (error) {
@@ -395,8 +411,7 @@ const Events = () => {
                   <h3>{date}</h3>
                   {filteredEvents[date]
                     .sort(
-                      (a, b) =>
-                        new Date(a.start_date) - new Date(b.start_date)
+                      (a, b) => new Date(a.start_date) - new Date(b.start_date)
                     )
                     .map((event) => (
                       <div key={event.event_id} className="event-item-container">
@@ -451,6 +466,15 @@ const Events = () => {
               <p>Category: {selectedEvent.category}</p>
               <p>Start Date: {formatDateTime(selectedEvent.start_date)}</p>
               <p>End Date: {formatDateTime(selectedEvent.end_date)}</p>
+              <p>Frequency: {selectedEvent.frequency || 'None'}</p>
+              {selectedEvent.frequency && (
+                <p>
+                  Repeat Until:{' '}
+                  {selectedEvent.repeat_until
+                    ? formatDateTime(selectedEvent.repeat_until)
+                    : 'N/A'}
+                </p>
+              )}
               <button
                 className="update-event-button"
                 onClick={() => handleUpdateEventClick(selectedEvent)}
@@ -539,6 +563,32 @@ const Events = () => {
                   />
                 </label>
               )}
+              <label>
+                Frequency:
+                <select
+                  name="frequency"
+                  value={newEvent.frequency}
+                  onChange={handleInputChange}
+                >
+                  <option value="">None</option>
+                  <option value="Once a Week">Once a Week</option>
+                  <option value="Every Day">Every Day</option>
+                  <option value="Twice a Week">Twice a Week</option>
+                </select>
+              </label>
+              {newEvent.frequency && (
+                <label>
+                  Repeat Until:
+                  <input
+                    type="datetime-local"
+                    name="repeat_until"
+                    value={newEvent.repeat_until}
+                    onChange={handleInputChange}
+                    min={newEvent.end_date}
+                    required
+                  />
+                </label>
+              )}
               <div className="modal-actions">
                 <button type="submit">Create Event</button>
                 <button
@@ -559,6 +609,7 @@ const Events = () => {
         eventToUpdate={updatedEvent}
         setEventToUpdate={setUpdatedEvent}
         categories={categories}
+        setCategories={setCategories}
         refreshEvents={refreshEvents}
       />
 

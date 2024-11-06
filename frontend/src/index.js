@@ -14,9 +14,8 @@ import { ThemeProvider, createTheme } from '@mui/material/styles';
 
 library.add(faHome, faCalendar, faCog, faUsers, faInfoCircle, faCalendarAlt,faPeopleGroup, faCalendarCheck, faComments );
 
-// Create a theme instance (customize as needed)
 const theme = createTheme({
-  // Customize your theme here
+  
 });
 
 

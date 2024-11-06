@@ -10,6 +10,7 @@ const EventUpdateModal = ({
   eventToUpdate,
   setEventToUpdate,
   categories,
+  setCategories,
   refreshEvents,
 }) => {
   const handleUpdateInputChange = (e) => {
@@ -26,6 +27,7 @@ const EventUpdateModal = ({
         eventToUpdate.category === 'custom'
           ? eventToUpdate.customCategory
           : eventToUpdate.category,
+      repeat_until: eventToUpdate.repeat_until ? eventToUpdate.repeat_until : null,
     };
     delete formData.event_id;
     delete formData.customCategory;
@@ -37,6 +39,17 @@ const EventUpdateModal = ({
 
     try {
       await axios.put(`${baseUrl}/event/updateEvent/${eventId}`, formData);
+
+      // Update categories if custom category was added
+      if (eventToUpdate.category === 'custom') {
+        setCategories((prevCategories) => {
+          if (!prevCategories.includes(eventToUpdate.customCategory)) {
+            return [...prevCategories, eventToUpdate.customCategory];
+          }
+          return prevCategories;
+        });
+      }
+
       setShowUpdateEventModal(false);
       await refreshEvents();
     } catch (error) {
@@ -120,6 +133,32 @@ const EventUpdateModal = ({
                 name="customCategory"
                 value={eventToUpdate.customCategory || ''}
                 onChange={handleUpdateInputChange}
+                required
+              />
+            </label>
+          )}
+          <label>
+            Frequency:
+            <select
+              name="frequency"
+              value={eventToUpdate.frequency || ''}
+              onChange={handleUpdateInputChange}
+            >
+              <option value="">None</option>
+              <option value="Once a Week">Once a Week</option>
+              <option value="Every Day">Every Day</option>
+              <option value="Twice a Week">Twice a Week</option>
+            </select>
+          </label>
+          {eventToUpdate.frequency && (
+            <label>
+              Repeat Until:
+              <input
+                type="datetime-local"
+                name="repeat_until"
+                value={eventToUpdate.repeat_until || ''}
+                onChange={handleUpdateInputChange}
+                min={eventToUpdate.end_date}
                 required
               />
             </label>

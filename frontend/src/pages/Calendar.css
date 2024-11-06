@@ -16,6 +16,19 @@
   
   /* Customize appointment appearance */
   .MuiSchedulerAppointment-content {
-    background-color: #1976d2;
     color: white;
   }
+  
+  /* Fancy styling */
+  .dx-scheduler-header-panel-cell {
+    background-color: #f0f8ff;
+  }
+  
+  .dx-scheduler-date-table-cell {
+    background-color: #fafafa;
+  }
+  
+  .dx-scheduler-time-panel-cell {
+    background-color: #e6f7ff;
+  }
+  
