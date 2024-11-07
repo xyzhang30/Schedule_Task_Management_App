@@ -1,5 +1,5 @@
-from flask import Blueprint, jsonify, session
-from flask import request
+import os
+from flask import Blueprint, jsonify, session, request, send_file
 from ..models.account import Account
 from ..decorators import is_logged_in
 
@@ -94,3 +94,16 @@ def get_year_created():
     response_message = {'year_created': year_created}
     status_code = 200
     return jsonify(response_message), status_code
+
+@bp.route('/get_avatar', methods = ['GET'])
+@is_logged_in
+def get_avatar():
+    account = Account.get_acc_by_id(session['user'])
+    file_path = account.avatar
+    file_name = get_file_name(file_path)
+    return send_file(file_path, file_name)
+
+#Helper Functions
+def get_file_name(file_path):
+    file_name = os.path.basename(file_path)
+    return file_name
