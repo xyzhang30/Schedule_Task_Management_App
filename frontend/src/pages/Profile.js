@@ -5,7 +5,8 @@ function Profile() {
   const [profile, setProfile] = useState({
     username: '',
     phoneNumber: '',
-    yearCreated: ''
+    yearCreated: '',
+    avatar: null
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -17,10 +18,17 @@ function Profile() {
         const phoneNumberRes = await axios.get('http://localhost:8080/account/get_phone_number', { withCredentials: true });
         const yearCreatedRes = await axios.get('http://localhost:8080/account/get_year', { withCredentials: true });
 
+        const avatarRes = await axios.get('http://localhost:8080/account/get_avatar', { 
+          withCredentials: true,
+          responseType: 'blob' // Receive as Blob
+        });
+        const avatarUrl = URL.createObjectURL(avatarRes.data);
+
         setProfile({
           username: usernameRes.data.username,
           phoneNumber: phoneNumberRes.data.phone_number,
-          yearCreated: yearCreatedRes.data.year_created
+          yearCreated: yearCreatedRes.data.year_created,
+          avatar: avatarUrl
         });
         setLoading(false);
       } catch (err) {
@@ -47,6 +55,12 @@ function Profile() {
       <div className="profile-attribute">
         <strong>Year Created:</strong> {profile.yearCreated}
       </div>
+      {profile.avatar && (
+        <div className="profile-attribute">
+          <strong>Avatar:</strong>
+          <img src={profile.avatar} alt="User Avatar" className="avatar-image" />
+        </div>
+      )}
     </div>
   );
 }
