@@ -94,3 +94,40 @@ def get_year_created():
     response_message = {'year_created': year_created}
     status_code = 200
     return jsonify(response_message), status_code
+
+@bp.route('/', methods = ['GET'])
+def index():
+    account = Account.query.all()
+    accounts_list = [a.to_dict() for a in account]
+    return jsonify(accounts_list)
+
+
+@bp.route('/create', methods = ['POST'])
+def createAccount():
+    username = request.form.get("username")
+    password = request.form.get("password")
+    email = request.form.get("email")
+    phone = request.form.get("phone")
+    avatar = request.form.get("avatar")
+    year_created = (int)(request.form.get("year_created"))
+
+    account = Account(
+        username=username,
+        password=password,
+        email=email,
+        phone=phone,
+        avatar=avatar,
+        year_created=year_created
+        )
+    account.save()
+    return index()
+
+@bp.route('/current-user', methods=['GET'])
+def get_current_user():
+    return session['user']
+
+@bp.route('/name-by-id/<id>', methods=['POST'])
+def get_username_by_id(id):
+    acc = Account.get_acc_by_id(id)
+    username = acc.username
+    return username
