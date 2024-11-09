@@ -1,4 +1,3 @@
-// App.js
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './App.css';
@@ -19,6 +18,7 @@ import Events from './pages/Events';
 import GroupIndexPage from './pages/GroupIndex.js';
 import GroupInfoPage from './pages/GroupInfo.js';
 import ForgotPassword from './pages/ForgotPassword.js';
+import FindSharedAvailability from './pages/Availability.js';
 
 function App() {
   return (
@@ -26,10 +26,6 @@ function App() {
       <div className='main-container'>
         <NavBar />
       <Routes>
-        {/* Default Route */}
-        {/* <Route path="/" element={<LandingPage />} /> */}
-
-        {/* Events Route */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<Login />} />
         <Route path="/profile" element={<Profile />} />
@@ -46,6 +42,7 @@ function App() {
         <Route path="/event" element={<Events />} />
         <Route path="/groups" element={<GroupIndexPage/>} />
         <Route path="/group-info" element={<GroupInfoPage/>} />
+        <Route path="/availability" element={<FindSharedAvailability/>} />
       </Routes>
       </div>
     </Router>
