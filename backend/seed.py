@@ -58,7 +58,7 @@ Table_creation = '''
         location VARCHAR(30),
         start_date TIMESTAMP NOT NULL,
         end_date TIMESTAMP NOT NULL,
-        category VARCHAR(30),
+        category VARCHAR(30), 
         label_text VARCHAR(100),
         label_color VARCHAR(20)
     );
@@ -169,8 +169,6 @@ Table_creation = '''
 cursor.execute(Table_creation)
 
 
-
-
 # generating test data
 faker = Faker()
 Faker.seed(11)
@@ -205,7 +203,7 @@ for n in range (3):
 
 
 # events test data
-for _ in range(7):
+for _ in range(10):
     event_name = faker.word()
     event_location = faker.city()
     s_date = faker.date_this_year() 
@@ -215,6 +213,7 @@ for _ in range(7):
     e_date = datetime.combine(s_date.date(), end_time) 
     category = random.choice(['club', 'personal', 'school', 'work'])
     account_id = random.randint(1, 6)
+    print("_____ accountid: ", account_id)
     label_text = faker.word()  # Random word for label text
     label_color = faker.color_name()  # Random color name for label color
 
@@ -230,7 +229,7 @@ for _ in range (9):
     task_name = faker.word()
     category = random.choice(['club', 'personal', 'school', 'work'])
     complete = random.choice([True, False])
-    account_id = random.randint(1, 7)
+    account_id = random.randint(1, 6)
 
     cursor.execute('''
         INSERT INTO task (due_time, task_name, category, complete)
