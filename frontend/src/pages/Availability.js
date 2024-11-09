@@ -15,6 +15,7 @@ const FindSharedAvailability = () => {
   const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [availability, setAvailability] = useState(null);
 
   const handleDateChange = (e) => {
     console.log('Date changed:', e.target.value); 
@@ -61,6 +62,10 @@ const FindSharedAvailability = () => {
       return;
     }
 
+    setLoading(true);
+    setAvailability(null);
+    setError(null);
+
     try {
       const formData = new FormData();
       formData.append("date", date);
@@ -69,8 +74,8 @@ const FindSharedAvailability = () => {
       formData.append("participant_ids", participants.map(p => p.account_id).join(','));
 
       const response = await axios.post(`${baseUrl}/availability/generate`, formData, {withCredentials: true});
-      // setFriends(response.data); 
-      // setLoading(false);
+      setAvailability(response.data)
+      setLoading(false);
     } catch (err) {
       console.error("Error generating shared availability:", err);
       setError('Failed generating shared availability.');
@@ -135,6 +140,24 @@ const FindSharedAvailability = () => {
       <button onClick={handleSubmit} className="generate-button">
         Generate
       </button>
+
+      <div className='availability-display'>
+      {loading ? (
+          <p>Generating your shared availability...</p>
+        ) : error ? (
+          <p>{error}</p>
+        ) : availability ? (
+          <ul>
+            {availability.map((slot, index) => (
+              <li key={index}>
+                {`Start: ${slot.start_time}, End: ${slot.end_time}`}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No availability generated yet.</p>
+        )}
+      </div>
 
       {showAddParticipantsPopup && (
         <div className='modal-overlay'>

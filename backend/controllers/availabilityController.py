@@ -35,7 +35,14 @@ def generate_availability():
     shared_availability = get_shared_availability(curr_time, end, merged_unavailable_times)
     print("available: ", shared_availability)
 
-    result = [{"start_time": str(start), "end_time": str(end)} for start, end in shared_availability]
+    # result = [{"start_time": str(start), "end_time": str(end)} for start, end in shared_availability]
+    result = [
+        {
+        "start_time": start.strftime('%Y-%m-%d %H:%M'),
+        "end_time": end.strftime('%Y-%m-%d %H:%M')
+        }
+        for start, end in shared_availability
+    ]
     print("result: ", result)
 
     return jsonify(result)
