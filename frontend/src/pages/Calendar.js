@@ -12,7 +12,6 @@ import {
   TodayButton,
   ViewSwitcher,
   AppointmentTooltip,
-  AppointmentForm,
   AllDayPanel,
   CurrentTimeIndicator,
 } from '@devexpress/dx-react-scheduler-material-ui';
@@ -20,8 +19,9 @@ import Paper from '@mui/material/Paper';
 import './Calendar.css';
 import EventUpdateModal from './EventUpdate';
 import { withStyles } from '@mui/styles';
-import { colorManipulator } from '@mui/system';
 import { AccessTime } from '@mui/icons-material';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 axios.defaults.withCredentials = true;
 
@@ -36,6 +36,9 @@ const Calendar = () => {
   const [eventToUpdate, setEventToUpdate] = useState({});
   const [categories, setCategories] = useState([]);
   const [tooltipVisible, setTooltipVisible] = useState(false);
+  const [appointmentMeta, setAppointmentMeta] = useState({});
+  const [showCreateEventModal, setShowCreateEventModal] = useState(false);
+  const [newEventData, setNewEventData] = useState(null);
 
   // Fetch events from backend
   useEffect(() => {
@@ -79,101 +82,124 @@ const Calendar = () => {
       const startDate = new Date(event.start_date);
       const endDate = new Date(event.end_date);
 
+      const frequency = event.frequency;
       const repeatUntil = event.repeat_until
         ? new Date(event.repeat_until)
         : null;
 
-      const frequency = event.frequency;
+      let rRule = null;
 
       if (frequency && frequency !== '' && repeatUntil) {
-        let currentDate = new Date(startDate);
-        while (currentDate <= repeatUntil) {
-          appointments.push({
-            title: event.name,
-            startDate: new Date(currentDate),
-            endDate: new Date(currentDate.getTime() + (endDate - startDate)),
-            id: event.event_id,
-            location: event.location,
-            category: event.category,
-            label_text: event.label_text,
-            label_color: event.label_color,
-            frequency: event.frequency,
-            repeat_until: event.repeat_until,
-            originalEvent: event,
-          });
+        const untilStr = repeatUntil
+          .toISOString()
+          .replace(/[-:]/g, '')
+          .split('.')[0] + 'Z';
+        let freq;
+        let interval = 1;
 
-          // Calculate next occurrence based on frequency
-          switch (frequency) {
-            case 'Once a Week':
-              currentDate.setDate(currentDate.getDate() + 7);
-              break;
-            case 'Twice a Week':
-              currentDate.setDate(currentDate.getDate() + 3.5);
-              break;
-            case 'Every Day':
-              currentDate.setDate(currentDate.getDate() + 1);
-              break;
-            default:
-              currentDate = new Date(repeatUntil.getTime() + 1); // exit loop
-              break;
-          }
+        switch (frequency) {
+          case 'Once a Week':
+            freq = 'WEEKLY';
+            break;
+          case 'Twice a Week':
+            freq = 'WEEKLY';
+            rRule = `FREQ=${freq};BYDAY=MO,TH;UNTIL=${untilStr}`;
+            break;
+          case 'Every Day':
+            freq = 'DAILY';
+            break;
+          default:
+            freq = null;
+            break;
         }
-      } else {
-        appointments.push({
-          title: event.name,
-          startDate,
-          endDate,
-          id: event.event_id,
-          location: event.location,
-          category: event.category,
-          label_text: event.label_text,
-          label_color: event.label_color,
-          frequency: event.frequency,
-          repeat_until: event.repeat_until,
-          originalEvent: event,
-        });
+
+        if (!rRule && freq) {
+          rRule = `FREQ=${freq};INTERVAL=${interval};UNTIL=${untilStr}`;
+        }
       }
+
+      appointments.push({
+        title: event.name,
+        startDate,
+        endDate,
+        id: event.event_id,
+        location: event.location,
+        category: event.category,
+        label_text: event.label_text,
+        label_color: event.label_color,
+        frequency: event.frequency,
+        repeat_until: event.repeat_until,
+        originalEvent: event,
+        rRule,
+      });
     });
     return appointments;
   };
 
-  // Appointment Tooltip Content Component
-  const AppointmentTooltipContent = ({ appointmentData, ...restProps }) => {
-    const event = appointmentData.originalEvent;
-
-    const handleDelete = async () => {
-      if (window.confirm('Are you sure you want to delete this event?')) {
-        try {
-          await axios.delete(`${baseUrl}/event/deleteEvent/${event.event_id}`);
-          refreshEvents();
-        } catch (error) {
-          console.error('Error deleting event:', error);
-        }
+  const handleDelete = async (eventId) => {
+    if (window.confirm('Are you sure you want to delete this event?')) {
+      try {
+        await axios.delete(`${baseUrl}/event/deleteEvent/${eventId}`);
+        refreshEvents();
+      } catch (error) {
+        console.error('Error deleting event:', error);
       }
-    };
+    }
+  };
 
-    const handleEdit = () => {
-      setEventToUpdate(event);
-      setShowUpdateEventModal(true);
-      setTooltipVisible(false); // Close the tooltip when modal opens
-    };
+  const handleEdit = (event) => {
+    setEventToUpdate(event);
+    setShowUpdateEventModal(true);
+    setTooltipVisible(false);
+  };
 
-    return (
-      <AppointmentTooltip.Content
-        {...restProps}
-        appointmentData={appointmentData}
-      >
-        <div style={{ padding: '10px' }}>
-          <div>Category: {event.category}</div>
-          {event.frequency && (
-            <div style={{ display: 'flex', alignItems: 'center' }}>
-              <AccessTime fontSize="small" style={{ marginRight: '5px' }} />
-              Repeats: {event.frequency}
-            </div>
-          )}
-        </div>
-      </AppointmentTooltip.Content>
-    );
+  const handleAddedAppointment = (addedAppointment) => {
+    setNewEventData(addedAppointment);
+    setShowCreateEventModal(true);
+  };
+
+  const handleCommitChanges = ({ added, changed, deleted }) => {
+    if (added) {
+      handleAddedAppointment(added);
+    }
+
+    if (changed) {
+      const changedEventIds = Object.keys(changed);
+
+      changedEventIds.forEach((eventIdStr) => {
+        const eventId = parseInt(eventIdStr);
+        const changes = changed[eventId];
+
+        const eventToChange = events.find(
+          (event) => event.event_id === eventId
+        );
+        if (eventToChange) {
+          const formData = {
+            ...eventToChange,
+            start_date: changes.startDate
+              ? changes.startDate.toISOString().slice(0, 16)
+              : eventToChange.start_date,
+            end_date: changes.endDate
+              ? changes.endDate.toISOString().slice(0, 16)
+              : eventToChange.end_date,
+          };
+
+          axios
+            .put(`${baseUrl}/event/updateEvent/${eventId}`, formData)
+            .then(() => {
+              refreshEvents();
+            })
+            .catch((error) => {
+              console.error('Error updating event:', error);
+            });
+        }
+      });
+    }
+
+    if (deleted !== undefined) {
+      const eventId = deleted;
+      handleDelete(eventId);
+    }
   };
 
   // Custom Appointment Component
@@ -182,14 +208,84 @@ const Calendar = () => {
       borderRadius: '8px',
       backgroundColor: (props) =>
         props.data.label_color ? props.data.label_color : '#1976d2',
+      position: 'relative',
     },
-  })(({ classes, ...restProps }) => (
-    <Appointments.Appointment {...restProps} className={classes.appointment} />
-  ));
+    buttonsContainer: {
+      position: 'absolute',
+      top: 2,
+      right: 2,
+      display: 'flex',
+      gap: '4px',
+    },
+    iconButton: {
+      color: '#fff',
+      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+      padding: '2px',
+      borderRadius: '4px',
+      cursor: 'pointer',
+      '&:hover': {
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      },
+    },
+    title: {
+      color: '#fff',
+    },
+  })(({ classes, ...restProps }) => {
+    const { data } = restProps;
+    const event = data.originalEvent;
 
-  // Custom Recurring Icon
-  const RecurringIcon = ({ ...restProps }) => (
-    <AccessTime fontSize="small" style={{ marginRight: '5px' }} />
+    const onEditClick = (e) => {
+      e.stopPropagation();
+      handleEdit(event);
+    };
+
+    const onDeleteClick = (e) => {
+      e.stopPropagation();
+      handleDelete(event.event_id);
+    };
+
+    return (
+      <Appointments.Appointment
+        {...restProps}
+        className={classes.appointment}
+      >
+        <div>
+          <div className={classes.buttonsContainer}>
+            <EditIcon
+              className={classes.iconButton}
+              fontSize="small"
+              onClick={onEditClick}
+            />
+            <DeleteIcon
+              className={classes.iconButton}
+              fontSize="small"
+              onClick={onDeleteClick}
+            />
+          </div>
+          <Appointments.AppointmentContent
+            {...restProps}
+            formatDate={() => ''}
+            className={classes.title}
+            
+          />
+        </div>
+      </Appointments.Appointment>
+    );
+  });
+
+  // Custom Time Indicator
+  const TimeIndicator = ({ top, ...restProps }) => (
+    <div
+      style={{
+        position: 'absolute',
+        zIndex: 1,
+        left: 0,
+        right: 0,
+        top: top,
+        height: '2px',
+        backgroundColor: 'red',
+      }}
+    />
   );
 
   return (
@@ -200,47 +296,32 @@ const Calendar = () => {
             currentDate={currentDate}
             onCurrentDateChange={setCurrentDate}
           />
-          <EditingState />
-          <Toolbar />
-          <DateNavigator />
-          <TodayButton />
-          <ViewSwitcher />
+          
           <MonthView />
           <WeekView startDayHour={0} endDayHour={24} />
           <DayView startDayHour={0} endDayHour={24} />
           <AllDayPanel />
-          <Appointments appointmentComponent={Appointment} />
+          <Appointments
+            appointmentComponent={Appointment}
+          />
+          <Toolbar />
+          <DateNavigator />
+          
+          <ViewSwitcher />
+          <TodayButton />
+          
           <AppointmentTooltip
             showCloseButton
-            showOpenButton
-            showDeleteButton
             visible={tooltipVisible}
             onVisibilityChange={setTooltipVisible}
-            contentComponent={AppointmentTooltipContent}
-            recurringIconComponent={RecurringIcon}
-            onDeleteButtonClick={(e) => {
-              e.stopPropagation();
-            }}
-            onOpenButtonClick={(e) => {
-              e.stopPropagation();
-            }}
+            appointmentMeta={appointmentMeta}
+            onAppointmentMetaChange={setAppointmentMeta}
           />
-          <AppointmentForm readOnly />
           <CurrentTimeIndicator
             shadePreviousCells
             shadePreviousAppointments
             updateInterval={60000}
-            indicatorComponent={() => (
-              <div
-                style={{
-                  position: 'absolute',
-                  zIndex: 1,
-                  width: '100%',
-                  height: '2px',
-                  backgroundColor: 'red',
-                }}
-              />
-            )}
+            indicatorComponent={TimeIndicator}
           />
         </Scheduler>
       </Paper>

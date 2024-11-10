@@ -186,16 +186,26 @@ const Events = () => {
     }
 
     try {
+      // Create event
       await axios.post(`${baseUrl}/event/createEvent`, formData);
 
       // Update categories if custom category was added
       if (newEvent.category === 'custom') {
-        setCategories((prevCategories) => {
-          if (!prevCategories.includes(newEvent.customCategory)) {
-            return [...prevCategories, newEvent.customCategory];
-          }
-          return prevCategories;
-        });
+        // First, create the category in the backend if it doesn't exist
+        try {
+          const data = { category_name: newEvent.customCategory };
+          await axios.post(`${baseUrl}/event/category/create`, data);
+          // Update categories in the frontend
+          setCategories((prevCategories) => {
+            if (!prevCategories.includes(newEvent.customCategory)) {
+              return [...prevCategories, newEvent.customCategory];
+            }
+            return prevCategories;
+          });
+        } catch (err) {
+          console.error('Error creating category:', err);
+          // Handle error if needed
+        }
       }
 
       setShowAddEventModal(false);
