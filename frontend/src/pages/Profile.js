@@ -5,6 +5,7 @@ function Profile() {
   const [profile, setProfile] = useState({
     username: '',
     phoneNumber: '',
+    major: '',
     yearCreated: '',
     avatar: null
   });
@@ -16,6 +17,7 @@ function Profile() {
       try {
         const usernameRes = await axios.get('http://localhost:8080/account/get_username', { withCredentials: true });
         const phoneNumberRes = await axios.get('http://localhost:8080/account/get_phone_number', { withCredentials: true });
+        const majorRes = await axios.get('http://localhost:8080/account/get_major')
         const yearCreatedRes = await axios.get('http://localhost:8080/account/get_year', { withCredentials: true });
 
         const avatarRes = await axios.get('http://localhost:8080/account/get_avatar', { 
@@ -28,6 +30,7 @@ function Profile() {
           username: usernameRes.data.username,
           phoneNumber: phoneNumberRes.data.phone_number,
           yearCreated: yearCreatedRes.data.year_created,
+          major: majorRes.data.major,
           avatar: avatarUrl
         });
         setLoading(false);
@@ -52,15 +55,16 @@ function Profile() {
       <div className="profile-attribute">
         <strong>Phone Number:</strong> {profile.phoneNumber}
       </div>
+            <div className="profile-attribute">
+        <strong>Major:</strong> {profile.major}
+      </div>
       <div className="profile-attribute">
         <strong>Year Created:</strong> {profile.yearCreated}
       </div>
-      {profile.avatar && (
-        <div className="profile-attribute">
-          <strong>Avatar:</strong>
-          <img src={profile.avatar} alt="User Avatar" className="avatar-image" />
-        </div>
-      )}
+      <div className="profile-attribute">
+        <strong>Avatar:</strong>
+        <img src={profile.avatar} alt="User Avatar" className="avatar-image" height = "230" width = "300" />
+      </div>
     </div>
   );
 }
