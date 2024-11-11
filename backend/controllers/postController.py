@@ -99,10 +99,17 @@ def update_post(post_id):
     '''
     Updates a specific post by post_id
     '''
+    account_id = session['user']  # Get the account ID from the session
     post = Post.get_post_by_id(post_id)
+    
     if not post:
         return jsonify({"error": "Post not found."}), 404
 
+    # Check if the logged-in user owns the post
+    if post.poster_id != account_id:
+        return jsonify({"error": "You are not authorized to update this post."}), 403
+
+    # Update the post with new values, if provided
     title = request.form.get('title', post.title)
     content = request.form.get('content', post.content)
     image_url = request.form.get('image_url', post.image_url)
@@ -138,13 +145,20 @@ def remove_post(post_id):
     '''
     Removes a post by post_id
     '''
+    account_id = session['user']  # Get the account ID from the session
     post = Post.get_post_by_id(post_id)
-    if post:
-        remove_all(post_id)
-        post.delete()
-        return jsonify({"message": "Post and all related data removed successfully."}), 200
-    else:
+    
+    if not post:
         return jsonify({"error": "Post not found."}), 404
+
+    # Check if the logged-in user owns the post
+    if post.poster_id != account_id:
+        return jsonify({"error": "You are not authorized to delete this post."}), 403
+
+    # Remove all related data and delete the post
+    remove_all(post_id)
+    post.delete()
+    return jsonify({"message": "Post and all related data removed successfully."}), 200
 
 
 # Like
@@ -263,13 +277,21 @@ def add_comment():
 @bp.route('/delete-comment/<int:comment_id>', methods=['DELETE'])
 @is_logged_in
 def delete_comment(comment_id):
+    '''
+    Deletes a specific comment by comment_id
+    '''
+    account_id = session['user']  # Get the account ID from the session
     comment = Comment.get_comment_by_comment_id(comment_id)
 
-    if comment:
-        comment.delete()
-        return jsonify({"message": "Comment removed successfully."}), 200
-    else:
+    if not comment:
         return jsonify({"error": "Comment not found."}), 404
+
+    # Check if the logged-in user owns the comment
+    if comment.commenter_id != account_id:
+        return jsonify({"error": "You are not authorized to delete this comment."}), 403
+
+    comment.delete()
+    return jsonify({"message": "Comment removed successfully."}), 200
 
 
 @bp.route('/<int:post_id>/comments', methods=['GET'])
