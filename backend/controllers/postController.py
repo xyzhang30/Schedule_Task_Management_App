@@ -52,11 +52,12 @@ def get_friends_posts_by_poster():
     '''
     poster_id = session['user']
     friends_accounts = Friend.get_friends_by_id(poster_id)
-    friend_ids = [friend.account_id for friend in friends_accounts]
-    
-    if not friend_ids:
+
+    if not friends_accounts:
         return jsonify([]), 200
         # return jsonify({"error": "No friends found or no posts by friends."}), 404
+
+    friend_ids = [friend.account_id for friend in friends_accounts]
     
     posts = Post.get_posts_by_poster_ids(friend_ids)
 
@@ -322,3 +323,18 @@ def is_self(post_id):
     if post:
         is_self = post.poster_id == session['user']
         return jsonify({'is_self': is_self}), 200
+
+# check comment id
+@bp.route('/check-comment-owner/<int:comment_id>', methods=['GET'])
+@is_logged_in
+def is_comment_owner(comment_id):
+    '''
+    Check if the logged-in user is the owner of the comment.
+    '''
+    comment = Comment.get_comment_by_comment_id(comment_id)
+
+    if not comment:
+        return jsonify({"error": "Comment not found."}), 404
+
+    is_self = comment.commenter_id == session['user']
+    return jsonify({'is_self': is_self}), 200
