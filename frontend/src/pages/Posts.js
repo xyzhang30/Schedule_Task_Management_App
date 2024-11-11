@@ -371,7 +371,15 @@ const Posts = () => {
         <div className="post-details">
           {selectedPost ? (
             <div>
-              <h3>{selectedPost.title}</h3>
+              <div className="post-title-container">
+                <h3>{selectedPost.title}</h3>
+                {isOwner && (
+                  <div className="post-actions">
+                    <button onClick={() => handleUpdatePostClick(selectedPost)}>Update</button>
+                    <button onClick={() => handleDeletePost(selectedPost.post_id)}>Delete</button>
+                  </div>
+                )}
+              </div>
               <p>{selectedPost.content}</p>
               <h4>Comments:</h4>
               {selectedPost.comments && selectedPost.comments.length > 0 ? (
@@ -393,13 +401,6 @@ const Posts = () => {
                 onChange={(e) => setNewComment(e.target.value)}
               />
               <button onClick={handleCommentSubmit}>Submit Comment</button>
-
-              {isOwner && (
-              <>
-                <button onClick={() => handleUpdatePostClick(selectedPost)}>Update</button> 
-                <button onClick={() => handleDeletePost(selectedPost.post_id)}>Delete</button>
-              </>
-              )}
             </div>
           ) : (
             <p>Select a post to view details.</p>

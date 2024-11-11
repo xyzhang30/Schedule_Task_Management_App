@@ -97,7 +97,7 @@ Table_creation = '''
         title VARCHAR(20),
         date_posted TIMESTAMP NOT NULL, 
         poster_id INTEGER REFERENCES accounts(account_id),
-        content VARCHAR(300) NOT NULL,
+        content TEXT NOT NULL,
         image_url VARCHAR(300)
     );
 
@@ -124,7 +124,7 @@ Table_creation = '''
         post_id INTEGER REFERENCES post(post_id),
         commenter_id INTEGER REFERENCES accounts(account_id),
         timestamp TIMESTAMP NOT NULL,
-        text VARCHAR(200) NOT NULL
+        text TEXT NOT NULL
     );
     
     CREATE TABLE friendrequests (
