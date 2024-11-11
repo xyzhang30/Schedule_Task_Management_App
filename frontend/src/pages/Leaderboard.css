@@ -1,0 +1,64 @@
+/* Leaderboard.css */
+.leaderboard-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    text-align: center;
+    font-family: Arial, sans-serif;
+    color: #333;
+}
+
+h1 {
+    font-size: 2rem;
+    margin-bottom: 20px;
+    color: #2a2a2a;
+}
+
+.leaderboard-header,
+.leaderboard-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 20px;
+    background-color: #f9f9f9;
+    border-bottom: 1px solid #ddd;
+}
+
+.leaderboard-header {
+    font-weight: bold;
+    background-color: #4caf50;
+    color: white;
+}
+
+.leaderboard-list {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+}
+
+.leaderboard-item:nth-child(odd) {
+    background-color: #e6ffe6;
+}
+
+.leaderboard-rank,
+.leaderboard-name,
+.leaderboard-score {
+    flex: 1;
+    text-align: center;
+}
+
+.leaderboard-rank {
+    font-weight: bold;
+}
+
+.error {
+    color: red;
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+.crown-icon {
+    color: gold;
+    font-size: 1.5em;
+    vertical-align: middle;
+    margin-right: 5px;
+}

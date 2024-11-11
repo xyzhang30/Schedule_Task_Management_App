@@ -1,10 +1,12 @@
 from flask import Blueprint, jsonify, request, session
 from ..models.post import Post, Like, Save, Comment
 from ..models.friend import Friend
+from ..decorators import is_logged_in
 
 bp = Blueprint('post', __name__, url_prefix='/post')
 
 @bp.route('/', methods=['GET'])
+@is_logged_in
 def index():
     '''
     Gets a list of all posts
@@ -15,6 +17,7 @@ def index():
 
 
 @bp.route('/get-post/<int:post_id>', methods=['GET'])
+@is_logged_in
 def get_post(post_id):
     '''
     Gets a specific post by its post_id
@@ -26,6 +29,7 @@ def get_post(post_id):
 
 
 @bp.route('/get-posts', methods=['GET'])
+@is_logged_in
 def get_posts_by_poster():
     '''
     Gets all posts by a specific poster ID
@@ -41,6 +45,7 @@ def get_posts_by_poster():
 
 
 @bp.route('/get-friends-posts', methods=['GET'])
+@is_logged_in
 def get_friends_posts_by_poster():
     '''
     Gets all posts from the friends of a specific poster ID
@@ -64,6 +69,7 @@ def get_friends_posts_by_poster():
 
 
 @bp.route('/add-post', methods=['POST'])
+@is_logged_in
 def add_post():
     '''
     Adds a new post
@@ -88,6 +94,7 @@ def add_post():
 
 
 @bp.route('/update-post/<int:post_id>', methods=['PUT'])
+@is_logged_in
 def update_post(post_id):
     '''
     Updates a specific post by post_id
@@ -126,6 +133,7 @@ def remove_all(post_id):
 
 
 @bp.route('/remove-post/<int:post_id>', methods=['DELETE'])
+@is_logged_in
 def remove_post(post_id):
     '''
     Removes a post by post_id
@@ -141,6 +149,7 @@ def remove_post(post_id):
 
 # Like
 @bp.route('/like', methods=['POST'])
+@is_logged_in
 def like_post():
     post_id = request.form.get('post_id')
     liker_id = session['user']
@@ -153,6 +162,7 @@ def like_post():
 
 
 @bp.route('/unlike', methods=['DELETE'])
+@is_logged_in
 def unlike_post():
     post_id = request.form.get('post_id')
     liker_id = session['user']
@@ -165,6 +175,7 @@ def unlike_post():
 
 
 @bp.route('/<int:post_id>/likes', methods=['GET'])
+@is_logged_in
 def get_likes(post_id):
     '''
     Retrieves all likes for a specific post.
@@ -179,6 +190,7 @@ def get_likes(post_id):
 
 # Save
 @bp.route('/save', methods=['POST'])
+@is_logged_in
 def save_post():
     post_id = request.form.get('post_id')
     saver_id = session['user']
@@ -191,6 +203,7 @@ def save_post():
 
 
 @bp.route('/unsave', methods=['DELETE'])
+@is_logged_in
 def unsave_post():
     post_id = request.form.get('post_id')
     saver_id = session['user']
@@ -203,6 +216,7 @@ def unsave_post():
 
 
 @bp.route('/<int:post_id>/saves', methods=['GET'])
+@is_logged_in
 def get_saves(post_id):
     '''
     Retrieves all saves for a specific post.
@@ -216,6 +230,7 @@ def get_saves(post_id):
 
 
 @bp.route('/account/saves', methods=['GET'])
+@is_logged_in
 def get_account_saves():
     '''
     Retrieves all posts saved by a specific account.
@@ -231,6 +246,7 @@ def get_account_saves():
 
 # Comment
 @bp.route('/comment', methods=['POST'])
+@is_logged_in
 def add_comment():
     commenter_id = session['user']
     post_id = request.form.get('post_id')
@@ -245,6 +261,7 @@ def add_comment():
 
 
 @bp.route('/delete-comment/<int:comment_id>', methods=['DELETE'])
+@is_logged_in
 def delete_comment(comment_id):
     comment = Comment.get_comment_by_comment_id(comment_id)
 
@@ -256,6 +273,7 @@ def delete_comment(comment_id):
 
 
 @bp.route('/<int:post_id>/comments', methods=['GET'])
+@is_logged_in
 def get_comments(post_id):
     '''
     Retrieves all comments for a specific post.
@@ -272,6 +290,7 @@ def get_comments(post_id):
 
 # check id
 @bp.route('/checkid/<int:post_id>', methods=['GET'])
+@is_logged_in
 def is_self(post_id):
     post = Post.get_post_by_id(post_id)
 
