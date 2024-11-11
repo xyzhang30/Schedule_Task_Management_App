@@ -103,6 +103,15 @@ def get_avatar():
     file_name = get_file_name(file_path)
     return send_file(file_path, file_name)
 
+@bp.route('/get_major', methods = ['GET'])
+@is_logged_in
+def get_major():
+    account = Account.get_acc_by_id(session['user'])
+    major = account.major
+    response_message = {'major': major}
+    status_code = 200
+    return jsonify(response_message), status_code
+
 #Helper Functions
 def get_file_name(file_path):
     file_name = os.path.basename(file_path)
