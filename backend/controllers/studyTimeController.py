@@ -31,7 +31,7 @@ def get_weekly_study_time():
 
 #update study time; input time should have the format hours:minutes:seconds - NEED EDIT
 @bp.route('/update/<string:time>', methods=['POST'])
-#@is_logged_in
+@is_logged_in
 def update_study_time(time):
     account_id = session['user']
     current_date = date.today()

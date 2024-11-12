@@ -1,11 +1,12 @@
 from flask import Blueprint, session, request, jsonify, redirect
 from flask_mail import Message
-import secrets, time, bcrypt
 from ..models.account import Account
 from ..models.resetKeys import ResetKeys
 from ..__init__ import mail
 from ..decorators import is_logged_in
-
+from ..__init__ import uploadParameters
+from werkzeug.utils import secure_filename
+import secrets, time, bcrypt, os
 bp = Blueprint('auth', __name__, url_prefix = '/auth')
 
 @bp.route('/session_status', methods=['GET'])
@@ -55,9 +56,16 @@ def register():
     user_inputted_confirm_password = request.form['confirm_password']
     user_inputted_email = request.form['email']
     user_inputted_phone_number = request.form['phone_number']
+    user_inputted_avatar = request.files['profile_picture']
     user_inputted_year_created = (int)(request.form['year'])
+    user_inputted_major = request.form['major']
 
-    if not compare_with_confirm(user_inputted_password, user_inputted_confirm_password): 
+    filename = upload_file(user_inputted_avatar, user_inputted_username)
+
+    if not filename:
+        response_message = {'msg': f'Please upload a file with one of the following extensions: {uploadParameters["ALLOWED_EXTENSIONS"]}'}
+        status_code = 401
+    elif not compare_with_confirm(user_inputted_password, user_inputted_confirm_password): 
         response_message = {'msg': 'Passwords do not match'}
         status_code = 401
     else: 
@@ -69,12 +77,14 @@ def register():
             password = password_to_be_stored,
             email = user_inputted_email,
             phone = user_inputted_phone_number,
-            avatar = "0",
-            year_created = user_inputted_year_created
+            avatar = uploadParameters['UPLOAD_FOLDER'] + '/' + filename,
+            year_created = user_inputted_year_created,
+            major = user_inputted_major
         )
 
         try:
             new_account.save()
+            user_inputted_avatar.save(os.path.join(uploadParameters['UPLOAD_FOLDER'], filename))
             response_message = {'msg': 'Successfully Registered'}
             status_code = 200
             session['user'] = new_account.account_id 
@@ -191,6 +201,15 @@ def reset_password():
     return jsonify(response_message), status_code
     
 #Helper functions
+def upload_file(file, username):
+    if allowed_file(file.filename): #Check the original file they uploaded
+        filename = username + '.' + secure_filename(file.filename).rsplit('.', 1)[1].lower() #Create a unique filename with username + extension of original file
+        return filename
+    else: 
+        return None
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in uploadParameters['ALLOWED_EXTENSIONS']
 def new_password(account_id, new_pass):
     account = Account.get_acc_by_id(account_id)
     account.password = salt_and_hash_password(new_pass)

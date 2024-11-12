@@ -9,29 +9,39 @@ const Register = () => {
     confirm_password: '',
     email: '',
     phone_number: '',
-    year: ''  
+    year: '',
+    major: '',
+    profile_picture: null
   });
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    const { name, value, files } = e.target;
+    if (name === 'profile_picture') {
+      setFormData({
+        ...formData,
+        profile_picture: files[0], 
+      });
+    } else {
+      setFormData({
+        ...formData,
+        [name]: value,
+      });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const encodedData = new URLSearchParams(); // Creating form data
+    const data = new FormData(); // Create FormData object
     for (const key in formData) {
-      encodedData.append(key, formData[key]);
+      data.append(key, formData[key]);
     }
 
     try {
-      const response = await axios.post('http://localhost:8080/auth/register', encodedData, {
+      const response = await axios.post('http://localhost:8080/auth/register', data, {
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded', // Set content type to form data
+          'Content-Type': 'multipart/form-data', // Set content type to multipart form data
         },
         withCredentials: true,
       });
@@ -70,6 +80,14 @@ const Register = () => {
         <div>
           <label>Year:</label>
           <input type="text" name="year" value={formData.year} onChange={handleChange} required />
+        </div>
+        <div>
+          <label>Major:</label>
+          <input type="text" name="major" value={formData.major} onChange={handleChange} required />
+        </div>
+        <div>
+          <label>Profile Picture:</label>
+          <input type="file" name="profile_picture" onChange={handleChange} />
         </div>
         <button type="submit">Register</button>
       </form>
