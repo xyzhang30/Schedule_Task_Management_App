@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-// import './FindSharedAvailability.css'; 
 import '../App.css'
 import './SplitScreen.css'
 
@@ -148,14 +147,14 @@ const FindSharedAvailability = () => {
           <p>{error}</p>
         ) : availability ? (
           <ul>
-            {availability.map((slot, index) => (
+            {availability.map((interval, index) => (
               <li key={index}>
-                {`Start: ${slot.start_time}, End: ${slot.end_time}`}
+                {`Start: ${interval.start_time}, End: ${interval.end_time}`}
               </li>
             ))}
           </ul>
         ) : (
-          <p>No availability generated yet.</p>
+          <p></p>
         )}
       </div>
 
