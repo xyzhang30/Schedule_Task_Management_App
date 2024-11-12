@@ -24,7 +24,7 @@ conn_details = psycopg2.connect(
 # create tables 
 cursor = conn_details.cursor()
 Table_creation = '''
-    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, friendrequests, groups, public_events, memberships, registrations, category, event_category CASCADE;    
+    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, friendrequests, groups, public_events, memberships, registrations, category, event_category, studytime CASCADE;    
    
     
     CREATE TABLE accounts (
@@ -60,7 +60,9 @@ Table_creation = '''
         end_date TIMESTAMP NOT NULL,
         category VARCHAR(30), 
         label_text VARCHAR(100),
-        label_color VARCHAR(20)
+        label_color VARCHAR(20),
+        frequency VARCHAR(50),
+        repeat_until TIMESTAMP
     );
 
     CREATE TABLE event_category (
@@ -97,7 +99,7 @@ Table_creation = '''
         title VARCHAR(20),
         date_posted TIMESTAMP NOT NULL, 
         poster_id INTEGER REFERENCES accounts(account_id),
-        content VARCHAR(300) NOT NULL,
+        content TEXT NOT NULL,
         image_url VARCHAR(300)
     );
 
@@ -124,7 +126,7 @@ Table_creation = '''
         post_id INTEGER REFERENCES post(post_id),
         commenter_id INTEGER REFERENCES accounts(account_id),
         timestamp TIMESTAMP NOT NULL,
-        text VARCHAR(200) NOT NULL
+        text TEXT NOT NULL
     );
     
     CREATE TABLE friendrequests (
@@ -164,6 +166,13 @@ Table_creation = '''
         event_id INTEGER REFERENCES public_events(event_id),
         account_id INTEGER REFERENCES accounts(account_id),
         PRIMARY KEY (event_id, account_id)
+    );
+
+    CREATE TABLE studytime (
+        account_id INTEGER REFERENCES accounts(account_id),
+        date DATE,
+        study_time INTERVAL,
+        PRIMARY KEY (account_id, date)
     );
 '''
 cursor.execute(Table_creation)

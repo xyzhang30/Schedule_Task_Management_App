@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Events.css';
+import EventUpdateModal from './EventUpdate';
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
@@ -19,6 +20,8 @@ const Events = () => {
     end_date: '',
     category: '',
     customCategory: '',
+    frequency: '',
+    repeat_until: '',
   });
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -30,48 +33,46 @@ const Events = () => {
   const [updatedEvent, setUpdatedEvent] = useState({});
   const [showLabelModal, setShowLabelModal] = useState(false);
   const [currentLabelEvent, setCurrentLabelEvent] = useState(null);
-  const [labelData, setLabelData] = useState({ label_text: '', label_color: '#ffffff' });
+  const [labelData, setLabelData] = useState({
+    label_text: '',
+    label_color: '#ffffff',
+  });
   const [alertEvent, setAlertEvent] = useState(null);
 
-  
-
-  // useEffect(() => {
-  //   if (!account_id) {
-  //     window.location.href = '/login';
-  //   }
-  // }, [account_id]);
-
   useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response = await axios.get(`${baseUrl}/event/getEventsByAccount`);
-        const eventData = response.data.events || [];
-        eventData.forEach(event => {
-          event.alerted = false;
-        });
-        const groupedEvents = groupEventsByDate(eventData);
-        setEvents(groupedEvents);
-        extractLabels(eventData);
-      } catch (error) {
-        console.error("There was an error fetching the events!", error);
-        setError('Failed to fetch events.');
-        if (error.response && error.response.status === 401) {
-          window.location.href = '/login';
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchEvents();
+    refreshEvents();
   }, []);
+
+  const refreshEvents = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/event/getEventsByAccount`);
+      const eventData = response.data.events || [];
+      eventData.forEach((event) => {
+        event.alerted = false;
+      });
+      // Sort events by start date
+      eventData.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
+      const groupedEvents = groupEventsByDate(eventData);
+      setEvents(groupedEvents);
+      extractLabels(eventData);
+    } catch (error) {
+      console.error('There was an error fetching the events!', error);
+      setError('Failed to fetch events.');
+      if (error.response && error.response.status === 401) {
+        window.location.href = '/login';
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
         const response = await axios.get(`${baseUrl}/event/category/all`);
-        setCategories(response.data.map(cat => cat.category_name));
+        setCategories(response.data.map((cat) => cat.category_name));
       } catch (err) {
-        console.error("Error fetching categories:", err);
+        console.error('Error fetching categories:', err);
         setError('Failed to fetch categories.');
       }
     };
@@ -80,7 +81,6 @@ const Events = () => {
   }, []);
 
   useEffect(() => {
-    
     const checkEvents = () => {
       const now = new Date();
       for (const date in events) {
@@ -103,19 +103,27 @@ const Events = () => {
 
   const groupEventsByDate = (events) => {
     const grouped = {};
-    events.forEach(event => {
+    events.forEach((event) => {
       const date = new Date(event.start_date).toLocaleDateString();
       if (!grouped[date]) {
         grouped[date] = [];
       }
       grouped[date].push(event);
     });
+
+    // Sort the events within each date
+    for (const date in grouped) {
+      grouped[date].sort(
+        (a, b) => new Date(a.start_date) - new Date(b.start_date)
+      );
+    }
+
     return grouped;
   };
 
   const extractLabels = (events) => {
     const labelSet = new Set();
-    events.forEach(event => {
+    events.forEach((event) => {
       if (event.label_text) {
         labelSet.add(event.label_text);
       }
@@ -132,9 +140,10 @@ const Events = () => {
   };
 
   const filteredEvents = Object.keys(events).reduce((filtered, date) => {
-    const eventsForDate = events[date].filter(event =>
-      (selectedCategory === '' || event.category === selectedCategory) &&
-      (selectedLabel === '' || event.label_text === selectedLabel)
+    const eventsForDate = events[date].filter(
+      (event) =>
+        (selectedCategory === '' || event.category === selectedCategory) &&
+        (selectedLabel === '' || event.label_text === selectedLabel)
     );
     if (eventsForDate.length) {
       filtered[date] = eventsForDate;
@@ -163,8 +172,11 @@ const Events = () => {
     e.preventDefault();
     const formData = {
       ...newEvent,
-      category: newEvent.category === 'custom' ? newEvent.customCategory : newEvent.category,
-      // account_id: account_id,
+      category:
+        newEvent.category === 'custom'
+          ? newEvent.customCategory
+          : newEvent.category,
+      repeat_until: newEvent.repeat_until ? newEvent.repeat_until : null,
     };
     delete formData.customCategory;
 
@@ -174,31 +186,65 @@ const Events = () => {
     }
 
     try {
+      // Create event
       await axios.post(`${baseUrl}/event/createEvent`, formData);
-      setShowAddEventModal(false);
-      setNewEvent({ name: '', location: '', start_date: '', end_date: '', category: '', customCategory: '' });
 
-      const updatedEventsResponse = await axios.get(`${baseUrl}/event/getEventsByAccount`);
-      const eventData = updatedEventsResponse.data.events || [];
-      eventData.forEach(event => {
-        event.alerted = false;
+      // Update categories if custom category was added
+      if (newEvent.category === 'custom') {
+        // First, create the category in the backend if it doesn't exist
+        try {
+          const data = { category_name: newEvent.customCategory };
+          await axios.post(`${baseUrl}/event/category/create`, data);
+          // Update categories in the frontend
+          setCategories((prevCategories) => {
+            if (!prevCategories.includes(newEvent.customCategory)) {
+              return [...prevCategories, newEvent.customCategory];
+            }
+            return prevCategories;
+          });
+        } catch (err) {
+          console.error('Error creating category:', err);
+          // Handle error if needed
+        }
+      }
+
+      setShowAddEventModal(false);
+      setNewEvent({
+        name: '',
+        location: '',
+        start_date: '',
+        end_date: '',
+        category: '',
+        customCategory: '',
+        frequency: '',
+        repeat_until: '',
       });
-      const groupedEvents = groupEventsByDate(eventData);
-      setEvents(groupedEvents);
-      extractLabels(eventData);
+      await refreshEvents();
     } catch (error) {
-      console.error("There was an error creating the event!", error.response?.data || error.message);
+      console.error(
+        'There was an error creating the event!',
+        error.response?.data || error.message
+      );
       setError('Failed to create event.');
+    }
+  };
+
+  const handleDeleteEventClick = (eventId) => {
+    // Show confirmation dialog
+    if (window.confirm('Are you sure you want to delete this event?')) {
+      handleDeleteEvent(eventId);
     }
   };
 
   const handleDeleteEvent = async (eventId) => {
     try {
       await axios.delete(`${baseUrl}/event/deleteEvent/${eventId}`);
-      setEvents(prevEvents => {
+      setEvents((prevEvents) => {
         const updatedEvents = { ...prevEvents };
         for (const date in updatedEvents) {
-          updatedEvents[date] = updatedEvents[date].filter(event => event.event_id !== eventId);
+          updatedEvents[date] = updatedEvents[date].filter(
+            (event) => event.event_id !== eventId
+          );
           if (updatedEvents[date].length === 0) {
             delete updatedEvents[date];
           }
@@ -222,49 +268,12 @@ const Events = () => {
     setShowUpdateEventModal(true);
   };
 
-  const handleUpdateInputChange = (e) => {
-    const { name, value } = e.target;
-    setUpdatedEvent({ ...updatedEvent, [name]: value });
-  };
-
-  const handleUpdateEventSubmit = async (e) => {
-    e.preventDefault();
-    const eventId = updatedEvent.event_id;
-    const formData = {
-      ...updatedEvent,
-      category: updatedEvent.category === 'custom' ? updatedEvent.customCategory : updatedEvent.category,
-    };
-    delete formData.event_id;
-    delete formData.customCategory;
-
-    if (new Date(formData.end_date) <= new Date(formData.start_date)) {
-      alert('End date must be after start date.');
-      return;
-    }
-
-    try {
-      await axios.put(`${baseUrl}/event/updateEvent/${eventId}`, formData);
-      setShowUpdateEventModal(false);
-
-      const updatedEventsResponse = await axios.get(`${baseUrl}/event/getEventsByAccount`);
-      const eventData = updatedEventsResponse.data.events || [];
-      eventData.forEach(event => {
-        event.alerted = false;
-      });
-      const groupedEvents = groupEventsByDate(eventData);
-      setEvents(groupedEvents);
-      extractLabels(eventData);
-
-      setSelectedEvent(prevEvent => (prevEvent && prevEvent.event_id === eventId ? { ...prevEvent, ...formData } : prevEvent));
-    } catch (error) {
-      console.error('Error updating event:', error);
-      setError('Failed to update event.');
-    }
-  };
-
   const handleAddLabelClick = (event) => {
     setCurrentLabelEvent(event);
-    setLabelData({ label_text: event.label_text || '', label_color: event.label_color || '#ffffff' });
+    setLabelData({
+      label_text: event.label_text || '',
+      label_color: event.label_color || '#ffffff',
+    });
     setShowLabelModal(true);
   };
 
@@ -284,10 +293,10 @@ const Events = () => {
 
       await axios.put(`${baseUrl}/event/updateEvent/${eventId}`, formData);
 
-      setEvents(prevEvents => {
+      setEvents((prevEvents) => {
         const updatedEvents = { ...prevEvents };
         for (const date in updatedEvents) {
-          updatedEvents[date] = updatedEvents[date].map(event => {
+          updatedEvents[date] = updatedEvents[date].map((event) => {
             if (event.event_id === eventId) {
               return { ...event, ...formData };
             }
@@ -312,11 +321,28 @@ const Events = () => {
       setShowAddCategoryModal(false);
       setNewCategoryName('');
       // Fetch updated categories
-      const categoriesResponse = await axios.get(`${baseUrl}/event/category/all`);
-      setCategories(categoriesResponse.data.map(cat => cat.category_name));
+      const categoriesResponse = await axios.get(
+        `${baseUrl}/event/category/all`
+      );
+      setCategories(categoriesResponse.data.map((cat) => cat.category_name));
     } catch (err) {
       console.error('Error creating category:', err);
       setError('Failed to create category.');
+    }
+  };
+
+  const handleCleanCategories = async () => {
+    try {
+      await axios.delete(`${baseUrl}/event/category/clean`);
+      // Fetch updated categories
+      const categoriesResponse = await axios.get(
+        `${baseUrl}/event/category/all`
+      );
+      setCategories(categoriesResponse.data.map((cat) => cat.category_name));
+      alert('Unused categories have been cleaned.');
+    } catch (err) {
+      console.error('Error cleaning categories:', err);
+      setError('Failed to clean categories.');
     }
   };
 
@@ -327,18 +353,18 @@ const Events = () => {
 
   return (
     <div className="events-page-container">
-      {/* <div className="events-header">
-        <h2>Events</h2>
-      </div> */}
-
       <div className="events-content">
         <div className="filter-container">
           <h2>Events</h2>
           <div className="filter-group">
             <label htmlFor="categoryFilter">Filter by Category: </label>
-            <select id="categoryFilter" value={selectedCategory} onChange={handleCategoryChange}>
+            <select
+              id="categoryFilter"
+              value={selectedCategory}
+              onChange={handleCategoryChange}
+            >
               <option value="">All Categories</option>
-              {categories.map(categoryOption => (
+              {categories.map((categoryOption) => (
                 <option key={categoryOption} value={categoryOption}>
                   {categoryOption}
                 </option>
@@ -347,9 +373,13 @@ const Events = () => {
           </div>
           <div className="filter-group">
             <label htmlFor="labelFilter">Filter by Label: </label>
-            <select id="labelFilter" value={selectedLabel} onChange={handleLabelChange}>
+            <select
+              id="labelFilter"
+              value={selectedLabel}
+              onChange={handleLabelChange}
+            >
               <option value="">All Labels</option>
-              {labels.map(labelOption => (
+              {labels.map((labelOption) => (
                 <option key={labelOption} value={labelOption}>
                   {labelOption}
                 </option>
@@ -357,13 +387,24 @@ const Events = () => {
             </select>
           </div>
           <div className="button-group">
-            <button className="add-category-button" onClick={() => setShowAddCategoryModal(true)}>
+            <button
+              className="add-category-button"
+              onClick={() => setShowAddCategoryModal(true)}
+            >
               Add Category
             </button>
-            <button className="add-event-button" onClick={() => setShowAddEventModal(true)}>
+            <button
+              className="add-event-button"
+              onClick={() => setShowAddEventModal(true)}
+            >
               Add Event
             </button>
-            
+            <button
+              className="clean-categories-button"
+              onClick={handleCleanCategories}
+            >
+              Clean Categories
+            </button>
           </div>
         </div>
 
@@ -373,51 +414,57 @@ const Events = () => {
           <p>{error}</p>
         ) : (
           <div className="events-list">
-            {Object.keys(filteredEvents).map(date => (
-              <div key={date} className="events-date">
-                <h3>{date}</h3>
-                {filteredEvents[date].map(event => (
-                  <div key={event.event_id} className="event-item-container">
-                    <div
-                      className="event-item"
-                      onClick={() => handleEventClick(event)}
-                    >
-                      {event.name}
-                      {event.label_text && (
-                        <span
-                          className="event-label"
-                          style={{ backgroundColor: event.label_color }}
+            {Object.keys(filteredEvents)
+              .sort((a, b) => new Date(a) - new Date(b))
+              .map((date) => (
+                <div key={date} className="events-date">
+                  <h3>{date}</h3>
+                  {filteredEvents[date]
+                    .sort(
+                      (a, b) => new Date(a.start_date) - new Date(b.start_date)
+                    )
+                    .map((event) => (
+                      <div key={event.event_id} className="event-item-container">
+                        <div
+                          className="event-item"
+                          onClick={() => handleEventClick(event)}
+                        >
+                          {event.label_text && (
+                            <span
+                              className="event-label"
+                              style={{ backgroundColor: event.label_color }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAddLabelClick(event);
+                              }}
+                            >
+                              {event.label_text}
+                            </span>
+                          )}
+                          {event.name}
+                        </div>
+                        <button
+                          className="add-label-button"
                           onClick={(e) => {
                             e.stopPropagation();
                             handleAddLabelClick(event);
                           }}
                         >
-                          {event.label_text}
-                        </span>
-                      )}
-                    </div>
-                    <button
-                      className="add-label-button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleAddLabelClick(event);
-                      }}
-                    >
-                      +
-                    </button>
-                    <button
-                      className="delete-event-button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteEvent(event.event_id);
-                      }}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                ))}
-              </div>
-            ))}
+                          +
+                        </button>
+                        <button
+                          className="delete-event-button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteEventClick(event.event_id);
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    ))}
+                </div>
+              ))}
           </div>
         )}
 
@@ -429,6 +476,15 @@ const Events = () => {
               <p>Category: {selectedEvent.category}</p>
               <p>Start Date: {formatDateTime(selectedEvent.start_date)}</p>
               <p>End Date: {formatDateTime(selectedEvent.end_date)}</p>
+              <p>Frequency: {selectedEvent.frequency || 'None'}</p>
+              {selectedEvent.frequency && (
+                <p>
+                  Repeat Until:{' '}
+                  {selectedEvent.repeat_until
+                    ? formatDateTime(selectedEvent.repeat_until)
+                    : 'N/A'}
+                </p>
+              )}
               <button
                 className="update-event-button"
                 onClick={() => handleUpdateEventClick(selectedEvent)}
@@ -441,13 +497,6 @@ const Events = () => {
           )}
         </div>
       </div>
-
-      {/* <div className="sidebar">
-        <button onClick={() => navigateTo(``)}><i className="fas fa-home"></i> <span>Home</span></button>
-        <button onClick={() => navigateTo('/tasks')}><i className="fas fa-calendar"></i> <span>Tasks</span></button>
-        <button onClick={() => navigateTo('/posts')}><i className="fas fa-cog"></i> <span>Posts</span></button>
-        <button onClick={() => navigateTo('/friends')}><i className="fas fa-info-circle"></i> <span>Friends</span></button>
-      </div> */}
 
       {showAddEventModal && (
         <div className="modal-overlay">
@@ -504,8 +553,10 @@ const Events = () => {
                   required
                 >
                   <option value="">Select Category</option>
-                  {categories.map(option => (
-                    <option key={option} value={option}>{option}</option>
+                  {categories.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
                   ))}
                   <option value="custom">Custom</option>
                 </select>
@@ -522,9 +573,38 @@ const Events = () => {
                   />
                 </label>
               )}
+              <label>
+                Frequency:
+                <select
+                  name="frequency"
+                  value={newEvent.frequency}
+                  onChange={handleInputChange}
+                >
+                  <option value="">None</option>
+                  <option value="Once a Week">Once a Week</option>
+                  <option value="Every Day">Every Day</option>
+                  <option value="Twice a Week">Twice a Week</option>
+                </select>
+              </label>
+              {newEvent.frequency && (
+                <label>
+                  Repeat Until:
+                  <input
+                    type="datetime-local"
+                    name="repeat_until"
+                    value={newEvent.repeat_until}
+                    onChange={handleInputChange}
+                    min={newEvent.end_date}
+                    required
+                  />
+                </label>
+              )}
               <div className="modal-actions">
                 <button type="submit">Create Event</button>
-                <button type="button" onClick={() => setShowAddEventModal(false)}>
+                <button
+                  type="button"
+                  onClick={() => setShowAddEventModal(false)}
+                >
                   Cancel
                 </button>
               </div>
@@ -533,89 +613,15 @@ const Events = () => {
         </div>
       )}
 
-      {showUpdateEventModal && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <h2>Update Event</h2>
-            <form onSubmit={handleUpdateEventSubmit}>
-              <label>
-                Event Name:
-                <input
-                  type="text"
-                  name="name"
-                  value={updatedEvent.name}
-                  onChange={handleUpdateInputChange}
-                  required
-                />
-              </label>
-              <label>
-                Location:
-                <input
-                  type="text"
-                  name="location"
-                  value={updatedEvent.location}
-                  onChange={handleUpdateInputChange}
-                  required
-                />
-              </label>
-              <label>
-                Start Date:
-                <input
-                  type="datetime-local"
-                  name="start_date"
-                  value={updatedEvent.start_date}
-                  onChange={handleUpdateInputChange}
-                  required
-                />
-              </label>
-              <label>
-                End Date:
-                <input
-                  type="datetime-local"
-                  name="end_date"
-                  value={updatedEvent.end_date}
-                  onChange={handleUpdateInputChange}
-                  min={updatedEvent.start_date}
-                  required
-                />
-              </label>
-              <label>
-                Category:
-                <select
-                  name="category"
-                  value={updatedEvent.category}
-                  onChange={handleUpdateInputChange}
-                  required
-                >
-                  <option value="">Select Category</option>
-                  {categories.map(option => (
-                    <option key={option} value={option}>{option}</option>
-                  ))}
-                  <option value="custom">Custom</option>
-                </select>
-              </label>
-              {updatedEvent.category === 'custom' && (
-                <label>
-                  Custom Category:
-                  <input
-                    type="text"
-                    name="customCategory"
-                    value={updatedEvent.customCategory}
-                    onChange={handleUpdateInputChange}
-                    required
-                  />
-                </label>
-              )}
-              <div className="modal-actions">
-                <button type="submit">Update Event</button>
-                <button type="button" onClick={() => setShowUpdateEventModal(false)}>
-                  Cancel
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <EventUpdateModal
+        showUpdateEventModal={showUpdateEventModal}
+        setShowUpdateEventModal={setShowUpdateEventModal}
+        eventToUpdate={updatedEvent}
+        setEventToUpdate={setUpdatedEvent}
+        categories={categories}
+        setCategories={setCategories}
+        refreshEvents={refreshEvents}
+      />
 
       {showLabelModal && (
         <div className="modal-overlay">
@@ -644,7 +650,12 @@ const Events = () => {
               </label>
               <div className="modal-actions">
                 <button type="submit">Save Label</button>
-                <button type="button" onClick={() => setShowLabelModal(false)}>Cancel</button>
+                <button
+                  type="button"
+                  onClick={() => setShowLabelModal(false)}
+                >
+                  Cancel
+                </button>
               </div>
             </form>
           </div>
@@ -655,7 +666,9 @@ const Events = () => {
         <div className="alert-overlay">
           <div className="alert-box">
             <h2>Event Starting Now!</h2>
-            <p><strong>{alertEvent.name}</strong></p>
+            <p>
+              <strong>{alertEvent.name}</strong>
+            </p>
             <p>Location: {alertEvent.location}</p>
             <p>Category: {alertEvent.category}</p>
             <button onClick={() => setAlertEvent(null)}>Close</button>
@@ -680,7 +693,10 @@ const Events = () => {
               </label>
               <div className="modal-actions">
                 <button type="submit">Create Category</button>
-                <button type="button" onClick={() => setShowAddCategoryModal(false)}>
+                <button
+                  type="button"
+                  onClick={() => setShowAddCategoryModal(false)}
+                >
                   Cancel
                 </button>
               </div>

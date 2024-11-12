@@ -49,12 +49,33 @@ const Posts = () => {
     }
   };
 
+  // **Check if the logged-in user owns a comment**
+  const checkIfCommentOwner = async (comment_id) => {
+    try {
+      const response = await axios.get(`${baseUrl}/post/check-comment-owner/${comment_id}`, { withCredentials: true });
+      return response.data.is_self; // Return ownership status
+    } catch (error) {
+      console.error("Error checking comment ownership:", error);
+      return false; // Default to not owner if error occurs
+    }
+  };
+
+  // **Fetch comments and check ownership for each comment**
   const fetchCommentsForPost = async (postId) => {
     try {
       const response = await axios.get(`${baseUrl}/post/${postId}/comments`, { withCredentials: true });
+      
+      // **Add ownership status for each comment**
+      const commentsWithOwnership = await Promise.all(
+        response.data.map(async (comment) => {
+          const isOwner = await checkIfCommentOwner(comment.comment_id);
+          return { ...comment, isOwner };
+        })
+      );
+
       setSelectedPost((prev) => ({
         ...prev,
-        comments: response.data,
+        comments: commentsWithOwnership,
       }));
     } catch (err) {
       console.error("Error fetching comments:", err);
@@ -69,21 +90,15 @@ const Posts = () => {
   // posts
   const handlePostClick = async (post_id) => {
     try {
-      // Fetch the specific post
+      // Fetch the specific post and its comments with ownership
       const response = await axios.get(`${baseUrl}/post/get-post/${post_id}`, { withCredentials: true });
-      const commentsResponse = await axios.get(`${baseUrl}/post/${post_id}/comments`, { withCredentials: true });
-      console.log("Comments Response:", commentsResponse.data); // Log comments response
-
-      const comments = Array.isArray(commentsResponse.data) ? commentsResponse.data : [];
-      console.log("Comments being set in selectedPost:", comments); // Log comments
-
-      setSelectedPost({
-          ...response.data,
-          comments,
-      });
+      setSelectedPost(response.data);
+      
+      // Fetch comments with ownership checks for this post
+      fetchCommentsForPost(post_id); // **Ensure ownership status is set for all comments**
     } catch (err) {
-        console.error("Error fetching post details:", err);
-        setError('Failed to fetch post details.');
+      console.error("Error fetching post details:", err);
+      setError('Failed to fetch post details.');
     }
   };
 
@@ -141,7 +156,6 @@ const Posts = () => {
 
     try {
       await axios.delete(`${baseUrl}/post/delete-comment/${comment_id}`, { withCredentials: true });
-
       fetchCommentsForPost(selectedPost.post_id); // Fetch updated comments
 
     } catch (err) {
@@ -357,14 +371,24 @@ const Posts = () => {
         <div className="post-details">
           {selectedPost ? (
             <div>
-              <h3>{selectedPost.title}</h3>
+              <div className="post-title-container">
+                <h3>{selectedPost.title}</h3>
+                {isOwner && (
+                  <div className="post-actions">
+                    <button onClick={() => handleUpdatePostClick(selectedPost)}>Update</button>
+                    <button onClick={() => handleDeletePost(selectedPost.post_id)}>Delete</button>
+                  </div>
+                )}
+              </div>
               <p>{selectedPost.content}</p>
               <h4>Comments:</h4>
-              {selectedPost.comments.length > 0 ? (
-                selectedPost.comments.map(comment => (
-                  <div key={comment.comment_id}>
+              {selectedPost.comments && selectedPost.comments.length > 0 ? (
+                selectedPost.comments.map((comment) => (
+                  <div key={comment.comment_id} className="comment-item">
                     <p>{comment.text}</p>
-                    <button onClick={() => handleDeleteComment(comment)}>Delete</button>
+                    {comment.isOwner && (
+                      <button onClick={() => handleDeleteComment(comment)}>Delete</button>
+                    )}
                   </div>
                 ))
               ) : (
@@ -377,13 +401,6 @@ const Posts = () => {
                 onChange={(e) => setNewComment(e.target.value)}
               />
               <button onClick={handleCommentSubmit}>Submit Comment</button>
-
-              {isOwner && (
-              <>
-                <button onClick={() => handleUpdatePostClick(selectedPost)}>Update</button> 
-                <button onClick={() => handleDeletePost(selectedPost.post_id)}>Delete</button>
-              </>
-              )}
             </div>
           ) : (
             <p>Select a post to view details.</p>
