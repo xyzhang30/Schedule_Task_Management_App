@@ -10,6 +10,7 @@ import Register from './pages/Register.js';
 import Logout from './pages/Logout.js';
 import ChangeUsername from './pages/ChangeUsername.js';
 import ChangePassword from './pages/ChangePassword.js';
+import ChangeEmail from './pages/ChangeEmail.js'
 import ChangePhoneNumber from './pages/ChangePhoneNumber.js';
 import ResetPassword from './pages/ResetPassword.js';
 import Tasks from './pages/Tasks.js';

@@ -6,7 +6,7 @@ from app.controllers import accountController, availabilityController, friendCon
 from .db import init_db
 
 mail = Mail() #create mail instance for importing
-
+uploadParameters = {'UPLOAD_FOLDER': '/srv/app/avatars', 'ALLOWED_EXTENSIONS': {'png', 'jpg', 'jpeg', 'gif'}}
 def create_app(test_config=None):
     # create and configure the app
     # app = Flask(__name__, instance_relative_config=True)
