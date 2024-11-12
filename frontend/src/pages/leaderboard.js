@@ -14,6 +14,7 @@ const Leaderboard = () => {
         fetchAllWeeklyStudyTimes();
     }, []);
 
+    //fetch everyone's weekly study time
     const fetchAllWeeklyStudyTimes = async () => {
         try {
             const response = await axios.get(`${baseUrl}/studytime/all_weekly`);
