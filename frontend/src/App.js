@@ -28,27 +28,6 @@ function App() {
   return (
     <Router>
       <Main />
-      <div>
-        <NavBar />
-      <Routes>
-        {/* Default Route */}
-        {/* <Route path="/" element={<LandingPage />} /> */}
-
-        {/* Events Route */}
-        <Route path="/" element={<LandingPage />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/logout" element={<Logout />} />
-        <Route path="/change-username" element={<ChangeUsername />} />
-        <Route path="/change-password" element={<ChangePassword />} />
-        <Route path="/change-phone-number" element={<ChangePhoneNumber />} />
-        <Route path="/friends" element={<Friends/>} />
-        <Route path="/tasks" element={<Tasks/>} />
-        <Route path="/posts" element={<Posts/>} />
-        <Route path="/event" element={<Events />} />
-        <Route path="/groups" element={<Groups/>} />
-      </Routes>
-      </div>
     </Router>
   );
 }
