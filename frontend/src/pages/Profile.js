@@ -25,7 +25,6 @@ function Profile() {
           responseType: 'blob' // Receive as Blob
         });
         const avatarUrl = URL.createObjectURL(avatarRes.data);
-
         setProfile({
           username: usernameRes.data.username,
           phoneNumber: phoneNumberRes.data.phone_number,

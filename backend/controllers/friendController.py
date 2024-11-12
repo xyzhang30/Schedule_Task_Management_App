@@ -1,10 +1,12 @@
 from flask import Blueprint, jsonify, session
 from flask import request
 from ..models.friend import Friend
+from ..decorators import is_logged_in
 
 bp = Blueprint('friend', __name__, url_prefix='/friend')
 
 @bp.route('/', methods = ['GET'])
+@is_logged_in
 def index():
     friends = Friend.query.all()
     friend_list = [f.to_dict() for f in friends]
@@ -12,6 +14,7 @@ def index():
 
 
 @bp.route('/get-friends', methods=['GET'])
+@is_logged_in
 def get_friends():
     '''
     Gets all the friends for a specific account by account_id
@@ -26,6 +29,7 @@ def get_friends():
 
 
 @bp.route('/add-friend', methods = ['POST'])
+@is_logged_in
 def addFriend():
     '''
     add a friend account pair into database
@@ -44,6 +48,7 @@ def addFriend():
 
 
 @bp.route('/remove-friend', methods = ['DELETE'])
+@is_logged_in
 def removeFriend():
     '''
     removes a friend account pair from database 
