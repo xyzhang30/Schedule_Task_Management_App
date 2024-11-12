@@ -28,7 +28,7 @@ const Login = () => {
       if (response.data.msg === 'Successfully Logged In') {
         setSuccess('Login Successful!');
         // Redirect to friends or landing page after successful login
-        navigate('/friends');
+        navigate('/calendar');
       } else {
         setError('Incorrect Username or Password');
       }
