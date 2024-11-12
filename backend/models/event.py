@@ -12,6 +12,8 @@ class Event(Base):
     category = Column(String(100), nullable=True)
     label_text = Column(String(100), nullable=True)
     label_color = Column(String(20), nullable=True)
+    frequency = Column(String(50), nullable=True)
+    repeat_until = Column(DateTime, nullable=True)
 
     def __repr__(self):
         return f"<Event event_id={self.event_id} name={self.name}>"
@@ -38,7 +40,9 @@ class Event(Base):
             'end_date': self.end_date.strftime('%Y-%m-%dT%H:%M'),
             'category': self.category,
             'label_text': self.label_text,
-            'label_color': self.label_color
+            'label_color': self.label_color,
+            'frequency': self.frequency,
+            'repeat_until': self.repeat_until.strftime('%Y-%m-%dT%H:%M') if self.repeat_until else None
         }
 
     def save(self):
@@ -78,3 +82,7 @@ class EventCategory(Base):
     @classmethod
     def all(cls):
         return db_session.query(cls).all()
+
+    @classmethod
+    def get_category(cls, category_name):
+        return db_session.query(cls).filter_by(category_name=category_name).first()

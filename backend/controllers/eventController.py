@@ -23,7 +23,9 @@ def create_event():
         end_date=datetime.strptime(data['end_date'], '%Y-%m-%dT%H:%M'),
         category=data.get('category'),
         label_text=data.get('label_text'),
-        label_color=data.get('label_color')
+        label_color=data.get('label_color'),
+        frequency=data.get('frequency'),
+        repeat_until=datetime.strptime(data['repeat_until'], '%Y-%m-%dT%H:%M') if data.get('repeat_until') else None
     )
     new_event.save()
     return jsonify({'message': 'Event created successfully', 'event': new_event.to_dict()}), 201
@@ -49,6 +51,9 @@ def update_event(event_id):
     event.category = data.get('category', event.category)
     event.label_text = data.get('label_text', event.label_text)
     event.label_color = data.get('label_color', event.label_color)
+    event.frequency = data.get('frequency', event.frequency)
+    if 'repeat_until' in data:
+        event.repeat_until = datetime.strptime(data['repeat_until'], '%Y-%m-%dT%H:%M') if data.get('repeat_until') else None
     event.update()
 
     return jsonify({'message': 'Event updated successfully', 'event': event.to_dict()}), 200
@@ -104,6 +109,11 @@ def createCategory():
     category_name = data.get("category_name")
     if not category_name:
         return jsonify({'message': 'Category name is required'}), 400
+
+    # Check if category already exists
+    existing_category = EventCategory.get_category(category_name)
+    if existing_category:
+        return jsonify({'message': 'Category already exists'}), 200
 
     category = EventCategory(category_name=category_name)
     category.save()

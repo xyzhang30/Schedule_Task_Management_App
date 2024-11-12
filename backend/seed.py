@@ -60,7 +60,9 @@ Table_creation = '''
         end_date TIMESTAMP NOT NULL,
         category VARCHAR(30),
         label_text VARCHAR(100),
-        label_color VARCHAR(20)
+        label_color VARCHAR(20),
+        frequency VARCHAR(50),
+        repeat_until TIMESTAMP
     );
 
     CREATE TABLE event_category (
