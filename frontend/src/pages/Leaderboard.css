@@ -25,7 +25,7 @@ h1 {
 
 .leaderboard-header {
     font-weight: bold;
-    background-color: #4caf50;
+    background-color: #138496;
     color: white;
 }
 
@@ -36,7 +36,7 @@ h1 {
 }
 
 .leaderboard-item:nth-child(odd) {
-    background-color: #e6ffe6;
+    background-color: #b9e8efdf;
 }
 
 .leaderboard-rank,
