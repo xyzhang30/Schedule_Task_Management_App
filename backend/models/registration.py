@@ -22,7 +22,7 @@ class Registration(Base):
 
 	@classmethod
 	def get_accs_by_evt_id(cls, evt_id):
-		return db_session.query(cls).filter_by(group_id = evt_id).all()
+		return db_session.query(cls).filter_by(event_id = evt_id).all()
 	
 	@classmethod
 	def get_evts_by_acc_id(cls, acc_id):

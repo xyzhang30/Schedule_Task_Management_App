@@ -24,7 +24,7 @@ conn_details = psycopg2.connect(
 # create tables 
 cursor = conn_details.cursor()
 Table_creation = '''
-    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, friendrequests, groups, public_events, memberships, registrations, category, event_category, task_category, studytime CASCADE;    
+    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, friendrequests, groups, public_events, memberships, registrations, group_requests, category, event_category, task_category, studytime CASCADE;    
    
     
     CREATE TABLE accounts (
@@ -138,6 +138,7 @@ Table_creation = '''
         account_id_from INTEGER REFERENCES accounts(account_id),
         message VARCHAR(255),
         is_pending BOOLEAN DEFAULT TRUE,
+        is_pending BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 
@@ -170,6 +171,16 @@ Table_creation = '''
         account_id INTEGER REFERENCES accounts(account_id),
         PRIMARY KEY (event_id, account_id)
     );
+
+    CREATE TABLE group_requests (
+        request_id SERIAL PRIMARY KEY,
+        account_id INTEGER REFERENCES accounts(account_id),
+        group_id INTEGER REFERENCES groups(group_id),
+        message VARCHAR(255),
+        is_pending BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
 
     CREATE TABLE studytime (
         account_id INTEGER REFERENCES accounts(account_id),
