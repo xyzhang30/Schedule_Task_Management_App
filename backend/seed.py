@@ -24,7 +24,7 @@ conn_details = psycopg2.connect(
 # create tables 
 cursor = conn_details.cursor()
 Table_creation = '''
-    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, friendrequests, groups, public_events, memberships, registrations, category, event_category, studytime CASCADE;    
+    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, friendrequests, groups, public_events, memberships, registrations, category, event_category, task_category, studytime CASCADE;    
    
     
     CREATE TABLE accounts (
@@ -84,8 +84,10 @@ Table_creation = '''
         class_id INTEGER REFERENCES events(event_id)
     );
 
-    CREATE TABLE category (
-        category_name VARCHAR(100) PRIMARY KEY
+    CREATE TABLE task_category (
+        account_id INTEGER REFERENCES accounts(account_id),
+        category_name VARCHAR(100),
+        PRIMARY KEY (account_id, category_name)
     );
 
     CREATE TABLE availability (
@@ -245,6 +247,18 @@ for _ in range (9):
         INSERT INTO task (due_time, task_name, category, complete)
         VALUES (%s, %s, %s, %s)
     ''', (due_time, task_name, category, complete))
+
+
+#studytime test data
+for i in range (1, 6):
+    account_id = i
+    date = '2024-11-12'
+    study_time = '02:25:43'
+
+    cursor.execute('''
+        INSERT INTO studytime (account_id, date, study_time)
+        VALUES (%s, %s, %s)
+    ''', (account_id, date, study_time))
 
 
 # commit changes to save

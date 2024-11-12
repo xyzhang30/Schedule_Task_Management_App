@@ -7,7 +7,7 @@ from ..db import Base, db_session
 
 class Task(Base):
     __tablename__ = 'task'
-    task_id = Column(Integer, primary_key=True)  # serial?
+    task_id = Column(Integer, primary_key=True)
     account_id = Column(Integer, ForeignKey('accounts.account_id'))
     category = Column(String, unique=False)
     due_time = Column(TIMESTAMP, unique=False)
@@ -36,7 +36,11 @@ class Task(Base):
     def complete_task(self):
         self.complete = True
         db_session.commit()
-          
+
+    def cancel_complete_task(self):
+        self.complete = False
+        db_session.commit()
+
     @classmethod
     def get_task(cls, task_id):
         return db_session.query(cls).get(task_id)
@@ -73,7 +77,8 @@ class Task(Base):
     
 
 class Category(Base):
-    __tablename__ = 'category'
+    __tablename__ = 'task_category'
+    account_id = Column(Integer, ForeignKey('accounts.account_id'))
     category_name = Column(String, primary_key=True)
 
     def __repr__(self):
@@ -89,5 +94,8 @@ class Category(Base):
 
     @classmethod
     def all(cls):
-        print("called all")
         return db_session.query(cls).all()
+    
+    @classmethod
+    def all_per_user(cls, account_id):
+        return db_session.query(cls).filter_by(account_id=account_id).all()

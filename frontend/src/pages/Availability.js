@@ -56,7 +56,7 @@ const FindSharedAvailability = () => {
   };
 
   const handleSubmit = async () => {
-    if (!date || !timeFrom || !timeTo || participants.length < 2) {
+    if (!date || !timeFrom || !timeTo || participants.length < 1) {
       alert('Please fill in all fields and add participants.');
       return;
     }

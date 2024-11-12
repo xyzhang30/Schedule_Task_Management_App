@@ -44,9 +44,13 @@ class StudyTime(Base):
             db_session.add(study_time_entry)
         db_session.commit()
 
+
     @classmethod
     def daily_study_time(cls, account_id, current_date):
-        return db_session.query(cls).filter_by(account_id=account_id, date=current_date).first()
+        result = db_session.query(cls).filter_by(account_id=account_id, date=current_date).first()
+        study_time = result.study_time or timedelta(0)
+        return study_time
+    
 
     @classmethod
     def weekly_study_time(cls, account_id, current_date):

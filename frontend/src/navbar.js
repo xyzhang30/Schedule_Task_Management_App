@@ -2,7 +2,7 @@
 import React from 'react';
 import './navbar.css'; // Ensure this path is correct
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faCalendar, faCog, faUsers, faInfoCircle, faCalendarAlt,faPeopleGroup, faCalendarCheck, faComments } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faCalendar, faCog, faUsers, faInfoCircle, faCalendarAlt,faPeopleGroup, faCalendarCheck, faComments, faClock } from '@fortawesome/free-solid-svg-icons';
 
 const NavBar = () => {
   const navigateTo = (link) => {
@@ -39,6 +39,14 @@ const NavBar = () => {
         <button onClick={() => navigateTo('/groups')}>
           <FontAwesomeIcon icon={faPeopleGroup} />
           <span>Groups</span>
+        </button>
+        <button onClick={() => navigateTo('/studytime')}>
+          <FontAwesomeIcon icon={faClock} />
+          <span>Study Time</span>
+        </button>
+        <button onClick={() => navigateTo('/availability')}>
+          <FontAwesomeIcon icon={faCalendarAlt} />
+          <span>Availability</span>
         </button>
 
       </div>
