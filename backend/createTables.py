@@ -30,6 +30,7 @@ Table_creation = '''
         phone VARCHAR(15) UNIQUE,
         avatar VARCHAR(255),
         year_created INTEGER NOT NULL
+        
     );
 
     CREATE TABLE friend (

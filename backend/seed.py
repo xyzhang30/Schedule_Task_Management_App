@@ -34,7 +34,8 @@ Table_creation = '''
         email VARCHAR(100) UNIQUE NOT NULL,
         phone VARCHAR(15) UNIQUE,
         avatar VARCHAR(255),
-        year_created INTEGER NOT NULL
+        year_created INTEGER NOT NULL,
+        major VARCHAR(100)
     );
 
     CREATE TABLE friend (
