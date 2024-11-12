@@ -3,11 +3,13 @@ from flask import request
 from ..models.availability import Availability
 from ..models.event import Event
 from ..models.account import Account
+from ..decorators import is_logged_in
 from datetime import datetime
 
 bp = Blueprint('availability', __name__, url_prefix='/availability')
 
 @bp.route('/generate', methods = ['POST'])
+@is_logged_in
 def generate_availability():
     date_input = request.form.get("date")
     start_time_input = request.form.get("start_time")
