@@ -1,9 +1,8 @@
-# event.py
 from sqlalchemy import Column, Integer, String, DateTime
 from ..db import Base, db_session
 
 class Event(Base):
-    __tablename__ = 'event'
+    __tablename__ = 'events'
     event_id = Column(Integer, primary_key=True)
     account_id = Column(Integer, nullable=False)
     name = Column(String(100), nullable=False)
@@ -11,8 +10,10 @@ class Event(Base):
     start_date = Column(DateTime, nullable=False)
     end_date = Column(DateTime, nullable=False)
     category = Column(String(100), nullable=True)
-    # label_text = Column(String(100), nullable=True)
-    # label_color = Column(String(20), nullable=True)
+    label_text = Column(String(100), nullable=True)
+    label_color = Column(String(20), nullable=True)
+    frequency = Column(String(50), nullable=True)
+    repeat_until = Column(DateTime, nullable=True)
 
     def __repr__(self):
         return f"<Event event_id={self.event_id} name={self.name}>"
@@ -37,9 +38,11 @@ class Event(Base):
             'location': self.location,
             'start_date': self.start_date.strftime('%Y-%m-%dT%H:%M'),
             'end_date': self.end_date.strftime('%Y-%m-%dT%H:%M'),
-            'category': self.category
-            # 'label_text': self.label_text,
-            # 'label_color': self.label_color
+            'category': self.category,
+            'label_text': self.label_text,
+            'label_color': self.label_color,
+            'frequency': self.frequency,
+            'repeat_until': self.repeat_until.strftime('%Y-%m-%dT%H:%M') if self.repeat_until else None
         }
 
     def save(self):
@@ -56,3 +59,30 @@ class Event(Base):
 
     def update(self):
         db_session.commit()
+
+# Category model
+class EventCategory(Base):
+    __tablename__ = 'event_category'
+    category_name = Column(String, primary_key=True)
+
+    def __repr__(self):
+        return f"<Category category_name={self.category_name}>"
+    
+    def to_dict(self):
+        return {column.name: getattr(self, column.name) for column in self.__table__.columns}
+    
+    def save(self):
+        db_session.add(self)
+        db_session.commit()
+
+    def delete(self):
+        db_session.delete(self)
+        db_session.commit()
+
+    @classmethod
+    def all(cls):
+        return db_session.query(cls).all()
+
+    @classmethod
+    def get_category(cls, category_name):
+        return db_session.query(cls).filter_by(category_name=category_name).first()

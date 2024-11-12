@@ -1,12 +1,24 @@
+
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
+  width: 70px;
+  background: linear-gradient(to right, #f8f9fa, #e9ecef);
+  font-family: 'Roboto', sans-serif;
+  transition: width 0.3s ease;
+  z-index: 1000; 
+}
+
 .sidebar {
-  width: 60px;
-  background-color: #e6e6e6;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding-top: 20px;
+  height: 100%;
+  width: 100%;
   transition: width 0.3s ease;
-  position: relative;
 }
 
 .sidebar:hover {
@@ -16,21 +28,24 @@
 .sidebar button {
   background-color: #dcdcf7;
   border: none;
-  padding: 10px;
-  width: 90%;
+  padding: 10px 7px;
+  width: 100%;
   margin-bottom: 10px;
   border-radius: 5px;
   font-size: 16px;
   cursor: pointer;
   color: #333;
-  transition: opacity 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease;
   display: flex;
   align-items: center;
+  padding-left: 10px;
+  box-sizing: border-box;
 }
 
 .sidebar button span {
-  opacity: 0;
   margin-left: 10px;
+  white-space: nowrap;
+  opacity: 0;
   transition: opacity 0.3s ease;
 }
 
@@ -38,6 +53,30 @@
   opacity: 1;
 }
 
-.sidebar button i {
+.sidebar button i,
+.sidebar button svg {
   font-size: 20px;
+}
+
+.sidebar button:hover {
+  background-color: #c7c7e6;
+  transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    width: 80px;
+  }
+
+  .sidebar:hover {
+    width: 150px;
+  }
+
+  .sidebar button {
+    padding: 10px 10px;
+  }
+
+  .sidebar button span {
+    font-size: 14px;
+  }
 }
