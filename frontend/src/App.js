@@ -20,6 +20,7 @@ import GroupIndexPage from './pages/GroupIndex.js';
 import GroupInfoPage from './pages/GroupInfo.js';
 import ForgotPassword from './pages/ForgotPassword.js';
 import SchedulerPage from './pages/Calendar.js';
+import Leaderboard from './pages/leaderboard.js';
 
 function App() {
   return (
@@ -61,6 +62,7 @@ const Main = () => {
         <Route path="/groups" element={<GroupIndexPage />} />
         <Route path="/group-info" element={<GroupInfoPage />} />
         <Route path="/calendar" element={<SchedulerPage />} />
+        <Route path="/leaderboard" element={<Leaderboard/>} />
       </Routes>
     </div>
   );

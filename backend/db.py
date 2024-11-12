@@ -30,5 +30,6 @@ def init_db():
     from app.models.friendRequests import FriendRequest
     from app.models.task import Category
     from app.models.resetKeys import ResetKeys
+    from app.models.studyTime import StudyTime
     # from flask_mvc_walkthrough.models.album import Album
     Base.metadata.create_all(bind=engine)
