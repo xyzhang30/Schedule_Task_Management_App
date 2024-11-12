@@ -24,7 +24,7 @@ conn_details = psycopg2.connect(
 # create tables 
 cursor = conn_details.cursor()
 Table_creation = '''
-    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, friendrequests, groups, public_events, memberships, registrations, category, event_category CASCADE;    
+    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, friendrequests, groups, public_events, memberships, registrations, category, event_category, task_category, studytime CASCADE;    
    
     
     CREATE TABLE accounts (
@@ -81,8 +81,10 @@ Table_creation = '''
         class_id INTEGER REFERENCES events(event_id)
     );
 
-    CREATE TABLE category (
-        category_name VARCHAR(100) PRIMARY KEY
+    CREATE TABLE task_category (
+        account_id INTEGER REFERENCES accounts(account_id),
+        category_name VARCHAR(100),
+        PRIMARY KEY (account_id, category_name)
     );
 
     CREATE TABLE availability (
@@ -165,6 +167,13 @@ Table_creation = '''
         account_id INTEGER REFERENCES accounts(account_id),
         PRIMARY KEY (event_id, account_id)
     );
+
+    CREATE TABLE studytime (
+        account_id INTEGER REFERENCES accounts(account_id),
+        date DATE,
+        study_time INTERVAL,
+        PRIMARY KEY (account_id, date)
+    );
 '''
 cursor.execute(Table_creation)
 
@@ -236,6 +245,18 @@ for _ in range (9):
         INSERT INTO task (due_time, task_name, category, complete)
         VALUES (%s, %s, %s, %s)
     ''', (due_time, task_name, category, complete))
+
+
+#studytime test data
+for _ in range (3):
+    account_id = random.randint(1, 7)
+    date = random.choice(['2024-11-01', '2024-11-02', '2024-11-03', '2024-11-04', '2024-11-11'])
+    study_time = random.choice(['01:20:23', '02:25:43', '05:01:10', '00:30:00'])
+
+    cursor.execute('''
+        INSERT INTO studytime (account_id, date, study_time)
+        VALUES (%s, %s, %s)
+    ''', (account_id, date, study_time))
 
 
 # commit changes to save

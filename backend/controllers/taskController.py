@@ -1,11 +1,13 @@
 from flask import Blueprint, jsonify, session
 from flask import request
 from ..models.task import Task, Category
+from ..decorators import is_logged_in
 
 bp = Blueprint('task', __name__, url_prefix='/task')
 
 #get all tasks 
 @bp.route('/all', methods = ['GET'])
+@is_logged_in
 def index():
     tasks = Task.all()
     tasks_list = [a.to_dict() for a in tasks]
@@ -13,6 +15,7 @@ def index():
 
 #get all tasks by account_id
 @bp.route('/', methods = ['GET'])
+@is_logged_in
 def get_tasks():
     account_id = session['user']
     tasks = Task.get_by_account(account_id)
@@ -21,6 +24,7 @@ def get_tasks():
 
 #get all tasks by account_id in forms of a (date, tasks) map/dictionary, where tasks are sorted by complete and due_time
 @bp.route('/sorted', methods=['GET'])
+@is_logged_in
 def get_tasks_grouped_by_date():
     account_id = session['user']
     map = Task.get_tasks_by_account_dic(account_id)
@@ -38,6 +42,7 @@ def get_tasks_grouped_by_date():
 
 #get all tasks by due dates for a user
 @bp.route('/date/<string:due_date>', methods = ['GET'])
+@is_logged_in
 def get_tasks_by_date(due_date):
     account_id = session['user']
     tasks = Task.get_by_date(account_id, due_date)
@@ -47,6 +52,7 @@ def get_tasks_by_date(due_date):
 
 #get all tasks by category for a user
 @bp.route('/category/<string:category>', methods=['GET'])
+@is_logged_in
 def get_tasks_by_category(category):
     account_id = session['user']
     tasks = Task.get_by_category(account_id, category)
@@ -55,6 +61,7 @@ def get_tasks_by_category(category):
 
 #get one task info by id
 @bp.route('/id/<int:task_id>', methods = ['GET'])
+@is_logged_in
 def get_task_by_id(task_id):
     task = Task.get_task(task_id)
     if task:
@@ -64,6 +71,7 @@ def get_task_by_id(task_id):
 
 #create a task
 @bp.route('/create', methods = ['POST'])
+@is_logged_in
 def createTask():
     task_name = request.form.get("task_name")
     category = request.form.get("category")
@@ -85,6 +93,7 @@ def createTask():
 
 #update a task
 @bp.route('/update/<int:task_id>', methods=['PUT'])
+@is_logged_in
 def update_task(task_id):
     task = Task.get_task(task_id)
 
@@ -107,6 +116,7 @@ def update_task(task_id):
 
 #complete a task 
 @bp.route('/complete/<int:task_id>', methods = ['POST'])
+@is_logged_in
 def completeTask(task_id):
     task = Task.get_task(task_id)
     if task:
@@ -115,8 +125,22 @@ def completeTask(task_id):
     else:
         return jsonify({"error": "Task not found."}), 404
     
+
+#cancel complete for a task
+@bp.route('/cancel_complete/<int:task_id>', methods = ['POST'])
+@is_logged_in
+def cancelCompleteTask(task_id):
+    task = Task.get_task(task_id)
+    if task:
+        task.cancel_complete_task()
+        return jsonify({"message": "Task not completed."}), 200
+    else:
+        return jsonify({"error": "Task not found."}), 404
+
+
 #delete a task
 @bp.route('/remove/<int:task_id>', methods = ['DELETE'])
+@is_logged_in
 def removeTask(task_id):
     task = Task.get_task(task_id)
     if task:
@@ -124,20 +148,26 @@ def removeTask(task_id):
         return jsonify({"message": "Task removed successfully."}), 200
     return jsonify({"error": "Task not found."}), 404
 
+
 #get all categories
 @bp.route('/category/all', methods = ['GET'])
+@is_logged_in
 def getAllCategory():
-    categories = Category.all()
+    account_id = session['user']
+    categories = Category.all_per_user(account_id)
     categories_list = [a.to_dict() for a in categories]
     return jsonify(categories_list)
 
 
 #create category
 @bp.route('/category/create', methods = ['POST'])
+@is_logged_in
 def createCategory():
+    account_id = session['user']
     category_name = request.form.get("category_name")
 
     category = Category(
+        account_id = account_id,
         category_name = category_name
     )
 

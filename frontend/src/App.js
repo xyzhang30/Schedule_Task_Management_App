@@ -19,6 +19,8 @@ import Events from './pages/Events';
 import GroupIndexPage from './pages/GroupIndex.js';
 import GroupInfoPage from './pages/GroupInfo.js';
 import ForgotPassword from './pages/ForgotPassword.js';
+import StudyTime from './pages/StudyTime.js';
+import LeaderBoard from './pages/LeaderBoard.js';
 
 function App() {
   return (
@@ -46,6 +48,8 @@ function App() {
         <Route path="/event" element={<Events />} />
         <Route path="/groups" element={<GroupIndexPage/>} />
         <Route path="/group-info" element={<GroupInfoPage/>} />
+        <Route path="/studytime" element={<StudyTime/>} />
+        <Route path="/leaderboard" element={<LeaderBoard/>} />
       </Routes>
       </div>
     </Router>

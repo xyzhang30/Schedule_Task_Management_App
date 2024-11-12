@@ -2,7 +2,7 @@ import os
 from flask import Flask
 from flask_cors import CORS
 from flask_mail import Mail
-from app.controllers import accountController, availabilityController, friendController, groupController, taskController, postController, authController, friendRequestController, eventController
+from app.controllers import accountController, availabilityController, friendController, groupController, taskController, postController, authController, friendRequestController, eventController, studyTimeController
 from .db import init_db
 
 mail = Mail() #create mail instance for importing
@@ -53,6 +53,7 @@ def create_app(test_config=None):
     app.register_blueprint(authController.bp)
     app.register_blueprint(friendRequestController.bp)
     app.register_blueprint(postController.bp)
+    app.register_blueprint(studyTimeController.bp)
 
     init_db()
     return app
