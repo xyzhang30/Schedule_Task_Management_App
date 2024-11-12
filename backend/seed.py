@@ -138,6 +138,7 @@ Table_creation = '''
         account_id_from INTEGER REFERENCES accounts(account_id),
         message VARCHAR(255),
         is_pending BOOLEAN DEFAULT TRUE,
+        is_pending BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 
