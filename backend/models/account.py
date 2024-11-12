@@ -13,6 +13,7 @@ class Account(Base):
 	phone = Column(String(15), unique=True)
 	avatar = Column(String(255), unique=False, nullable = True)
 	year_created = Column(Integer, unique=False)
+	major = Column(String(100))
 
 	def __repr__(self):
 		return f"<Account account_id={self.account_id} username={self.username}>"

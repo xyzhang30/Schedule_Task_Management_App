@@ -34,7 +34,8 @@ Table_creation = '''
         email VARCHAR(100) UNIQUE NOT NULL,
         phone VARCHAR(15) UNIQUE,
         avatar VARCHAR(255),
-        year_created INTEGER NOT NULL
+        year_created INTEGER NOT NULL,
+        major VARCHAR(100)
     );
 
     CREATE TABLE friend (
@@ -58,9 +59,11 @@ Table_creation = '''
         location VARCHAR(30),
         start_date TIMESTAMP NOT NULL,
         end_date TIMESTAMP NOT NULL,
-        category VARCHAR(30),
+        category VARCHAR(30), 
         label_text VARCHAR(100),
-        label_color VARCHAR(20)
+        label_color VARCHAR(20),
+        frequency VARCHAR(50),
+        repeat_until TIMESTAMP
     );
 
     CREATE TABLE event_category (
@@ -99,7 +102,7 @@ Table_creation = '''
         title VARCHAR(20),
         date_posted TIMESTAMP NOT NULL, 
         poster_id INTEGER REFERENCES accounts(account_id),
-        content VARCHAR(300) NOT NULL,
+        content TEXT NOT NULL,
         image_url VARCHAR(300)
     );
 
@@ -126,7 +129,7 @@ Table_creation = '''
         post_id INTEGER REFERENCES post(post_id),
         commenter_id INTEGER REFERENCES accounts(account_id),
         timestamp TIMESTAMP NOT NULL,
-        text VARCHAR(200) NOT NULL
+        text TEXT NOT NULL
     );
     
     CREATE TABLE friendrequests (
@@ -178,8 +181,6 @@ Table_creation = '''
 cursor.execute(Table_creation)
 
 
-
-
 # generating test data
 faker = Faker()
 Faker.seed(11)
@@ -214,7 +215,7 @@ for n in range (3):
 
 
 # events test data
-for _ in range(7):
+for _ in range(10):
     event_name = faker.word()
     event_location = faker.city()
     s_date = faker.date_this_year() 
@@ -224,6 +225,7 @@ for _ in range(7):
     e_date = datetime.combine(s_date.date(), end_time) 
     category = random.choice(['club', 'personal', 'school', 'work'])
     account_id = random.randint(1, 6)
+    print("_____ accountid: ", account_id)
     label_text = faker.word()  # Random word for label text
     label_color = faker.color_name()  # Random color name for label color
 
@@ -239,7 +241,7 @@ for _ in range (9):
     task_name = faker.word()
     category = random.choice(['club', 'personal', 'school', 'work'])
     complete = random.choice([True, False])
-    account_id = random.randint(1, 7)
+    account_id = random.randint(1, 6)
 
     cursor.execute('''
         INSERT INTO task (due_time, task_name, category, complete)
@@ -248,10 +250,10 @@ for _ in range (9):
 
 
 #studytime test data
-for _ in range (3):
-    account_id = random.randint(1, 7)
-    date = random.choice(['2024-11-01', '2024-11-02', '2024-11-03', '2024-11-04', '2024-11-11'])
-    study_time = random.choice(['01:20:23', '02:25:43', '05:01:10', '00:30:00'])
+for i in range (1, 6):
+    account_id = i
+    date = '2024-11-12'
+    study_time = '02:25:43'
 
     cursor.execute('''
         INSERT INTO studytime (account_id, date, study_time)

@@ -1,10 +1,12 @@
 from flask import Blueprint, jsonify, request, session
 from ..models.post import Post, Like, Save, Comment
 from ..models.friend import Friend
+from ..decorators import is_logged_in
 
 bp = Blueprint('post', __name__, url_prefix='/post')
 
 @bp.route('/', methods=['GET'])
+@is_logged_in
 def index():
     '''
     Gets a list of all posts
@@ -15,6 +17,7 @@ def index():
 
 
 @bp.route('/get-post/<int:post_id>', methods=['GET'])
+@is_logged_in
 def get_post(post_id):
     '''
     Gets a specific post by its post_id
@@ -26,6 +29,7 @@ def get_post(post_id):
 
 
 @bp.route('/get-posts', methods=['GET'])
+@is_logged_in
 def get_posts_by_poster():
     '''
     Gets all posts by a specific poster ID
@@ -41,17 +45,19 @@ def get_posts_by_poster():
 
 
 @bp.route('/get-friends-posts', methods=['GET'])
+@is_logged_in
 def get_friends_posts_by_poster():
     '''
     Gets all posts from the friends of a specific poster ID
     '''
     poster_id = session['user']
     friends_accounts = Friend.get_friends_by_id(poster_id)
-    friend_ids = [friend.account_id for friend in friends_accounts]
-    
-    if not friend_ids:
+
+    if not friends_accounts:
         return jsonify([]), 200
         # return jsonify({"error": "No friends found or no posts by friends."}), 404
+
+    friend_ids = [friend.account_id for friend in friends_accounts]
     
     posts = Post.get_posts_by_poster_ids(friend_ids)
 
@@ -64,6 +70,7 @@ def get_friends_posts_by_poster():
 
 
 @bp.route('/add-post', methods=['POST'])
+@is_logged_in
 def add_post():
     '''
     Adds a new post
@@ -88,14 +95,22 @@ def add_post():
 
 
 @bp.route('/update-post/<int:post_id>', methods=['PUT'])
+@is_logged_in
 def update_post(post_id):
     '''
     Updates a specific post by post_id
     '''
+    account_id = session['user']  # Get the account ID from the session
     post = Post.get_post_by_id(post_id)
+    
     if not post:
         return jsonify({"error": "Post not found."}), 404
 
+    # Check if the logged-in user owns the post
+    if post.poster_id != account_id:
+        return jsonify({"error": "You are not authorized to update this post."}), 403
+
+    # Update the post with new values, if provided
     title = request.form.get('title', post.title)
     content = request.form.get('content', post.content)
     image_url = request.form.get('image_url', post.image_url)
@@ -126,21 +141,30 @@ def remove_all(post_id):
 
 
 @bp.route('/remove-post/<int:post_id>', methods=['DELETE'])
+@is_logged_in
 def remove_post(post_id):
     '''
     Removes a post by post_id
     '''
+    account_id = session['user']  # Get the account ID from the session
     post = Post.get_post_by_id(post_id)
-    if post:
-        remove_all(post_id)
-        post.delete()
-        return jsonify({"message": "Post and all related data removed successfully."}), 200
-    else:
+    
+    if not post:
         return jsonify({"error": "Post not found."}), 404
+
+    # Check if the logged-in user owns the post
+    if post.poster_id != account_id:
+        return jsonify({"error": "You are not authorized to delete this post."}), 403
+
+    # Remove all related data and delete the post
+    remove_all(post_id)
+    post.delete()
+    return jsonify({"message": "Post and all related data removed successfully."}), 200
 
 
 # Like
 @bp.route('/like', methods=['POST'])
+@is_logged_in
 def like_post():
     post_id = request.form.get('post_id')
     liker_id = session['user']
@@ -153,6 +177,7 @@ def like_post():
 
 
 @bp.route('/unlike', methods=['DELETE'])
+@is_logged_in
 def unlike_post():
     post_id = request.form.get('post_id')
     liker_id = session['user']
@@ -165,6 +190,7 @@ def unlike_post():
 
 
 @bp.route('/<int:post_id>/likes', methods=['GET'])
+@is_logged_in
 def get_likes(post_id):
     '''
     Retrieves all likes for a specific post.
@@ -179,6 +205,7 @@ def get_likes(post_id):
 
 # Save
 @bp.route('/save', methods=['POST'])
+@is_logged_in
 def save_post():
     post_id = request.form.get('post_id')
     saver_id = session['user']
@@ -191,6 +218,7 @@ def save_post():
 
 
 @bp.route('/unsave', methods=['DELETE'])
+@is_logged_in
 def unsave_post():
     post_id = request.form.get('post_id')
     saver_id = session['user']
@@ -203,6 +231,7 @@ def unsave_post():
 
 
 @bp.route('/<int:post_id>/saves', methods=['GET'])
+@is_logged_in
 def get_saves(post_id):
     '''
     Retrieves all saves for a specific post.
@@ -216,6 +245,7 @@ def get_saves(post_id):
 
 
 @bp.route('/account/saves', methods=['GET'])
+@is_logged_in
 def get_account_saves():
     '''
     Retrieves all posts saved by a specific account.
@@ -231,6 +261,7 @@ def get_account_saves():
 
 # Comment
 @bp.route('/comment', methods=['POST'])
+@is_logged_in
 def add_comment():
     commenter_id = session['user']
     post_id = request.form.get('post_id')
@@ -245,17 +276,27 @@ def add_comment():
 
 
 @bp.route('/delete-comment/<int:comment_id>', methods=['DELETE'])
+@is_logged_in
 def delete_comment(comment_id):
+    '''
+    Deletes a specific comment by comment_id
+    '''
+    account_id = session['user']  # Get the account ID from the session
     comment = Comment.get_comment_by_comment_id(comment_id)
 
-    if comment:
-        comment.delete()
-        return jsonify({"message": "Comment removed successfully."}), 200
-    else:
+    if not comment:
         return jsonify({"error": "Comment not found."}), 404
+
+    # Check if the logged-in user owns the comment
+    if comment.commenter_id != account_id:
+        return jsonify({"error": "You are not authorized to delete this comment."}), 403
+
+    comment.delete()
+    return jsonify({"message": "Comment removed successfully."}), 200
 
 
 @bp.route('/<int:post_id>/comments', methods=['GET'])
+@is_logged_in
 def get_comments(post_id):
     '''
     Retrieves all comments for a specific post.
@@ -272,6 +313,7 @@ def get_comments(post_id):
 
 # check id
 @bp.route('/checkid/<int:post_id>', methods=['GET'])
+@is_logged_in
 def is_self(post_id):
     post = Post.get_post_by_id(post_id)
 
@@ -281,3 +323,18 @@ def is_self(post_id):
     if post:
         is_self = post.poster_id == session['user']
         return jsonify({'is_self': is_self}), 200
+
+# check comment id
+@bp.route('/check-comment-owner/<int:comment_id>', methods=['GET'])
+@is_logged_in
+def is_comment_owner(comment_id):
+    '''
+    Check if the logged-in user is the owner of the comment.
+    '''
+    comment = Comment.get_comment_by_comment_id(comment_id)
+
+    if not comment:
+        return jsonify({"error": "Comment not found."}), 404
+
+    is_self = comment.commenter_id == session['user']
+    return jsonify({'is_self': is_self}), 200

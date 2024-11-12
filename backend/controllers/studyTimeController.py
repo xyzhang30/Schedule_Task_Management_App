@@ -47,3 +47,12 @@ def update_study_time(time):
         return jsonify(message="Invalid time format. Use 'hours:minutes:seconds'."), 400
     StudyTime.update_study_time(account_id, current_date, time_interval)
     return jsonify(message="Study time updated successfully."), 200
+
+
+# Get weekly study time for all accounts
+@bp.route('/all_weekly', methods=['GET'])
+@is_logged_in
+def get_all_weekly_study_times():
+    current_date = date.today()
+    result = StudyTime.get_all_users_weekly_study_time(current_date)
+    return jsonify(weekly_study_times=result), 200

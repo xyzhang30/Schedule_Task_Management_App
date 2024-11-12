@@ -65,3 +65,19 @@ class StudyTime(Base):
             .scalar()
         )
         return total_study_time or timedelta(0)
+    
+    @classmethod
+    def get_all_users_weekly_study_time(cls, current_date):
+        start_of_week = current_date - timedelta(days=current_date.weekday())
+        
+        # Query to get the total weekly study time for all users
+        weekly_study_times = (
+            db_session.query(Account.username, func.sum(cls.study_time).label("total_study_time"))
+            .join(Account, Account.account_id == cls.account_id)
+            .filter(cls.date >= start_of_week, cls.date <= current_date)
+            .group_by(Account.username)
+            .order_by(func.sum(cls.study_time).desc())
+            .all()
+        )
+        
+        return [{"username": user[0], "total_study_time": str(user[1])} for user in weekly_study_times]

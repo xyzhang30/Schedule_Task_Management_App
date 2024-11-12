@@ -1,5 +1,5 @@
-from flask import Blueprint, jsonify, session
-from flask import request
+import os
+from flask import Blueprint, jsonify, session, request, send_file
 from ..models.account import Account
 from ..decorators import is_logged_in
 
@@ -94,3 +94,61 @@ def get_year_created():
     response_message = {'year_created': year_created}
     status_code = 200
     return jsonify(response_message), status_code
+
+@bp.route('/', methods = ['GET'])
+def index():
+    account = Account.query.all()
+    accounts_list = [a.to_dict() for a in account]
+    return jsonify(accounts_list)
+
+
+@bp.route('/create', methods = ['POST'])
+def createAccount():
+    username = request.form.get("username")
+    password = request.form.get("password")
+    email = request.form.get("email")
+    phone = request.form.get("phone")
+    avatar = request.form.get("avatar")
+    year_created = (int)(request.form.get("year_created"))
+
+    account = Account(
+        username=username,
+        password=password,
+        email=email,
+        phone=phone,
+        avatar=avatar,
+        year_created=year_created
+        )
+    account.save()
+    return index()
+
+@bp.route('/current-user', methods=['GET'])
+def get_current_user():
+    return session['user']
+
+@bp.route('/name-by-id/<id>', methods=['POST'])
+def get_username_by_id(id):
+    acc = Account.get_acc_by_id(id)
+    username = acc.username
+    return username
+@bp.route('/get_avatar', methods = ['GET'])
+@is_logged_in
+def get_avatar():
+    account = Account.get_acc_by_id(session['user'])
+    file_path = account.avatar
+    file_name = get_file_name(file_path)
+    return send_file(file_path, file_name)
+
+@bp.route('/get_major', methods = ['GET'])
+@is_logged_in
+def get_major():
+    account = Account.get_acc_by_id(session['user'])
+    major = account.major
+    response_message = {'major': major}
+    status_code = 200
+    return jsonify(response_message), status_code
+
+#Helper Functions
+def get_file_name(file_path):
+    file_name = os.path.basename(file_path)
+    return file_name
