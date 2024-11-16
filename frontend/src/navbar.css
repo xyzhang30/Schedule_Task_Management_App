@@ -1,18 +1,15 @@
 /* navbar.css */
+
+/* Navbar Container */
 .navbar {
-  /* Removed fixed positioning to integrate with CSS Grid */
-  /* position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh; */
-  
-  width: 70px; /* Initial width */
+  width: 70px; /* Fixed width */
   background: linear-gradient(to right, #f8f9fa, #e9ecef);
   font-family: 'Roboto', sans-serif;
   transition: width 0.3s ease;
-  z-index: 1000; 
+  z-index: 1000;
 }
 
+/* Sidebar Container */
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -20,14 +17,11 @@
   padding-top: 20px;
   height: 100%;
   width: 100%;
-  transition: width 0.3s ease;
 }
 
-.sidebar:hover {
-  width: 200px; /* Expanded width on hover */
-}
-
+/* Sidebar Buttons */
 .sidebar button {
+  position: relative; /* To anchor the tooltip */
   background-color: #dcdcf7;
   border: none;
   padding: 10px 7px;
@@ -44,128 +38,67 @@
   box-sizing: border-box;
 }
 
+/* Tooltip Styling */
 .sidebar button span {
-  margin-left: 10px;
+  position: absolute;
+  left: 100%; /* Position tooltip to the right of the button */
+  top: 50%;
+  transform: translate(10px, -50%); /* Slight offset for better visibility */
+  background-color: #343a40;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 4px;
   white-space: nowrap;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  pointer-events: none; /* Prevent tooltip from capturing mouse events */
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  font-size: 14px;
+  z-index: 1001;
 }
 
-.sidebar:hover button span {
+/* Tooltip Arrow */
+.sidebar button span::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -5px; /* Position to the left of the tooltip */
+  transform: translateY(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent #343a40 transparent transparent;
+}
+
+/* Show Tooltip on Hover */
+.sidebar button:hover span {
   opacity: 1;
+  transform: translate(0, -50%); /* Align tooltip closer to the button */
 }
 
+/* Button Icons */
 .sidebar button i,
 .sidebar button svg {
   font-size: 20px;
 }
 
+/* Button Hover Effects */
 .sidebar button:hover {
   background-color: #c7c7e6;
   transform: scale(1.05);
 }
 
+/* Responsive Adjustments */
 @media (max-width: 768px) {
   .navbar {
-    width: 80px;
+    width: 70px; /* Keep fixed width on smaller screens */
   }
 
-  .sidebar:hover {
-    width: 150px;
+  /* Adjust tooltip position and size for smaller screens */
+  .sidebar button span {
+    font-size: 12px;
+    transform: translate(10px, -50%);
   }
 
   .sidebar button {
-    padding: 10px 10px;
+    padding: 10px 7px;
   }
-
-  .sidebar button span {
-    font-size: 14px;
-  }
-}
-
-.modal-content h2 {
-  margin-top: 0;
-  color: #343a40;
-  margin-bottom: 25px;
-  text-align: center;
-  font-size: 1.8rem;
-}
-
-.modal-content label {
-  display: block;
-  margin-bottom: 5px;
-  font-weight: bold;
-  color: #495057;
-}
-
-.modal-content input[type="text"],
-.modal-content input[type="datetime-local"] {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 6px;
-  border: 1px solid #ced4da;
-  font-size: 1rem;
-  color: #495057;
-}
-
-.modal-actions {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-
-.modal-actions button {
-  padding: 10px 20px;
-  border: none;
-  cursor: pointer;
-  border-radius: 6px;
-  font-weight: bold;
-  font-size: 1rem;
-}
-
-.modal-actions button[type="submit"] {
-  background-color: #17a2b8;
-  color: #fff;
-  transition: background-color 0.3s ease;
-}
-
-.modal-actions button[type="submit"]:hover {
-  background-color: #138496;
-}
-
-.modal-actions button[type="button"] {
-  background-color: #6c757d;
-  color: #fff;
-  transition: background-color 0.3s ease;
-}
-
-.modal-actions button[type="button"]:hover {
-  background-color: #5a6268;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-  .events-page-container {
-    grid-template-columns: 1fr;
-    grid-template-rows: auto auto auto;
-  }
-
-  .events-list, .event-details {
-    grid-column: 1;
-  }
-
-  .event-details {
-    margin-top: 20px;
-  }
-}
-
-h2 {
-  font-size: 2rem;
-}
-
-button {
-  background-color: #20a0b1;
-  color: #FFF;
-  padding-top: 3px;
 }
