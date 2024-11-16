@@ -18,10 +18,10 @@ import {
 import Paper from '@mui/material/Paper';
 import './Calendar.css';
 import EventUpdateModal from './EventUpdate';
-import { styled, alpha } from '@mui/material/styles';
+import { styled } from '@mui/material/styles';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
-import classNames from 'clsx';
+import RepeatIcon from '@mui/icons-material/Repeat';
 
 axios.defaults.withCredentials = true;
 
@@ -30,20 +30,20 @@ const baseUrl = process.env.REACT_APP_BASE_URL;
 // Define the default color for appointments without a label
 const DEFAULT_APPOINTMENT_COLOR = '#2196F3';
 
-// Styled Appointment Component
-const StyledAppointment = styled(Appointments.Appointment)(({ data }) => ({
-  backgroundColor: data.label_color || DEFAULT_APPOINTMENT_COLOR,
-  borderRadius: '10px',
-  position: 'relative',
-  marginBottom: '2px',
-  overflow: 'hidden',
-  boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
-  cursor: 'pointer',
-  '&:hover': {
-    backgroundColor: alpha(data.label_color || DEFAULT_APPOINTMENT_COLOR, 0.85),
+// Custom Appointment Content Component
+const CustomAppointmentContent = styled('div')(({ theme }) => ({
+  display: 'flex',
+  flexDirection: 'column',
+  padding: '8px',
+  '& .title': {
+    fontSize: '1rem',
+    fontWeight: 'bold',
+    color: '#fff',
+    marginBottom: '4px',
   },
-  '&:focus': {
-    backgroundColor: alpha(data.label_color || DEFAULT_APPOINTMENT_COLOR, 0.9),
+  '& .text': {
+    fontSize: '0.9rem',
+    color: '#fff',
   },
 }));
 
@@ -210,10 +210,7 @@ const Calendar = () => {
             end_date: changes.endDate
               ? changes.endDate.toISOString().slice(0, 16)
               : eventToChange.end_date,
-            label_color:
-              changes.label_text && changes.label_text.trim() !== ''
-                ? changes.label_color || DEFAULT_APPOINTMENT_COLOR
-                : DEFAULT_APPOINTMENT_COLOR,
+            label_color: eventToChange.label_color || DEFAULT_APPOINTMENT_COLOR,
           };
 
           axios
@@ -234,25 +231,8 @@ const Calendar = () => {
     }
   };
 
-  // Custom Appointment Content Component
-  const CustomAppointmentContent = styled('div')(({ theme }) => ({
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '8px',
-    '& .title': {
-      fontSize: '1rem',
-      fontWeight: 'bold',
-      color: '#fff',
-      marginBottom: '4px',
-    },
-    '& .text': {
-      fontSize: '0.9rem',
-      color: '#fff',
-    },
-  }));
-
-  // Custom Appointment Component
-  const Appointment = ({ data, ...restProps }) => {
+  // Modified Appointment Component
+  const Appointment = ({ children, data, style, ...restProps }) => {
     const event = data.originalEvent;
 
     const onEditClick = (e) => {
@@ -265,16 +245,47 @@ const Calendar = () => {
       handleDelete(event.event_id);
     };
 
+    const onAppointmentClick = (e) => {
+      setAppointmentMeta({ target: e.currentTarget, data });
+      setTooltipVisible(true);
+    };
+
+    // Format start and end time
+    const startTime = data.startDate.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    const endTime = data.endDate.toLocaleTimeString([], {
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+
     return (
-      <StyledAppointment data={data} {...restProps}>
+      <Appointments.Appointment
+        {...restProps}
+        style={{
+          ...style,
+          backgroundColor: data.label_color || DEFAULT_APPOINTMENT_COLOR,
+          borderRadius: '10px',
+          position: 'relative',
+          marginBottom: '2px',
+          overflow: 'hidden',
+          boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+          cursor: 'pointer',
+        }}
+        onClick={onAppointmentClick}
+      >
         <div>
-          <div className="buttons-container" style={{
-            position: 'absolute',
-            top: 2,
-            right: 2,
-            display: 'flex',
-            gap: '4px',
-          }}>
+          <div
+            className="buttons-container"
+            style={{
+              position: 'absolute',
+              top: 2,
+              right: 2,
+              display: 'flex',
+              gap: '4px',
+            }}
+          >
             <EditIcon
               style={{
                 color: '#fff',
@@ -298,8 +309,32 @@ const Calendar = () => {
               onClick={onDeleteClick}
             />
           </div>
+          {event.frequency && (
+            <div
+              style={{
+                position: 'absolute',
+                bottom: 2,
+                right: 2,
+                display: 'flex',
+                alignItems: 'center',
+              }}
+            >
+              <RepeatIcon
+                style={{
+                  color: '#fff',
+                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                  padding: '2px',
+                  borderRadius: '50%',
+                }}
+                fontSize="small"
+              />
+            </div>
+          )}
           <CustomAppointmentContent>
             <div className="title">{data.title}</div>
+            <div className="text">
+              {startTime} - {endTime}
+            </div>
             {data.category && (
               <div className="text">Category: {data.category}</div>
             )}
@@ -308,7 +343,7 @@ const Calendar = () => {
             )}
           </CustomAppointmentContent>
         </div>
-      </StyledAppointment>
+      </Appointments.Appointment>
     );
   };
 

@@ -28,6 +28,7 @@ const Events = () => {
     label_text: '',
     label_color: DEFAULT_LABEL_COLOR,
   });
+  const [errors, setErrors] = useState({});
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
@@ -186,16 +187,27 @@ const Events = () => {
           ? newEvent.customCategory
           : newEvent.category,
       repeat_until: newEvent.repeat_until ? newEvent.repeat_until : null,
-      label_color:
-        newEvent.label_text && newEvent.label_text.trim() !== ''
-          ? newEvent.label_color
-          : DEFAULT_LABEL_COLOR,
+      label_color: newEvent.label_color || DEFAULT_LABEL_COLOR,
     };
     delete formData.customCategory;
 
+    const newErrors = {};
+    if (
+      (newEvent.label_text && !newEvent.label_color) ||
+      (!newEvent.label_text && newEvent.label_color)
+    ) {
+      newErrors.label = 'Please provide both label text and label color.';
+    }
+
     if (new Date(formData.end_date) <= new Date(formData.start_date)) {
-      alert('End date must be after start date.');
+      newErrors.date = 'End date must be after start date.';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
+    } else {
+      setErrors({});
     }
 
     try {
@@ -304,8 +316,16 @@ const Events = () => {
       const eventId = currentLabelEvent.event_id;
       const formData = {
         label_text: labelData.label_text,
-        label_color: labelData.label_color,
+        label_color: labelData.label_color || DEFAULT_LABEL_COLOR,
       };
+
+      if (
+        (labelData.label_text && !labelData.label_color) ||
+        (!labelData.label_text && labelData.label_color)
+      ) {
+        alert('Please provide both label text and label color.');
+        return;
+      }
 
       await axios.put(`${baseUrl}/event/updateEvent/${eventId}`, formData);
 
@@ -561,6 +581,7 @@ const Events = () => {
                   required
                 />
               </label>
+              {errors.date && <p className="error">{errors.date}</p>}
               <label>
                 Category:
                 <select
@@ -604,15 +625,11 @@ const Events = () => {
                 <input
                   type="color"
                   name="label_color"
-                  value={
-                    newEvent.label_text && newEvent.label_text.trim() !== ''
-                      ? newEvent.label_color || DEFAULT_LABEL_COLOR
-                      : DEFAULT_LABEL_COLOR
-                  }
+                  value={newEvent.label_color || DEFAULT_LABEL_COLOR}
                   onChange={handleInputChange}
-                  disabled={!newEvent.label_text || newEvent.label_text.trim() === ''}
                 />
               </label>
+              {errors.label && <p className="error">{errors.label}</p>}
               <label>
                 Frequency:
                 <select
@@ -683,7 +700,7 @@ const Events = () => {
                 <input
                   type="color"
                   name="label_color"
-                  value={labelData.label_color}
+                  value={labelData.label_color || DEFAULT_LABEL_COLOR}
                   onChange={handleLabelInputChange}
                   required
                 />
