@@ -1,10 +1,12 @@
-
+/* navbar.css */
 .navbar {
-  position: fixed;
+  /* Removed fixed positioning to integrate with CSS Grid */
+  /* position: fixed;
   top: 0;
   left: 0;
-  height: 100vh;
-  width: 70px;
+  height: 100vh; */
+  
+  width: 70px; /* Initial width */
   background: linear-gradient(to right, #f8f9fa, #e9ecef);
   font-family: 'Roboto', sans-serif;
   transition: width 0.3s ease;
@@ -22,7 +24,7 @@
 }
 
 .sidebar:hover {
-  width: 200px;
+  width: 200px; /* Expanded width on hover */
 }
 
 .sidebar button {
@@ -79,4 +81,91 @@
   .sidebar button span {
     font-size: 14px;
   }
+}
+
+.modal-content h2 {
+  margin-top: 0;
+  color: #343a40;
+  margin-bottom: 25px;
+  text-align: center;
+  font-size: 1.8rem;
+}
+
+.modal-content label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #495057;
+}
+
+.modal-content input[type="text"],
+.modal-content input[type="datetime-local"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  border: 1px solid #ced4da;
+  font-size: 1rem;
+  color: #495057;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.modal-actions button {
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 6px;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.modal-actions button[type="submit"] {
+  background-color: #17a2b8;
+  color: #fff;
+  transition: background-color 0.3s ease;
+}
+
+.modal-actions button[type="submit"]:hover {
+  background-color: #138496;
+}
+
+.modal-actions button[type="button"] {
+  background-color: #6c757d;
+  color: #fff;
+  transition: background-color 0.3s ease;
+}
+
+.modal-actions button[type="button"]:hover {
+  background-color: #5a6268;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .events-page-container {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+
+  .events-list, .event-details {
+    grid-column: 1;
+  }
+
+  .event-details {
+    margin-top: 20px;
+  }
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+button {
+  background-color: #20a0b1;
+  color: #FFF;
+  padding-top: 3px;
 }

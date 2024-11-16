@@ -4,6 +4,9 @@ import axios from 'axios';
 const baseUrl = process.env.REACT_APP_BASE_URL;
 axios.defaults.withCredentials = true;
 
+// Define the default color for events without a label
+const DEFAULT_LABEL_COLOR = '#2196F3';
+
 const EventUpdateModal = ({
   showUpdateEventModal,
   setShowUpdateEventModal,
@@ -28,6 +31,10 @@ const EventUpdateModal = ({
           ? eventToUpdate.customCategory
           : eventToUpdate.category,
       repeat_until: eventToUpdate.repeat_until ? eventToUpdate.repeat_until : null,
+      label_color:
+        eventToUpdate.label_text && eventToUpdate.label_text.trim() !== ''
+          ? eventToUpdate.label_color
+          : DEFAULT_LABEL_COLOR,
     };
     delete formData.event_id;
     delete formData.customCategory;
@@ -140,12 +147,35 @@ const EventUpdateModal = ({
               <input
                 type="text"
                 name="customCategory"
-                value={eventToUpdate.customCategory || ''}
+                value={eventToUpdate.customCategory}
                 onChange={handleUpdateInputChange}
                 required
               />
             </label>
           )}
+          <label>
+            Label Text:
+            <input
+              type="text"
+              name="label_text"
+              value={eventToUpdate.label_text || ''}
+              onChange={handleUpdateInputChange}
+            />
+          </label>
+          <label>
+            Label Color:
+            <input
+              type="color"
+              name="label_color"
+              value={
+                eventToUpdate.label_text && eventToUpdate.label_text.trim() !== ''
+                  ? eventToUpdate.label_color || DEFAULT_LABEL_COLOR
+                  : DEFAULT_LABEL_COLOR
+              }
+              onChange={handleUpdateInputChange}
+              disabled={!eventToUpdate.label_text || eventToUpdate.label_text.trim() === ''}
+            />
+          </label>
           <label>
             Frequency:
             <select

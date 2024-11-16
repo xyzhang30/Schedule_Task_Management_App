@@ -7,6 +7,9 @@ const baseUrl = process.env.REACT_APP_BASE_URL;
 
 axios.defaults.withCredentials = true;
 
+// Define the default color for events without a label
+const DEFAULT_LABEL_COLOR = '#2196F3';
+
 const Events = () => {
   const [events, setEvents] = useState({});
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -22,6 +25,8 @@ const Events = () => {
     customCategory: '',
     frequency: '',
     repeat_until: '',
+    label_text: '',
+    label_color: DEFAULT_LABEL_COLOR,
   });
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState('');
@@ -35,7 +40,7 @@ const Events = () => {
   const [currentLabelEvent, setCurrentLabelEvent] = useState(null);
   const [labelData, setLabelData] = useState({
     label_text: '',
-    label_color: '#ffffff',
+    label_color: DEFAULT_LABEL_COLOR,
   });
   const [alertEvent, setAlertEvent] = useState(null);
 
@@ -49,6 +54,10 @@ const Events = () => {
       const eventData = response.data.events || [];
       eventData.forEach((event) => {
         event.alerted = false;
+        // Ensure label_color is set
+        if (!event.label_color || event.label_color.trim() === '') {
+          event.label_color = DEFAULT_LABEL_COLOR;
+        }
       });
       // Sort events by start date
       eventData.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
@@ -177,6 +186,10 @@ const Events = () => {
           ? newEvent.customCategory
           : newEvent.category,
       repeat_until: newEvent.repeat_until ? newEvent.repeat_until : null,
+      label_color:
+        newEvent.label_text && newEvent.label_text.trim() !== ''
+          ? newEvent.label_color
+          : DEFAULT_LABEL_COLOR,
     };
     delete formData.customCategory;
 
@@ -218,6 +231,8 @@ const Events = () => {
         customCategory: '',
         frequency: '',
         repeat_until: '',
+        label_text: '',
+        label_color: DEFAULT_LABEL_COLOR,
       });
       await refreshEvents();
     } catch (error) {
@@ -264,6 +279,7 @@ const Events = () => {
     setUpdatedEvent({
       ...event,
       customCategory: '',
+      label_color: event.label_color || DEFAULT_LABEL_COLOR,
     });
     setShowUpdateEventModal(true);
   };
@@ -272,7 +288,7 @@ const Events = () => {
     setCurrentLabelEvent(event);
     setLabelData({
       label_text: event.label_text || '',
-      label_color: event.label_color || '#ffffff',
+      label_color: event.label_color || DEFAULT_LABEL_COLOR,
     });
     setShowLabelModal(true);
   };
@@ -307,6 +323,7 @@ const Events = () => {
       });
 
       setShowLabelModal(false);
+      refreshEvents();
     } catch (error) {
       console.error('Error updating label:', error);
       setError('Failed to update label.');
@@ -573,6 +590,29 @@ const Events = () => {
                   />
                 </label>
               )}
+              <label>
+                Label Text:
+                <input
+                  type="text"
+                  name="label_text"
+                  value={newEvent.label_text}
+                  onChange={handleInputChange}
+                />
+              </label>
+              <label>
+                Label Color:
+                <input
+                  type="color"
+                  name="label_color"
+                  value={
+                    newEvent.label_text && newEvent.label_text.trim() !== ''
+                      ? newEvent.label_color || DEFAULT_LABEL_COLOR
+                      : DEFAULT_LABEL_COLOR
+                  }
+                  onChange={handleInputChange}
+                  disabled={!newEvent.label_text || newEvent.label_text.trim() === ''}
+                />
+              </label>
               <label>
                 Frequency:
                 <select

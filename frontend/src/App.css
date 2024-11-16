@@ -1,3 +1,4 @@
+/* App.css */
 .App {
   text-align: center;
 }
@@ -35,12 +36,12 @@
   color: #61dafb;
 }
 
+/* Updated main-container to use CSS Grid */
 .main-container {
-  /* display: grid; */
-  grid-template-columns: 200px 1fr; 
-  height: 100vh; 
-} 
-
+  display: grid; /* Enable CSS Grid */
+  grid-template-columns: auto 1fr; /* Allocate space for navbar and main content */
+  height: 100vh; /* Full viewport height */
+}
 
 @keyframes App-logo-spin {
   from {
@@ -164,6 +165,7 @@
     margin-top: 20px;
   }
 }
+
 .modal-overlay {
   position: fixed;
   top: 0;
