@@ -49,7 +49,7 @@ const Posts = () => {
     }
   };
 
-  // **Check if the logged-in user owns a comment**
+  // Check if the logged-in user owns a comment
   const checkIfCommentOwner = async (comment_id) => {
     try {
       const response = await axios.get(`${baseUrl}/post/check-comment-owner/${comment_id}`, { withCredentials: true });
@@ -60,7 +60,7 @@ const Posts = () => {
     }
   };
 
-  // **Fetch comments and check ownership for each comment**
+  // Fetch comments and check ownership for each comment
   const fetchCommentsForPost = async (postId) => {
     try {
       const response = await axios.get(`${baseUrl}/post/${postId}/comments`, { withCredentials: true });
@@ -108,8 +108,9 @@ const Posts = () => {
       const formData = new FormData();
       formData.append('title', newPost.title);
       formData.append('content', newPost.content);
-      formData.append('image_url', newPost.image_url); 
-      // formData.append('poster_id', '1');  // change the poster ID!!!
+      if (newPost.image_url) {
+        formData.append('image', newPost.image_url);
+      }
 
       const response = await axios.post(`${baseUrl}/post/add-post`, formData, { withCredentials: true });
       console.log(response.data);
@@ -135,7 +136,6 @@ const Posts = () => {
       const formData = new FormData();
       formData.append('text', newComment);
       formData.append('post_id', selectedPost.post_id);
-      // formData.append('commenter_id', '1');  // change the commenter ID!!
 
       const response = await axios.post(`${baseUrl}/post/comment`, formData, { withCredentials: true });
       console.log(response.data);
@@ -266,12 +266,19 @@ const Posts = () => {
   // update post
   const handleUpdatePost = async () => {
     const formData = new FormData();
-    formData.append('title', newPost.title);
-    formData.append('content', newPost.content);
-    formData.append('image_url', newPost.image_url); 
-  
+    if (newPost.title) {
+      formData.append('title', newPost.title);
+    }
+    if (newPost.content) {
+      formData.append('content', newPost.content);
+    }
+    if (newPost.image_url) {
+      formData.append('image', newPost.image_url);
+    }
+    
     try {
       const response = await axios.put(`${baseUrl}/post/update-post/${selectedPost.post_id}`, formData, { withCredentials: true });
+      console.log(response.data);
       
       setPosts((prevPosts) =>
         prevPosts.map((p) => (p.post_id === selectedPost.post_id ? { ...p, ...newPost } : p))
@@ -373,6 +380,8 @@ const Posts = () => {
             <div>
               <div className="post-title-container">
                 <h3>{selectedPost.title}</h3>
+                <p>Time: {new Date(selectedPost.date_posted).toLocaleString()}</p>
+                <p>By: {selectedPost.poster_name}</p>
                 {isOwner && (
                   <div className="post-actions">
                     <button onClick={() => handleUpdatePostClick(selectedPost)}>Update</button>
@@ -380,6 +389,17 @@ const Posts = () => {
                   </div>
                 )}
               </div>
+
+              {selectedPost.image_url && (
+                <div className="post-image-container">
+                  <img
+                    src={`${baseUrl}/post/get_image/${selectedPost.post_id}`}
+                    alt="Post"
+                    style={{ maxWidth: '100%', maxHeight: '400px', objectFit: 'cover' }}
+                  />
+                </div>
+              )}
+
               <p
                 dangerouslySetInnerHTML={{
                   __html: selectedPost.content.replace(/\n/g, '<br />'),
@@ -428,36 +448,39 @@ const Posts = () => {
                 />
               </label>
               <label>
-              Content:
-              <textarea
-                name="content"
-                value={newPost.content}
-                onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
-                ref={(textarea) => {
-                  if (textarea) {
-                    textarea.style.height = 'auto';
-                    textarea.style.height = `${textarea.scrollHeight}px`;
-                  }
-                }}
-                required
-                style={{
-                  width: '100%',
-                  minHeight: '30px',
-                  resize: 'none',
-                  overflow: 'hidden',
-                }}
-              />
-            </label>
-              <label>
-                  Image_URL: 
-                  <input 
-                      type="text" 
-                      name="image_url" 
-                      value={newPost.image_url} 
-                      onChange={(e) => setNewPost({ ...newPost, image_url: e.target.value })} 
-                  />
+                Content:
+                <textarea
+                  name="content"
+                  value={newPost.content}
+                  onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
+                  ref={(textarea) => {
+                    if (textarea) {
+                      textarea.style.height = 'auto';
+                      textarea.style.height = `${textarea.scrollHeight}px`;
+                    }
+                  }}
+                  required
+                  style={{
+                    width: '100%',
+                    minHeight: '30px',
+                    resize: 'none',
+                    overflow: 'hidden',
+                  }}
+                />
               </label>
-
+              <label>
+                Upload Image:
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      setNewPost({ ...newPost, image_url: file });
+                    }
+                  }}
+                />
+              </label>
               <div className="modal-actions">
                 <button type="submit">Post</button>
                 <button type="button" onClick={() => setShowModal(false)}>

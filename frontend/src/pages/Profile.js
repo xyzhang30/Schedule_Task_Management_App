@@ -32,6 +32,7 @@ function Profile() {
           major: majorRes.data.major,
           avatar: avatarUrl
         });
+
         setLoading(false);
       } catch (err) {
         setError('Failed to load profile data');
@@ -64,7 +65,7 @@ function Profile() {
         <strong>Avatar:</strong>
         <img src={profile.avatar} alt="User Avatar" className="avatar-image" height = "230" width = "300" />
       </div>
-    </div>
+    </div>  
   );
 }
 
