@@ -380,7 +380,11 @@ const Posts = () => {
                   </div>
                 )}
               </div>
-              <p>{selectedPost.content}</p>
+              <p
+                dangerouslySetInnerHTML={{
+                  __html: selectedPost.content.replace(/\n/g, '<br />'),
+                }}
+              ></p>
               <h4>Comments:</h4>
               {selectedPost.comments && selectedPost.comments.length > 0 ? (
                 selectedPost.comments.map((comment) => (
@@ -424,15 +428,26 @@ const Posts = () => {
                 />
               </label>
               <label>
-                Content:
-                <input 
-                  type="text" 
-                  name="content" 
-                  value={newPost.content} 
-                  onChange={(e) => setNewPost({ ...newPost, content: e.target.value })} 
-                  required 
-                />
-              </label>
+              Content:
+              <textarea
+                name="content"
+                value={newPost.content}
+                onChange={(e) => setNewPost({ ...newPost, content: e.target.value })}
+                ref={(textarea) => {
+                  if (textarea) {
+                    textarea.style.height = 'auto';
+                    textarea.style.height = `${textarea.scrollHeight}px`;
+                  }
+                }}
+                required
+                style={{
+                  width: '100%',
+                  minHeight: '30px',
+                  resize: 'none',
+                  overflow: 'hidden',
+                }}
+              />
+            </label>
               <label>
                   Image_URL: 
                   <input 
