@@ -27,7 +27,7 @@ def init_db():
     from app.models.task import Task
     # from app.models.event import Event
     from app.models.post import Post
-    from app.models.friendRequests import FriendRequest
+    from app.models.notifications import Notifications
     from app.models.task import Category
     from app.models.resetKeys import ResetKeys
     from app.models.studyTime import StudyTime
