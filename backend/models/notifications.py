@@ -9,6 +9,7 @@ class Notifications(Base):
     notification_id = Column(Integer, primary_key=True)
     account_id_from = Column(Integer, ForeignKey('accounts.account_id'))
     account_id_to = Column(Integer, ForeignKey('accounts.account_id'))
+    notification_type = Column(String, unique = False)
     message = Column(String, unique=False)
     is_pending = Column(Boolean, unique=False)
     created_at = Column(TIMESTAMP, unique=False)
