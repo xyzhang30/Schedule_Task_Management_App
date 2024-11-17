@@ -378,10 +378,10 @@ const Tasks = () => {
                     
                         <div className="task-actions">
                             <button className="edit-task-button" onClick={() => handleEditButtonClick(selectedTask)}>
-                                {/* <FontAwesomeIcon icon={faPencilAlt} /> Edit */}
+                                <FontAwesomeIcon icon={faPencilAlt} /> Edit
                             </button>
                             <button className="delete-task-button" onClick={handleDeleteTask}>
-                                {/* <FontAwesomeIcon icon={faTrash} /> Delete */}
+                                <FontAwesomeIcon icon={faTrash} /> Delete
                             </button>
                         </div>
                     </div>

@@ -154,7 +154,24 @@ const Friends = () => {
       console.error('Error updating friend request pending status: ', err);
       setError('Failed to update friend request pending status.');
     }
-  }
+  };
+
+  const removeFriend = async (friendId) => {
+    try {
+      const response = await axios.delete(`${baseUrl}/friend/remove-friend?account_id2=${friendId}`, {
+        withCredentials: true,
+      });
+      if (response.status === 200) {
+        setFriends(friends.filter(friend => friend.account_id !== friendId));
+        setSelectedFriend(null);
+        alert(response.data.message);
+      }
+    } catch (err) {
+      console.error('Error removing friend:', err);
+      setError(err.response?.data?.error || 'Failed to remove friend.');
+    }
+  };
+
 
   return (
     <div className="friends-page-container">
@@ -203,15 +220,21 @@ const Friends = () => {
 
       {selectedFriend &&(
         <div className="friends-profile-section">
-        <div className="profile-picture">
-          <img src={selectedFriend.avatar} alt="Friend's Avatar" />
+          <div className="profile-picture">
+            <img src={selectedFriend.avatar} alt="Friend's Avatar" />
+          </div>
+          <div className="profile-info">
+            <p>Name: {selectedFriend.username}</p>
+            <p>Email: {selectedFriend.email}</p>
+            <p>Phone: {selectedFriend.phone}</p>
+          </div>
+          <button 
+            className="remove-friend-button" 
+            onClick={() => removeFriend(selectedFriend.account_id)}
+          >
+            Remove Friend
+          </button>
         </div>
-        <div className="profile-info">
-          <p>Name: {selectedFriend.username}</p>
-          <p>Email: {selectedFriend.email}</p>
-          <p>Phone: {selectedFriend.phone}</p>
-        </div>
-      </div>
       )}
 
       {showFriendRequestPopup && (
