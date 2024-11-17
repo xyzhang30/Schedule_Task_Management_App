@@ -1,16 +1,15 @@
+/* navbar.css */
 
+/* Navbar Container */
 .navbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 100vh;
-  width: 70px;
+  width: 70px; /* Fixed width */
   background: linear-gradient(to right, #f8f9fa, #e9ecef);
   font-family: 'Roboto', sans-serif;
   transition: width 0.3s ease;
-  z-index: 1000; 
+  z-index: 1000;
 }
 
+/* Sidebar Container */
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -18,14 +17,11 @@
   padding-top: 20px;
   height: 100%;
   width: 100%;
-  transition: width 0.3s ease;
 }
 
-.sidebar:hover {
-  width: 200px;
-}
-
+/* Sidebar Buttons */
 .sidebar button {
+  position: relative; /* To anchor the tooltip */
   background-color: #dcdcf7;
   border: none;
   padding: 10px 7px;
@@ -42,41 +38,67 @@
   box-sizing: border-box;
 }
 
+/* Tooltip Styling */
 .sidebar button span {
-  margin-left: 10px;
+  position: absolute;
+  left: 100%; /* Position tooltip to the right of the button */
+  top: 50%;
+  transform: translate(10px, -50%); /* Slight offset for better visibility */
+  background-color: #343a40;
+  color: #fff;
+  padding: 5px 10px;
+  border-radius: 4px;
   white-space: nowrap;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  pointer-events: none; /* Prevent tooltip from capturing mouse events */
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  font-size: 14px;
+  z-index: 1001;
 }
 
-.sidebar:hover button span {
+/* Tooltip Arrow */
+.sidebar button span::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -5px; /* Position to the left of the tooltip */
+  transform: translateY(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent #343a40 transparent transparent;
+}
+
+/* Show Tooltip on Hover */
+.sidebar button:hover span {
   opacity: 1;
+  transform: translate(0, -50%); /* Align tooltip closer to the button */
 }
 
+/* Button Icons */
 .sidebar button i,
 .sidebar button svg {
   font-size: 20px;
 }
 
+/* Button Hover Effects */
 .sidebar button:hover {
   background-color: #c7c7e6;
   transform: scale(1.05);
 }
 
+/* Responsive Adjustments */
 @media (max-width: 768px) {
   .navbar {
-    width: 80px;
+    width: 70px; /* Keep fixed width on smaller screens */
   }
 
-  .sidebar:hover {
-    width: 150px;
+  /* Adjust tooltip position and size for smaller screens */
+  .sidebar button span {
+    font-size: 12px;
+    transform: translate(10px, -50%);
   }
 
   .sidebar button {
-    padding: 10px 10px;
-  }
-
-  .sidebar button span {
-    font-size: 14px;
+    padding: 10px 7px;
   }
 }

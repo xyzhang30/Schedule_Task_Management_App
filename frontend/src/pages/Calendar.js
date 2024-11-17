@@ -18,14 +18,109 @@ import {
 import Paper from '@mui/material/Paper';
 import './Calendar.css';
 import EventUpdateModal from './EventUpdate';
-import { withStyles } from '@mui/styles';
-import { AccessTime } from '@mui/icons-material';
+import { styled } from '@mui/material/styles';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import RepeatIcon from '@mui/icons-material/Repeat';
 
 axios.defaults.withCredentials = true;
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
+
+// Define the default color for appointments without a label
+const DEFAULT_APPOINTMENT_COLOR = '#2196F3';
+
+// Custom Appointment Content Component
+const CustomAppointmentContent = ({ data, ...restProps }) => {
+  const event = data.originalEvent;
+
+  // Format start and end time
+  const startTime = data.startDate.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+  const endTime = data.endDate.toLocaleTimeString([], {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        padding: '2px 4px',
+        height: '100%',
+        boxSizing: 'border-box',
+        overflow: 'hidden',
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div
+          style={{
+            fontSize: '0.9rem',
+            fontWeight: 'bold',
+            color: '#fff',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          {data.title}
+        </div>
+        {event.frequency && (
+          <RepeatIcon
+            style={{
+              color: '#fff',
+              backgroundColor: 'rgba(0, 0, 0, 0.3)',
+              padding: '2px',
+              borderRadius: '50%',
+              marginLeft: '4px',
+            }}
+            fontSize="small"
+          />
+        )}
+      </div>
+      <div
+        style={{
+          fontSize: '0.8rem',
+          color: '#fff',
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {startTime} - {endTime}
+      </div>
+      {data.category && (
+        <div
+          style={{
+            fontSize: '0.8rem',
+            color: '#fff',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Category: {data.category}
+        </div>
+      )}
+      {data.location && (
+        <div
+          style={{
+            fontSize: '0.8rem',
+            color: '#fff',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
+          Location: {data.location}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const Calendar = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -49,9 +144,13 @@ const Calendar = () => {
     try {
       const response = await axios.get(`${baseUrl}/event/getEventsByAccount`);
       const eventData = response.data.events || [];
+      // Ensure label_color is set for all events
+      eventData.forEach((event) => {
+        if (!event.label_color || event.label_color.trim() === '') {
+          event.label_color = DEFAULT_APPOINTMENT_COLOR;
+        }
+      });
       setEvents(eventData);
-      const appointmentsData = generateAppointments(eventData);
-      setAppointments(appointmentsData);
     } catch (error) {
       console.error('Error fetching events!', error);
       if (error.response && error.response.status === 401) {
@@ -61,6 +160,12 @@ const Calendar = () => {
       setLoading(false);
     }
   };
+
+  // Update appointments whenever events change
+  useEffect(() => {
+    const appointmentsData = generateAppointments(events);
+    setAppointments(appointmentsData);
+  }, [events]);
 
   // Fetch categories
   useEffect(() => {
@@ -164,11 +269,9 @@ const Calendar = () => {
     }
 
     if (changed) {
-      const changedEventIds = Object.keys(changed);
-
-      changedEventIds.forEach((eventIdStr) => {
+      Object.keys(changed).forEach((eventIdStr) => {
         const eventId = parseInt(eventIdStr);
-        const changes = changed[eventId];
+        const changes = changed[eventIdStr];
 
         const eventToChange = events.find(
           (event) => event.event_id === eventId
@@ -182,6 +285,7 @@ const Calendar = () => {
             end_date: changes.endDate
               ? changes.endDate.toISOString().slice(0, 16)
               : eventToChange.end_date,
+            label_color: eventToChange.label_color || DEFAULT_APPOINTMENT_COLOR,
           };
 
           axios
@@ -202,36 +306,9 @@ const Calendar = () => {
     }
   };
 
-  // Custom Appointment Component
-  const Appointment = withStyles({
-    appointment: {
-      borderRadius: '8px',
-      backgroundColor: (props) =>
-        props.data.label_color ? props.data.label_color : '#1976d2',
-      position: 'relative',
-    },
-    buttonsContainer: {
-      position: 'absolute',
-      top: 2,
-      right: 2,
-      display: 'flex',
-      gap: '4px',
-    },
-    iconButton: {
-      color: '#fff',
-      backgroundColor: 'rgba(0, 0, 0, 0.3)',
-      padding: '2px',
-      borderRadius: '4px',
-      cursor: 'pointer',
-      '&:hover': {
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      },
-    },
-    title: {
-      color: '#fff',
-    },
-  })(({ classes, ...restProps }) => {
-    const { data } = restProps;
+  // Modified Appointment Component
+  const Appointment = (props) => {
+    const { data, style, ...restProps } = props;
     const event = data.originalEvent;
 
     const onEditClick = (e) => {
@@ -244,34 +321,67 @@ const Calendar = () => {
       handleDelete(event.event_id);
     };
 
+    const onAppointmentClick = (e) => {
+      setAppointmentMeta({ target: e.currentTarget, data });
+      setTooltipVisible(true);
+    };
+
     return (
       <Appointments.Appointment
         {...restProps}
-        className={classes.appointment}
+        data={data}
+        style={{
+          ...style,
+          backgroundColor: data.label_color || DEFAULT_APPOINTMENT_COLOR,
+          borderRadius: '10px',
+          position: 'relative',
+          marginBottom: '2px',
+          overflow: 'hidden',
+          boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
+          cursor: 'pointer',
+        }}
+        onClick={onAppointmentClick}
       >
-        <div>
-          <div className={classes.buttonsContainer}>
+        <div style={{ height: '100%', position: 'relative' }}>
+          <div
+            className="buttons-container"
+            style={{
+              position: 'absolute',
+              top: 2,
+              right: 2,
+              display: 'flex',
+              gap: '4px',
+              zIndex: 1,
+            }}
+          >
             <EditIcon
-              className={classes.iconButton}
+              style={{
+                color: '#fff',
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                padding: '2px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
               fontSize="small"
               onClick={onEditClick}
             />
             <DeleteIcon
-              className={classes.iconButton}
+              style={{
+                color: '#fff',
+                backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                padding: '2px',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
               fontSize="small"
               onClick={onDeleteClick}
             />
           </div>
-          <Appointments.AppointmentContent
-            {...restProps}
-            formatDate={() => ''}
-            className={classes.title}
-            
-          />
+          <CustomAppointmentContent data={data} />
         </div>
       </Appointments.Appointment>
     );
-  });
+  };
 
   // Custom Time Indicator
   const TimeIndicator = ({ top, ...restProps }) => (
@@ -291,25 +401,21 @@ const Calendar = () => {
   return (
     <div className="scheduler-container">
       <Paper>
-        <Scheduler data={appointments} height={660}>
+        <Scheduler data={appointments} height={700}>
           <ViewState
             currentDate={currentDate}
             onCurrentDateChange={setCurrentDate}
           />
-          
+          <EditingState onCommitChanges={handleCommitChanges} />
           <MonthView />
           <WeekView startDayHour={0} endDayHour={24} />
           <DayView startDayHour={0} endDayHour={24} />
           <AllDayPanel />
-          <Appointments
-            appointmentComponent={Appointment}
-          />
+          <Appointments appointmentComponent={Appointment} />
           <Toolbar />
           <DateNavigator />
-          
           <ViewSwitcher />
           <TodayButton />
-          
           <AppointmentTooltip
             showCloseButton
             visible={tooltipVisible}

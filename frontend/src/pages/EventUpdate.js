@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 axios.defaults.withCredentials = true;
+
+// Define the default color for events without a label
+const DEFAULT_LABEL_COLOR = '#2196F3';
 
 const EventUpdateModal = ({
   showUpdateEventModal,
@@ -13,6 +16,8 @@ const EventUpdateModal = ({
   setCategories,
   refreshEvents,
 }) => {
+  const [errors, setErrors] = useState({});
+
   const handleUpdateInputChange = (e) => {
     const { name, value } = e.target;
     setEventToUpdate({ ...eventToUpdate, [name]: value });
@@ -28,13 +33,28 @@ const EventUpdateModal = ({
           ? eventToUpdate.customCategory
           : eventToUpdate.category,
       repeat_until: eventToUpdate.repeat_until ? eventToUpdate.repeat_until : null,
+      label_color: eventToUpdate.label_color || DEFAULT_LABEL_COLOR,
     };
     delete formData.event_id;
     delete formData.customCategory;
 
+    const newErrors = {};
+    if (
+      (eventToUpdate.label_text && !eventToUpdate.label_color) ||
+      (!eventToUpdate.label_text && eventToUpdate.label_color)
+    ) {
+      newErrors.label = 'Please provide both label text and label color.';
+    }
+
     if (new Date(formData.end_date) <= new Date(formData.start_date)) {
-      alert('End date must be after start date.');
+      newErrors.date = 'End date must be after start date.';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
+    } else {
+      setErrors({});
     }
 
     try {
@@ -117,6 +137,7 @@ const EventUpdateModal = ({
               required
             />
           </label>
+          {errors.date && <p className="error">{errors.date}</p>}
           <label>
             Category:
             <select
@@ -140,12 +161,31 @@ const EventUpdateModal = ({
               <input
                 type="text"
                 name="customCategory"
-                value={eventToUpdate.customCategory || ''}
+                value={eventToUpdate.customCategory}
                 onChange={handleUpdateInputChange}
                 required
               />
             </label>
           )}
+          <label>
+            Label Text:
+            <input
+              type="text"
+              name="label_text"
+              value={eventToUpdate.label_text || ''}
+              onChange={handleUpdateInputChange}
+            />
+          </label>
+          <label>
+            Label Color:
+            <input
+              type="color"
+              name="label_color"
+              value={eventToUpdate.label_color || DEFAULT_LABEL_COLOR}
+              onChange={handleUpdateInputChange}
+            />
+          </label>
+          {errors.label && <p className="error">{errors.label}</p>}
           <label>
             Frequency:
             <select

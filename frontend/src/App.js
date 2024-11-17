@@ -1,4 +1,4 @@
-
+// App.js
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import './App.css';
@@ -10,7 +10,7 @@ import Register from './pages/Register.js';
 import Logout from './pages/Logout.js';
 import ChangeUsername from './pages/ChangeUsername.js';
 import ChangePassword from './pages/ChangePassword.js';
-import ChangeEmail from './pages/ChangeEmail.js'
+import ChangeEmail from './pages/ChangeEmail.js';
 import ChangePhoneNumber from './pages/ChangePhoneNumber.js';
 import ResetPassword from './pages/ResetPassword.js';
 import Tasks from './pages/Tasks.js';
@@ -37,7 +37,7 @@ const Main = () => {
   const hideNavBar = location.pathname === '/';
 
   return (
-    <div className='main-container'>
+    <div className={`main-container ${hideNavBar ? 'no-navbar' : ''}`}>
       {!hideNavBar && <NavBar />}
       <Routes>
         {/* Landing Page (Homepage) */}
@@ -62,10 +62,10 @@ const Main = () => {
         <Route path="/posts" element={<Posts />} />
         <Route path="/event" element={<Events />} />
         <Route path="/calendar" element={<SchedulerPage />} />
-        <Route path="/leaderboard" element={<Leaderboard/>} />
-        <Route path="/studytime" element={<StudyTime/>} />
-        <Route path="/availability" element={<FindSharedAvailability/>} />
-        <Route path="/groups" element={<Groups/>} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/studytime" element={<StudyTime />} />
+        <Route path="/availability" element={<FindSharedAvailability />} />
+        <Route path="/groups" element={<Groups />} />
       </Routes>
     </div>
   );
