@@ -1,4 +1,4 @@
-
+// App.js
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import './App.css';
@@ -10,7 +10,7 @@ import Register from './pages/Register.js';
 import Logout from './pages/Logout.js';
 import ChangeUsername from './pages/ChangeUsername.js';
 import ChangePassword from './pages/ChangePassword.js';
-import ChangeEmail from './pages/ChangeEmail.js'
+import ChangeEmail from './pages/ChangeEmail.js';
 import ChangePhoneNumber from './pages/ChangePhoneNumber.js';
 import ResetPassword from './pages/ResetPassword.js';
 import Tasks from './pages/Tasks.js';
@@ -23,6 +23,7 @@ import SchedulerPage from './pages/Calendar.js';
 import Leaderboard from './pages/LeaderBoard.js';
 import FindSharedAvailability from './pages/Availability.js';
 import Groups from './pages/Groups.js';
+import Inbox from './pages/Inbox.js';
 
 function App() {
   return (
@@ -37,7 +38,7 @@ const Main = () => {
   const hideNavBar = location.pathname === '/';
 
   return (
-    <div className='main-container'>
+    <div className={`main-container ${hideNavBar ? 'no-navbar' : ''}`}>
       {!hideNavBar && <NavBar />}
       <Routes>
         {/* Landing Page (Homepage) */}
@@ -55,6 +56,7 @@ const Main = () => {
         <Route path="/change-username" element={<ChangeUsername />} />
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/change-phone-number" element={<ChangePhoneNumber />} />
+        <Route path="/inbox" element={<Inbox />} />
 
         {/* Feature Routes */}
         <Route path="/friends" element={<Friends />} />
@@ -62,10 +64,10 @@ const Main = () => {
         <Route path="/posts" element={<Posts />} />
         <Route path="/event" element={<Events />} />
         <Route path="/calendar" element={<SchedulerPage />} />
-        <Route path="/leaderboard" element={<Leaderboard/>} />
-        <Route path="/studytime" element={<StudyTime/>} />
-        <Route path="/availability" element={<FindSharedAvailability/>} />
-        <Route path="/groups" element={<Groups/>} />
+        <Route path="/leaderboard" element={<Leaderboard />} />
+        <Route path="/studytime" element={<StudyTime />} />
+        <Route path="/availability" element={<FindSharedAvailability />} />
+        <Route path="/groups" element={<Groups />} />
       </Routes>
     </div>
   );
