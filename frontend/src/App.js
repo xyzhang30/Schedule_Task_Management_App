@@ -23,6 +23,7 @@ import SchedulerPage from './pages/Calendar.js';
 import Leaderboard from './pages/LeaderBoard.js';
 import FindSharedAvailability from './pages/Availability.js';
 import Groups from './pages/Groups.js';
+import Inbox from './pages/Inbox.js';
 
 function App() {
   return (
@@ -55,6 +56,7 @@ const Main = () => {
         <Route path="/change-username" element={<ChangeUsername />} />
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/change-phone-number" element={<ChangePhoneNumber />} />
+        <Route path="/inbox" element={<Inbox />} />
 
         {/* Feature Routes */}
         <Route path="/friends" element={<Friends />} />
