@@ -11,9 +11,9 @@ class Task(Base):
     account_id = Column(Integer, ForeignKey('accounts.account_id'))
     category = Column(String, unique=False)
     due_time = Column(TIMESTAMP, unique=False)
-    task_name = Column(String, unique=False)  # cannot be null
+    task_name = Column(String, unique=False)
     complete = Column(Boolean, unique=False, default=False)
-   # event_id = Column(String, ForeignKey('events.event_id'))
+    event_id = Column(String, ForeignKey('events.event_id'))
 
     def __repr__(self):
         return f"<Task account_id={self.account_id} task_id={self.task_id}>"

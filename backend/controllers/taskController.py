@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, session
 from flask import request
 from ..models.task import Task, Category
+from ..models.event import Event
 from ..decorators import is_logged_in
 
 bp = Blueprint('task', __name__, url_prefix='/task')
@@ -26,6 +27,7 @@ def get_tasks():
 @bp.route('/sorted', methods=['GET'])
 @is_logged_in
 def get_tasks_grouped_by_date():
+    print("called")
     account_id = session['user']
     map = Task.get_tasks_by_account_dic(account_id)
     
@@ -36,6 +38,8 @@ def get_tasks_grouped_by_date():
         uncompleted_tasks.sort(key=lambda task: task.due_time)
         completed_tasks.sort(key=lambda task: task.due_time)
         sorted_tasks = uncompleted_tasks + completed_tasks
+        print("sorted_tasks")
+        print(sorted_tasks)
         tasks_dict[str(date)] = [task.to_dict() for task in sorted_tasks]
     
     return jsonify(tasks_dict)
@@ -77,6 +81,7 @@ def createTask():
     category = request.form.get("category")
     due_time = request.form.get("due_time")
     account_id = session['user']
+    event_id = request.form.get("event_id")
 
     if not task_name or not due_time or not account_id:
         return jsonify({'error': 'Missing required fields'}), 400
@@ -85,7 +90,8 @@ def createTask():
         task_name=task_name,
         category=category,
         due_time=due_time,
-        account_id=account_id
+        account_id=account_id,
+        event_id=event_id
     )
 
     task.save()
@@ -103,6 +109,7 @@ def update_task(task_id):
     task_name = request.form.get("task_name")
     category = request.form.get("category")
     due_time = request.form.get("due_time")
+    event_id = request.form.get("event_id")
 
     if task_name:
         task.task_name = task_name
@@ -110,6 +117,8 @@ def update_task(task_id):
         task.category = category
     if due_time:
         task.due_time = due_time
+    if event_id:
+        task.event_id = event_id
 
     task.save() 
     return jsonify({"message": "Task updated", "task": task.to_dict()}), 200
@@ -173,3 +182,25 @@ def createCategory():
 
     category.save()
     return jsonify({"message": "Category created successfully!"}), 201
+
+
+#get event by event_id
+@bp.route('/get_event/<int:event_id>', methods=['GET'])
+@is_logged_in
+def get_event(event_id):
+    event = Event.get_event(event_id)
+    if not event:
+        return jsonify({'message': 'Event not found'}), 404
+    return jsonify({'event': event.to_dict()}), 200
+
+
+#get all events
+@bp.route('/events', methods=['GET'])
+@is_logged_in
+def get_all_events():
+    account_id = session['user']
+    events = Event.get_events_by_account(account_id)
+    if not events:
+        return jsonify({'message': 'No available events'}), 404
+    events_list = [event.to_dict() for event in events]
+    return jsonify({'events': events_list}), 200

@@ -76,7 +76,8 @@ Table_creation = '''
         due_time TIMESTAMP NOT NULL,
         task_name VARCHAR(20) NOT NULL,
         category VARCHAR(100),
-        complete BOOLEAN DEFAULT false
+        complete BOOLEAN DEFAULT false,
+        event_id INTEGER REFERENCES events(event_id)
     );
 
     CREATE TABLE assignment ( 
@@ -241,7 +242,8 @@ for _ in range (9):
     task_name = faker.word()
     category = random.choice(['club', 'personal', 'school', 'work'])
     complete = random.choice([True, False])
-    account_id = random.randint(1, 6)
+    account_id = random.randint(1, 5)
+    event_id = random.randint(1, 3)
 
     cursor.execute('''
         INSERT INTO task (due_time, task_name, category, complete)

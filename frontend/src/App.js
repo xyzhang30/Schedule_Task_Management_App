@@ -22,7 +22,7 @@ import GroupInfoPage from './pages/GroupInfo.js';
 import ForgotPassword from './pages/ForgotPassword.js';
 import StudyTime from './pages/StudyTime.js';
 import SchedulerPage from './pages/Calendar.js';
-import Leaderboard from './pages/leaderboard.js';
+import Leaderboard from './pages/LeaderBoard.js';
 import FindSharedAvailability from './pages/Availability.js';
 
 function App() {
