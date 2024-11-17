@@ -24,7 +24,7 @@ conn_details = psycopg2.connect(
 # create tables 
 cursor = conn_details.cursor()
 Table_creation = '''
-    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, friendrequests, groups, public_events, memberships, registrations, group_requests, category, event_category, task_category, studytime CASCADE;    
+    DROP TABLE IF EXISTS assignment, task, student, friend, friendrequests, availability, likes, shares, saves, comments, events, post, accounts, notifications, groups, public_events, memberships, registrations, group_requests, category, event_category, task_category, studytime CASCADE;    
    
     
     CREATE TABLE accounts (
@@ -42,14 +42,6 @@ Table_creation = '''
         account_id1 INTEGER REFERENCES accounts(account_id),
         account_id2 INTEGER REFERENCES accounts(account_id),
         PRIMARY KEY (account_id1, account_id2)
-    );
-    
-    CREATE TABLE student (
-        account_id INTEGER PRIMARY KEY REFERENCES accounts(account_id),
-        major VARCHAR(100),
-        interest VARCHAR(100),
-        student_id SERIAL UNIQUE,
-        organization VARCHAR(100)
     );
 
     CREATE TABLE events ( 
@@ -132,7 +124,7 @@ Table_creation = '''
         text TEXT NOT NULL
     );
     
-    CREATE TABLE friendrequests (
+    CREATE TABLE notifications (
         notification_id SERIAL PRIMARY KEY,
         account_id_to INTEGER REFERENCES accounts(account_id),
         account_id_from INTEGER REFERENCES accounts(account_id),
