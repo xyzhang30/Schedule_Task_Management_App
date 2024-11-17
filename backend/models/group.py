@@ -10,6 +10,7 @@ class Group(Base):
 	group_avatar = Column(String(255), unique=False)
 	year_created = Column(Integer, unique=False)
 	admin_id = Column(Integer, ForeignKey('accounts.account_id'), unique=False, nullable=False)
+	# description = Column(String(2000), nullable=False)
 
 
 	def __repr__(self):
@@ -22,6 +23,10 @@ class Group(Base):
 	@classmethod
 	def get_grp_by_id(cls, grp_id):
 		return db_session.query(cls).filter_by(group_id = grp_id).first()
+	
+	@classmethod
+	def get_grp_by_admin(cls, admin_id):
+		return db_session.query(cls).filter_by(admin_id = admin_id).all()
 	
 	def save(self):
 		db_session.add(self)

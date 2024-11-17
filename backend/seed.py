@@ -24,7 +24,7 @@ conn_details = psycopg2.connect(
 # create tables 
 cursor = conn_details.cursor()
 Table_creation = '''
-    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, friendrequests, groups, public_events, memberships, registrations, category, event_category, studytime CASCADE;    
+    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, friendrequests, groups, public_events, memberships, registrations, group_requests, category, event_category, task_category, studytime CASCADE;    
    
     
     CREATE TABLE accounts (
@@ -34,7 +34,8 @@ Table_creation = '''
         email VARCHAR(100) UNIQUE NOT NULL,
         phone VARCHAR(15) UNIQUE,
         avatar VARCHAR(255),
-        year_created INTEGER NOT NULL
+        year_created INTEGER NOT NULL,
+        major VARCHAR(100)
     );
 
     CREATE TABLE friend (
@@ -58,7 +59,7 @@ Table_creation = '''
         location VARCHAR(30),
         start_date TIMESTAMP NOT NULL,
         end_date TIMESTAMP NOT NULL,
-        category VARCHAR(30),
+        category VARCHAR(30), 
         label_text VARCHAR(100),
         label_color VARCHAR(20),
         frequency VARCHAR(50),
@@ -83,8 +84,10 @@ Table_creation = '''
         class_id INTEGER REFERENCES events(event_id)
     );
 
-    CREATE TABLE category (
-        category_name VARCHAR(100) PRIMARY KEY
+    CREATE TABLE task_category (
+        account_id INTEGER REFERENCES accounts(account_id),
+        category_name VARCHAR(100),
+        PRIMARY KEY (account_id, category_name)
     );
 
     CREATE TABLE availability (
@@ -168,6 +171,16 @@ Table_creation = '''
         PRIMARY KEY (event_id, account_id)
     );
 
+    CREATE TABLE group_requests (
+        request_id SERIAL PRIMARY KEY,
+        account_id INTEGER REFERENCES accounts(account_id),
+        group_id INTEGER REFERENCES groups(group_id),
+        message VARCHAR(255),
+        is_pending BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+
     CREATE TABLE studytime (
         account_id INTEGER REFERENCES accounts(account_id),
         date DATE,
@@ -176,8 +189,6 @@ Table_creation = '''
     );
 '''
 cursor.execute(Table_creation)
-
-
 
 
 # generating test data
@@ -214,7 +225,7 @@ for n in range (3):
 
 
 # events test data
-for _ in range(7):
+for _ in range(10):
     event_name = faker.word()
     event_location = faker.city()
     s_date = faker.date_this_year() 
@@ -224,6 +235,7 @@ for _ in range(7):
     e_date = datetime.combine(s_date.date(), end_time) 
     category = random.choice(['club', 'personal', 'school', 'work'])
     account_id = random.randint(1, 6)
+    print("_____ accountid: ", account_id)
     label_text = faker.word()  # Random word for label text
     label_color = faker.color_name()  # Random color name for label color
 
@@ -239,12 +251,24 @@ for _ in range (9):
     task_name = faker.word()
     category = random.choice(['club', 'personal', 'school', 'work'])
     complete = random.choice([True, False])
-    account_id = random.randint(1, 7)
+    account_id = random.randint(1, 6)
 
     cursor.execute('''
         INSERT INTO task (due_time, task_name, category, complete)
         VALUES (%s, %s, %s, %s)
     ''', (due_time, task_name, category, complete))
+
+
+#studytime test data
+for i in range (1, 6):
+    account_id = i
+    date = '2024-11-12'
+    study_time = '02:25:43'
+
+    cursor.execute('''
+        INSERT INTO studytime (account_id, date, study_time)
+        VALUES (%s, %s, %s)
+    ''', (account_id, date, study_time))
 
 
 # commit changes to save

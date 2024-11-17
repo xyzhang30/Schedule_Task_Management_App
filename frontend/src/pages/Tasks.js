@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faPencilAlt } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faPencilAlt, faCheck } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import './Tasks.css';
 
@@ -24,7 +24,7 @@ const Tasks = () => {
         const fetchTasks = async () => {
             try {
                 console.log("Fetching tasks...");
-                const response = await axios.get(`${baseUrl}/task/1/sorted`);
+                const response = await axios.get(`${baseUrl}/task/sorted`, {withCredentials:true});
                 console.log("Fetched tasks data:", response.data);
                 setTasks(response.data); 
                 setLoading(false);
@@ -90,12 +90,12 @@ const Tasks = () => {
             formData.append('due_time', newTask.due_time);
             formData.append('account_id', '1');
 
-            const response = await axios.post(`${baseUrl}/task/create`, formData);
+            const response = await axios.post(`${baseUrl}/task/create`, formData, {withCredentials:true});
             console.log('Task created:', response.data);
             setShowAddTaskModal(false);
             setNewTask({ task_name: '', category: '', due_time: '' });
 
-            const updatedTasks = await axios.get(`${baseUrl}/task/1/sorted`);
+            const updatedTasks = await axios.get(`${baseUrl}/task/sorted`, {withCredentials:true});
             setTasks(updatedTasks.data);
         } catch (err) {
             console.error('Error creating task:', err);
@@ -147,10 +147,10 @@ const Tasks = () => {
             formData.append('category', editedTask.category);
             formData.append('due_time', editedTask.due_time);
     
-            const response = await axios.put(`${baseUrl}/task/update/${selectedTask.task_id}`, formData);
+            const response = await axios.put(`${baseUrl}/task/update/${selectedTask.task_id}`, formData, {withCredentials:true});
             console.log('Task updated:', response.data);
     
-            const updatedTasks = await axios.get(`${baseUrl}/task/1/sorted`);
+            const updatedTasks = await axios.get(`${baseUrl}/task/sorted`, {withCredentials:true});
             setTasks(updatedTasks.data);
     
             setShowEditTaskModal(false);
@@ -169,10 +169,10 @@ const Tasks = () => {
         
         if (confirmDelete) {
             try {
-                const response = await axios.delete(`${baseUrl}/task/remove/${selectedTask.task_id}`);
+                const response = await axios.delete(`${baseUrl}/task/remove/${selectedTask.task_id}`, );
                 console.log('Task deleted:', response.data);
     
-                const updatedTasks = await axios.get(`${baseUrl}/task/1/sorted`);
+                const updatedTasks = await axios.get(`${baseUrl}/task/sorted`, {withCredentials:true});
                 setTasks(updatedTasks.data);
                 setSelectedTask(null);
             } catch (err) {
@@ -184,22 +184,16 @@ const Tasks = () => {
 
     const handleCompleteTask = async () => {
         if (!selectedTask) return;
-    
-        const confirmComplete = window.confirm(`Are you sure you want to mark task: ${selectedTask.task_name} as complete?`);
-    
-        if (confirmComplete) {
             try {
-                const response = await axios.post(`${baseUrl}/task/complete/${selectedTask.task_id}`);
-                console.log('Task marked as complete:', response.data);
+                await axios.post(`${baseUrl}/task/complete/${selectedTask.task_id}`, {withCredentials:true});
     
-                const completedTasks = await axios.get(`${baseUrl}/task/1/sorted`);
+                const completedTasks = await axios.get(`${baseUrl}/task/sorted`, {withCredentials:true});
+                window.alert('Task marked as completed!');
                 setTasks(completedTasks.data);
-                //setSelectedTask(null);
             } catch (err) {
                 console.error('Error completing task:', err);
                 setError('Failed to complete task.');
             }
-        }
     };
      
     
@@ -356,7 +350,7 @@ const Tasks = () => {
                                 filteredTasks[date].map(task => (
                                     <div
                                         key={task.id}
-                                        className="task-item"
+                                        className={`task-item ${task.complete ? 'completed-task' : ''}`}
                                         onClick={() => handleTaskClick(task)}
                                     >
                                         {task.task_name}
@@ -373,19 +367,21 @@ const Tasks = () => {
                 <div className="task-details">
                 {selectedTask ? (
                     <div className="task-details-content">
-                        <h2>{selectedTask.task_name}</h2>
+                        <div className="task-header">
+                            <h2>{selectedTask.task_name}</h2>
+                            <button className="complete-task-button" onClick={handleCompleteTask}>
+                                <FontAwesomeIcon icon={faCheck} />
+                            </button>
+                        </div>
                         <p>Category: {selectedTask.category}</p>
                         <p>Due Time: {formatDueTime(selectedTask.due_time)}</p>
-                        
+                    
                         <div className="task-actions">
                             <button className="edit-task-button" onClick={() => handleEditButtonClick(selectedTask)}>
-                                <FontAwesomeIcon icon={faPencilAlt} /> Edit
+                                {/* <FontAwesomeIcon icon={faPencilAlt} /> Edit */}
                             </button>
                             <button className="delete-task-button" onClick={handleDeleteTask}>
-                                <FontAwesomeIcon icon={faTrash} /> Delete
-                            </button>
-                            <button className="complete-task-button" onClick={handleCompleteTask}>
-                                Complete
+                                {/* <FontAwesomeIcon icon={faTrash} /> Delete */}
                             </button>
                         </div>
                     </div>

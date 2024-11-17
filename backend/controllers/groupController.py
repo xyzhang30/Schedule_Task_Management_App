@@ -12,6 +12,8 @@ from ..models.account import Account
 from ..models.publicEvent import PublicEvent
 from ..models.registration import Registration
 
+# TODO: add the login check decorator
+
 # TODO: send notification when an account is added to a group by group admin
 # TODO: send notification to members when a group is deleted
 # TODO: send notification when an account is added to an event by group admin
@@ -68,7 +70,7 @@ def index():
 @bp.route('/show-groups', methods=['GET'])
 def showGroups():
     user_id = session.get('user')
-    user_id = 1 # HARDCODE
+    # user_id = 1 # HARDCODE
     
     memberships = Membership.get_grps_by_acc_id(user_id)
     groups = [Group.get_grp_by_id(mbs.group_id) for mbs in memberships]
@@ -84,10 +86,10 @@ def showGroups():
 def createGroup():
     group_name = request.form.get("group_name")
     group_avatar = request.form.get("group_avatar")
-    year_created = (int)(request.form.get("year_created"))
+    year_created = datetime.now().year
 
     user_id = session.get('user')
-    user_id = 1 # HARDCODE
+    # user_id = 1 # HARDCODE
 
     exist_group = Group.query.filter_by(group_name=group_name).first()
     if exist_group:
@@ -120,7 +122,7 @@ def addAdminAsMember(group_id, admin_id):
 def toGroup(group_id):
 
     user_id = session.get('user')
-    user_id = 1 # HARDCODE
+    # user_id = 1 # HARDCODE
 
     group = Group.get_grp_by_id(group_id)
     if not group:
@@ -129,6 +131,8 @@ def toGroup(group_id):
     group_data = {
         'group_id': group.group_id,
         'group_name': group.group_name,
+        'group_avatar': group.group_avatar, 
+        'year_created': group.year_created,
         'admin_id': group.admin_id,
         'events': [event.to_dict() for event in PublicEvent.get_evts_by_grp_id(group_id)]
     }
@@ -172,16 +176,15 @@ def editGroup(group_id):
     return jsonify({'message': 'Group updated successfully', 'group': group.to_dict()}), 200
 
 
-@bp.route('/delete-group/<int:group_id>', methods = ['DELETE'])
+@bp.route('/delete-group/<int:group_id>', methods = ['GET', 'DELETE'])
 def deleteGroup(group_id):
 
     group, error = groupAdminError(group_id)
     if error:
         return error
 
-    # group = Group.get_grp_by_id(group_id)
-    # if not group:
-    #     return jsonify({'message': 'Group not found'}), 404
+    for membership in Membership.get_accs_by_grp_id(group_id):
+        membership.delete()
     
     group.delete()
     return jsonify({'message': 'Group deleted successfully', 'group': group.to_dict()}), 200
@@ -261,7 +264,7 @@ def removeMember(group_id):
     return jsonify({'message': 'Member deleted successfully'}), 200
 
 
-@bp.route('/leave-group/<int:group_id>', methods=['POST'])
+@bp.route('/leave-group/<int:group_id>', methods=['DELETE'])
 def leaveGroup(group_id):
 
     group = Group.get_grp_by_id(group_id)
@@ -290,64 +293,64 @@ def leaveGroup(group_id):
     return jsonify({'message': 'You have successfully left the group.'}), 200
 
 
-@bp.route('/request-join/<int:group_id>', methods=['GET'])
-def requestJoin(group_id):
+# @bp.route('/request-join/<int:group_id>', methods=['GET'])
+# def requestJoin(group_id):
 
-    group = Group.get_grp_by_id(group_id)
-    if not group:
-        return jsonify({'message': 'Group not found'}), 404
+#     group = Group.get_grp_by_id(group_id)
+#     if not group:
+#         return jsonify({'message': 'Group not found'}), 404
 
-    user_id = session.get('user')
-    account = Account.get_acc_by_id(user_id)
-    user_email = account.email
-    user_name = account.name
+#     user_id = session.get('user')
+#     account = Account.get_acc_by_id(user_id)
+#     user_email = account.email
+#     user_name = account.username
 
-    admin_id = group.admin_id
-    admin = Account.get_acc_by_id(admin_id)
-    admin_email = admin.email
-    admin_name = admin.name
+#     admin_id = group.admin_id
+#     admin = Account.get_acc_by_id(admin_id)
+#     admin_email = admin.email
+#     admin_name = admin.username
     
-    # TODO: add link to this email to make replying to request more convenient
-    subject = f"Join Request for Group {group.group_name}"
-    message = f"""
-    Hi {admin_name},
+#     # TODO: add link to this email to make replying to request more convenient
+#     subject = f"Join Request for Group {group.group_name}"
+#     message = f"""
+#     Hi {admin_name},
 
-    {user_name} (Account ID: {user_id}, Email: {user_email}) has requested to join your group "{group.group_name}" (ID: {group_id}).
+#     {user_name} (Account ID: {user_id}, Email: {user_email}) has requested to join your group "{group.group_name}" (ID: {group_id}).
     
-    Please respond to the request at your convenience.
+#     Please respond to the request at your convenience.
 
-    Best regards,
-    Schedule Task Management APP Team
-    """
+#     Best regards,
+#     Schedule Task Management APP Team
+#     """
 
-    try:
-        send_email(from_email=user_email, to_email=admin_email, subject=subject, message=message)
-        return jsonify({'message': 'Join request sent successfully'}), 200
-    except Exception as e:
-        return jsonify({'message': f'Failed to send join request: {str(e)}'}), 500
+#     try:
+#         send_email(from_email=user_email, to_email=admin_email, subject=subject, message=message)
+#         return jsonify({'message': 'Join request sent successfully'}), 200
+#     except Exception as e:
+#         return jsonify({'message': f'Failed to send join request: {str(e)}'}), 500
+
+
+@bp.route('/get-group-id/<int:event_id>', methods=['GET'])
+def getGroupID(event_id):
+    event = PublicEvent.get_evt_by_id(event_id)
+    return jsonify(event.group_id)
 
 
 @bp.route('/show-events/<int:group_id>', methods=['GET'])
 def showEvents(group_id):
     events = [event.to_dict() for event in PublicEvent.get_evts_by_grp_id(group_id)]
-    return events
+    return jsonify(events)
 
 
-@bp.route('/to-event/<int:group_id>/<int:event_id>', methods=['GET'])
-def toEvent(group_id, event_id):
-
-    user_id = session.get('user')
-
-    group = Group.get_grp_by_id(group_id)
-    if not group:
-        return jsonify({'message': 'Group not found'}), 404
-
+@bp.route('/to-event/<int:event_id>', methods=['GET'])
+def toEvent(event_id):
+    
     event = PublicEvent.get_evt_by_id(event_id)
     if not event:
         return jsonify({'message': 'Event not found'}), 404
-    
+        
     event_data = {
-        'event_id': event.even_id,
+        'event_id': event.event_id,
         'event_name': event.event_name,
         'group_id': event.group_id,
         'start_date_time': event.start_date_time,
@@ -355,6 +358,11 @@ def toEvent(group_id, event_id):
         'is_all_day': event.is_all_day
     }
 
+    group_id = event.group_id
+    user_id = session.get('user')
+    # user_id = 1 # HARDCODE
+    
+    group = Group.get_grp_by_id(group_id)
     membership = Membership.get_membership(user_id, group_id)
     registr = Registration.get_registr(user_id, event_id)
 
@@ -423,16 +431,17 @@ def createEvent(group_id):
     return jsonify({'message': 'Event created successfully', 'event': event.to_dict()}), 200
 
 
-@bp.route('/edit-event/<int:group_id>/<int:event_id>', methods = ['PUT'])
-def editEvent(group_id, event_id):
-
-    group, error_message = groupAdminError(group_id)
-    if error_message:
-        return error_message
+@bp.route('/edit-event/<int:event_id>', methods = ['PUT'])
+def editEvent(event_id):
 
     event = PublicEvent.get_evt_by_id(event_id)
     if not event:
         return jsonify({'message': 'Event not found'}), 404
+    
+    group_id = event.group_id
+    group, error_message = groupAdminError(group_id)
+    if error_message:
+        return error_message
     
     new_event_name = request.form.get("new_event_name")
     new_start_date_time_input = request.form.get("start_date_time")
@@ -455,31 +464,34 @@ def editEvent(group_id, event_id):
 
 @bp.route('/cancel-event/<int:event_id>', methods=['DELETE'])
 def cancelEvent(event_id):
-
-    group, error_message = groupAdminError(event_id)
-    if error_message:
-        return error_message
-    
     event = PublicEvent.get_evt_by_id(event_id)
     if not event:
         return jsonify({'message': 'Event not found'}), 404
+    
+    group_id = event.group_id
+    group, error_message = groupAdminError(group_id)
+    if error_message:
+        return error_message
+    
+    for registration in Registration.get_accs_by_evt_id(event_id):
+        registration.delete()
 
     event.delete()
 
     return jsonify({'message': 'Event removed successfully'}), 200
 
 
-@bp.route('/register-event/<int:group_id>/<int:event_id>', methods=['POST'])
-def registerEvent(group_id, event_id):
-    group, error = groupAdminError(group_id)
-    if error:
-        return error
+@bp.route('/register-event/<int:event_id>', methods=['GET', 'POST'])
+def registerEvent(event_id):
     
     event = PublicEvent.get_evt_by_id(event_id)
     if not event:
         return jsonify({'message': 'Event not found'}), 404
     
+    group_id = event.group_id
+    
     user_id = session.get('user')
+    # user_id = 1 # HARDCODE
     
     membership = Membership.query.filter_by(group_id=group_id, account_id=user_id).first()
     if not membership:
@@ -495,18 +507,17 @@ def registerEvent(group_id, event_id):
     return jsonify({'message': 'Successfully registered for the event'}), 200
 
 
-@bp.route('/drop-event/<int:group_id>/<int:event_id>', methods=['DELETE'])
-def dropEvent(group_id, event_id):
-
-    group, error = groupAdminError(group_id)
-    if error:
-        return error
+@bp.route('/drop-event/<int:event_id>', methods=['GET', 'DELETE'])
+def dropEvent(event_id):
     
     event = PublicEvent.get_evt_by_id(event_id)
     if not event:
         return jsonify({'message': 'Event not found'}), 404
     
+    group_id = event.group_id
+    
     user_id = session.get('user')
+    # user_id = 1 # HARDCODE
     
     registration = Registration.query.filter_by(event_id=event_id, account_id=user_id).first()
     if not registration:
@@ -517,57 +528,57 @@ def dropEvent(group_id, event_id):
     return jsonify({'message': 'Successfully dropped the event'}), 200
 
 
-@bp.route('/request-register/<int:group_id>/<int:event_id>', methods=['GET'])
-def requestRegister(group_id, event_id):
+# @bp.route('/request-register/<int:event_id>', methods=['GET'])
+# def requestRegister(event_id):
+    
+#     event = Group.get_evt_by_id(event_id)
+#     if not event:
+#         return jsonify({'message': 'Event not found'}), 404
+    
+#     group_id = event.group_id
+#     group = Group.get_grp_by_id(group_id)
 
-    group = Group.get_grp_by_id(group_id)
-    if not group:
-        return jsonify({'message': 'Group not found'}), 404
+#     user_id = session.get('user')
+#     account = Account.get_acc_by_id(user_id)
+#     user_email = account.email
+#     user_name = account.username
+
+#     admin_id = group.admin_id
+#     admin = Account.get_acc_by_id(admin_id)
+#     admin_email = admin.email
+#     admin_name = admin.username
+    
+#     # TODO: add link to this email to make replying to request more convenient
+#     subject = f"Register Request for Event {event.event_name}"
+#     message = f"""
+#     Hi {admin_name},
+
+#     {user_name} (Account ID: {user_id}, Email: {user_email}) has requested to attend the event "{event.event_name}" (ID: {event_id}) organized by your group "{group.group_name}" (ID: {group_id}).
+    
+#     Please respond to the request at your convenience.
+
+#     Best regards,
+#     Schedule Task Management APP Team
+#     """
+
+#     try:
+#         send_email(from_email=user_email, to_email=admin_email, subject=subject, message=message)
+#         return jsonify({'message': 'Register request sent successfully'}), 200
+#     except Exception as e:
+#         return jsonify({'message': f'Failed to send join request: {str(e)}'}), 500
+
+
+@bp.route('/add-participant/<int:event_id>', methods=['POST'])
+def addParticipant(event_id):
     
     event = Group.get_evt_by_id(event_id)
     if not event:
         return jsonify({'message': 'Event not found'}), 404
-
-    user_id = session.get('user')
-    account = Account.get_acc_by_id(user_id)
-    user_email = account.email
-    user_name = account.name
-
-    admin_id = group.admin_id
-    admin = Account.get_acc_by_id(admin_id)
-    admin_email = admin.email
-    admin_name = admin.name
     
-    # TODO: add link to this email to make replying to request more convenient
-    subject = f"Register Request for Event {event.event_name}"
-    message = f"""
-    Hi {admin_name},
-
-    {user_name} (Account ID: {user_id}, Email: {user_email}) has requested to attend the event "{event.event_name}" (ID: {event_id}) organized by your group "{group.group_name}" (ID: {group_id}).
-    
-    Please respond to the request at your convenience.
-
-    Best regards,
-    Schedule Task Management APP Team
-    """
-
-    try:
-        send_email(from_email=user_email, to_email=admin_email, subject=subject, message=message)
-        return jsonify({'message': 'Register request sent successfully'}), 200
-    except Exception as e:
-        return jsonify({'message': f'Failed to send join request: {str(e)}'}), 500
-
-
-@bp.route('/add-participant/<int:group_id>/<int:event_id>', methods=['POST'])
-def addParticipant(group_id, event_id):
-
-    group, error = groupAdminError(group_id)
-    if error:
-        return error
-    
-    event = Group.get_evt_by_id(event_id)
-    if not event:
-        return jsonify({'message': 'Event not found'}), 404
+    group_id = event.group_id
+    group, error_message = groupAdminError(group_id)
+    if error_message:
+        return error_message
     
     participant_id = request.form.get('participant_id')
     if not participant_id:
@@ -594,7 +605,7 @@ def groupAdminError(group_id):
         return None, jsonify({'message': 'Group not found'}), 404
     
     user_id = session.get('user')
-    user_id = 1 # HARDCODE
+    # user_id = 1 # HARDCODE
     if group.admin_id != user_id:
         return None, jsonify({'message': 'Access denied: You are not the group administrator'}), 403
 

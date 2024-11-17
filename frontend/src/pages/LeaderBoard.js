@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import './Leaderboard.css';
+import './LeaderBoard.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCrown } from '@fortawesome/free-solid-svg-icons';
 
@@ -14,6 +14,7 @@ const Leaderboard = () => {
         fetchAllWeeklyStudyTimes();
     }, []);
 
+    //fetch everyone's weekly study time
     const fetchAllWeeklyStudyTimes = async () => {
         try {
             const response = await axios.get(`${baseUrl}/studytime/all_weekly`);

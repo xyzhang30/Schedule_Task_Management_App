@@ -28,6 +28,7 @@ Frontend:
 Frontend: 
 - react-router-dom
 - axios 
+- font-awesome
 
 Backend: 
 - flask-cors

@@ -6,7 +6,7 @@ from app.controllers import accountController, availabilityController, friendCon
 from .db import init_db
 
 mail = Mail() #create mail instance for importing
-
+uploadParameters = {'UPLOAD_FOLDER': '/srv/app/avatars', 'ALLOWED_EXTENSIONS': {'png', 'jpg', 'jpeg', 'gif'}}
 def create_app(test_config=None):
     # create and configure the app
     # app = Flask(__name__, instance_relative_config=True)
@@ -19,7 +19,7 @@ def create_app(test_config=None):
     app.config['MAIL_USE_TLS'] = True
     app.config['MAIL_USE_SSL'] = False
     mail.init_app(app)
-    CORS(app, supports_credentials=True, resources={r"/*": {"origins": "http://localhost:3000"}})
+    CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000"]}})
     # app.config.from_mapping(
     #     SECRET_KEY='not-really-that-secret-huh',
     #     DATABASE=os.path.join(app.instance_path, 'mvc.sqlite'),
