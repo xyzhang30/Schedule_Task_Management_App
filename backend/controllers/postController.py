@@ -1,6 +1,8 @@
-from flask import Blueprint, jsonify, request, session
+import os
+from flask import Blueprint, jsonify, request, session, current_app, send_from_directory
 from ..models.post import Post, Like, Save, Comment
 from ..models.friend import Friend
+from ..models.account import Account
 from ..decorators import is_logged_in
 
 bp = Blueprint('post', __name__, url_prefix='/post')
@@ -25,7 +27,14 @@ def get_post(post_id):
     post = Post.get_post_by_id(post_id)
     if post is None:
         return jsonify({"error": "Post not found."}), 404
-    return jsonify(post.to_dict()), 200
+    
+    poster_account = Account.get_acc_by_id(post.poster_id)
+    poster_name = poster_account.username if poster_account else "Unknown"
+
+    post_data = post.to_dict()
+    post_data['poster_name'] = poster_name
+
+    return jsonify(post_data), 200
 
 
 @bp.route('/get-posts', methods=['GET'])
@@ -68,17 +77,31 @@ def get_friends_posts_by_poster():
     post_list = [post.to_dict() for post in posts]
     return jsonify(post_list), 200
 
+def allowed_file(filename):
+    """
+    Checks if a file has a valid extension for post images.
+    """
+    allowed_extensions = current_app.config['POST_IMAGE_PARAMETERS']['ALLOWED_EXTENSIONS']
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
+
+@bp.route('/post_images/<filename>', methods=['GET'])
+def serve_post_image(filename):
+    """
+    Serves images uploaded to the post_images folder.
+    """
+    upload_folder = current_app.config['POST_IMAGE_PARAMETERS']['UPLOAD_FOLDER']
+    return send_from_directory(upload_folder, filename)
 
 @bp.route('/add-post', methods=['POST'])
 @is_logged_in
 def add_post():
-    '''
-    Adds a new post
-    '''
+    """
+    Adds a new post with an optional image upload.
+    """
     title = request.form.get('title')
     content = request.form.get('content')
-    image_url = request.form.get('image_url')
     poster_id = session['user']
+    image_url = None
 
     if not title or not content:
         return jsonify({"error": "Title and content are required."}), 400
@@ -86,12 +109,35 @@ def add_post():
     new_post = Post(
         title=title,
         content=content,
-        image_url=image_url,
+        image_url=None,
         poster_id=poster_id
     )
-
     new_post.save()
-    return index()
+    post_id = new_post.post_id
+
+    # Handle post image upload
+    if 'image' in request.files:
+        file = request.files['image']
+        if file:
+            print(f"Received file: {file.filename}")  # Debug log
+        
+        if file and allowed_file(file.filename):
+            try:
+                upload_folder = current_app.config['POST_IMAGE_PARAMETERS']['UPLOAD_FOLDER']
+                filename = f"{post_id}_{file.filename}"
+                filepath = os.path.join(upload_folder, filename)
+
+                print(f"Saving file to: {filepath}")  # Debug log
+                file.save(filepath)
+
+                image_url = f"/post_images/{filename}"
+                new_post.image_url = image_url
+                new_post.save()
+            except Exception as e:
+                print(f"Error saving file: {e}")  # Debug log
+                return jsonify({"error": "Failed to save image."}), 500
+
+    return jsonify(new_post.to_dict()), 201
 
 
 @bp.route('/update-post/<int:post_id>', methods=['PUT'])
@@ -113,7 +159,17 @@ def update_post(post_id):
     # Update the post with new values, if provided
     title = request.form.get('title', post.title)
     content = request.form.get('content', post.content)
-    image_url = request.form.get('image_url', post.image_url)
+    image_url = post.image_url  # Default to the current image URL
+
+    # Handle post image upload
+    if 'image' in request.files:
+        file = request.files['image']
+        if file and allowed_file(file.filename):
+            upload_folder = current_app.config['POST_IMAGE_PARAMETERS']['UPLOAD_FOLDER']
+            filename = f"{post_id}_{file.filename}"
+            filepath = os.path.join(upload_folder, filename)
+            file.save(filepath)
+            image_url = f"/post_images/{filename}"
 
     post.title = title
     post.content = content
