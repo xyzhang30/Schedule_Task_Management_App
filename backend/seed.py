@@ -128,6 +128,7 @@ Table_creation = '''
         notification_id SERIAL PRIMARY KEY,
         account_id_to INTEGER REFERENCES accounts(account_id),
         account_id_from INTEGER REFERENCES accounts(account_id),
+        notification_type VARCHAR(255),
         message VARCHAR(255),
         is_pending BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
