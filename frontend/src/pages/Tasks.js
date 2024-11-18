@@ -17,6 +17,7 @@ const Tasks = () => {
     const [selectedCategory, setSelectedCategory] = useState('');
     const [newCategory, setNewCategory] = useState('');
     const [showEditTaskModal, setShowEditTaskModal] = useState(false);
+    const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
     const [editedTask, setEditedTask] = useState({ task_name: '', category: '', due_time: '' });
     const [events, setEvents] = useState([]);
 
@@ -143,6 +144,10 @@ const Tasks = () => {
 
     const handleAddCategory = async (e) => {
         e.preventDefault();
+        if (categories.some(category => category.category_name === newCategory)) {
+            alert('This category already exists.');
+            return;
+        }
         try {
             const formData = new FormData();
             formData.append('category_name', newCategory);
@@ -150,6 +155,7 @@ const Tasks = () => {
             const response = await axios.post(`${baseUrl}/task/category/create`, formData);
             console.log('Category created:', response.data);
             setNewCategory('');
+            setShowAddCategoryModal(false);
             const updatedCategories = await axios.get(`${baseUrl}/task/category/all`);
             setCategories(updatedCategories.data);
         } catch (err) {
@@ -231,9 +237,14 @@ const Tasks = () => {
         <div className="tasks-page-container">
             <div className="tasks-header">
                 <h2>Tasks</h2>
-                <button className="add-task-button" onClick={() => setShowAddTaskModal(true)}>
+                <div className="button-container">
+                <button className="button" onClick={() => setShowAddCategoryModal(true)}>
+                    Add Category
+                </button>
+                <button className="button" onClick={() => setShowAddTaskModal(true)}>
                     Add Task
                 </button>
+                </div>
             </div>
     
             <div>
@@ -247,7 +258,7 @@ const Tasks = () => {
                     ))}
                 </select>
                 
-                <form onSubmit={handleAddCategory} className="add-category-form">
+                {/* <form onSubmit={handleAddCategory} className="add-category-form">
                     <input 
                         type="text" 
                         placeholder="New Category" 
@@ -255,11 +266,37 @@ const Tasks = () => {
                         onChange={handleNewCategoryChange} 
                         required 
                     />
-                    <button type="submit" className="add-category-button">
+                    <button type="submit" className="button">
                         Add Category
                     </button>
-                </form>
+                </form> */}
             </div>
+
+            {showAddCategoryModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>Add a New Category</h2>
+                        <form onSubmit={handleAddCategory}>
+                            <label>
+                                Category Name:
+                                <input
+                                    type="text"
+                                    placeholder="New Category"
+                                    value={newCategory}
+                                    onChange={handleNewCategoryChange}
+                                    required
+                                />
+                            </label>
+                            <div className="modal-actions">
+                                <button type="submit">Create Category</button>
+                                <button type="button" onClick={() => setShowAddCategoryModal(false)}>
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
     
             {showAddTaskModal && (
                 <div className="modal-overlay">
