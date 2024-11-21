@@ -41,3 +41,10 @@ class GroupRequest(Base):
     def update_pending_status(self):
         self.is_pending = False
         db_session.commit()
+
+    def save(self):
+        db_session.add(self)
+        db_session.commit()
+
+    def to_dict(self):
+        return {column.name: getattr(self, column.name) for column in self.__table__.columns}

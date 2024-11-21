@@ -1,207 +1,182 @@
-/* General Container */
-.groups-page-container {
-    display: grid;
-    grid-template-rows: auto 1fr;
-    grid-template-columns: 1fr 1fr;
-    width: 100%;
-    gap: 20px;
-    padding: 20px;
-}
-
-/* Header Section */
-.groups-header {
-    grid-column: 1 / span 2;
+/* General layout */
+.group-index-page-container {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    width: 100%;
+    height: 100vh;
 }
 
-.groups-header h2 {
-    margin: 0;
-    font-size: 2rem;
+.left-section {
+    width: 50%;
+    background-color: #f9f9f9;
+    padding: 10px;
+    overflow-y: auto;
 }
 
-/* Groups List Section */
-.groups-list {
-    grid-column: 1;
-    border-right: 1px solid #ddd;
-    padding: 20px;
+.right-section {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    height: 100%;
 }
 
-.groups-category {
-    margin-bottom: 20px;
+.group-details {
+    height: 50%;
+    background-color: #f9f9f9;
+    padding: 10px;
+    overflow-y: auto;
 }
 
-.groups-category h3 {
-    font-size: 1.2rem;
-    color: #333;
-    margin-bottom: 10px;
-}
-
-.group-item {
+.event-details {
+    height: 50%;
     background-color: #e0e0e0;
     padding: 10px;
-    margin-bottom: 10px;
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
+    overflow-y: auto;
 }
 
-.group-item:hover {
-    background-color: #cfcfcf;
-}
-
-/* Group Details Section */
-.group-details {
-    grid-column: 2;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.group-details-content {
-    background-color: #f9f9f9;
-    padding: 20px;
-    border-radius: 10px;
-    width: 80%;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-}
-
-.group-details h2 {
-    font-size: 1.5rem;
-    color: #333;
-}
-
-.group-details p {
-    font-size: 1rem;
-    color: #666;
-}
-
-/* Buttons */
-.add-group-button {
-    padding: 10px 20px;
-    background-color: #f0f0f0;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-}
-
-.group-actions {
-    margin-top: 20px;
-}
-
-.group-actions button {
-    margin-right: 10px;
-    background-color: #f0f0f0;
-    border: none;
-    padding: 8px 12px;
-    cursor: pointer;
-    display: inline-flex;
-    align-items: center;
-    border-radius: 5px;
-}
-
-.group-actions button .fa-icon {
-    margin-right: 5px;
-}
-
-.edit-group-button {
-    color: #007bff;
-}
-
-.delete-group-button {
-    color: #dc3545;
-}
-
-.group-actions button:hover {
-    opacity: 0.8;
-}
-
-/* Group Header */
-.group-header {
+/* Header styling */
+.group-index-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
 }
 
-.group-header h2 {
-    font-size: 1.5rem;
-    color: #333;
-    margin: 0;
-}
-
-.join-group-button {
+.create-group-button {
+    padding: 8px 12px;
     background-color: #4CAF50;
     color: white;
     border: none;
-    padding: 5px;
-    border-radius: 5px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 1rem;
 }
 
-.join-group-button:hover {
+.create-group-button:hover {
     background-color: #45a049;
 }
 
-/* Category Controls */
-.category-controls {
+/* Group list styling */
+.group-section {
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #e0e0e0;
+}
+
+.group-card {
     display: flex;
     align-items: center;
-    gap: 10px;
 }
 
-.category-controls .filter {
+.profile-picture img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.profile-info h2 {
+    font-size: 1.1em;
+    margin: 0;
+    cursor: pointer;
+}
+
+.profile-info p {
+    margin: 2px 0;
+}
+
+/* Event list styling */
+.group-events .event-card {
+    margin-top: 10px;
+    padding: 8px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+}
+
+.event-card h3 {
+    margin: 0;
+    cursor: pointer;
+}
+
+.event-card p {
+    font-size: 0.9em;
+}
+
+/* Group details and actions */
+.group-details-content,
+.event-details-content {
     display: flex;
-    align-items: center;
+    flex-direction: column;
 }
 
-.category-controls .add-category {
-    display: flex;
+.group-avatar img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-bottom: 15px;
 }
 
-/* Modal */
+.group-actions, .event-actions {
+    margin-top: 10px;
+}
+
+.group-actions button,
+.event-actions button {
+    margin-right: 5px;
+    padding: 8px 12px;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.group-actions button:hover,
+.event-actions button:hover {
+    background-color: #0b7dda;
+}
+
+/* Modal styling */
 .modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
     z-index: 1000;
-    overflow: hidden;
 }
 
 .modal-content {
-    background: white;
+    background-color: #fff;
     padding: 20px;
     border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    max-width: 500px;
-    width: 100%;
-    z-index: 1001;
-    position: relative;
+    width: 400px;
+    max-width: 90%;
+}
+
+.modal-content h2 {
+    margin-top: 0;
 }
 
 .modal-actions {
+    margin-top: 15px;
     display: flex;
     justify-content: space-between;
-    margin-top: 20px;
 }
 
 .modal-actions button {
-    padding: 10px 20px;
+    padding: 8px 12px;
+    background-color: #4CAF50;
+    color: white;
     border: none;
+    border-radius: 4px;
     cursor: pointer;
 }
 
-/* Completed Group */
-.completed-group {
-    color: green;
-    text-decoration: line-through;
+.modal-actions button:hover {
+    background-color: #45a049;
 }

@@ -9,7 +9,7 @@ db_user = os.environ.get("POSTGRES_USER")
 db_password = os.environ.get("POSTGRES_PASSWORD")
 db_host = os.environ.get("POSTGRES_HOST")
 db_name = os.environ.get("POSTGRES_DB")
-engine = create_engine(f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}", pool_size=20)
+engine = create_engine(f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}", pool_size=30)
 
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,

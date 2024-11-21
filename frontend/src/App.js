@@ -24,6 +24,7 @@ import Leaderboard from './pages/LeaderBoard.js';
 import FindSharedAvailability from './pages/Availability.js';
 import Groups from './pages/Groups.js';
 import Inbox from './pages/Inbox.js';
+import GroupIndex from './pages/GroupIndex.js';
 
 function App() {
   return (
@@ -68,6 +69,7 @@ const Main = () => {
         <Route path="/studytime" element={<StudyTime />} />
         <Route path="/availability" element={<FindSharedAvailability />} />
         <Route path="/groups" element={<Groups />} />
+        <Route path="/groupindex" element={<GroupIndex />} />
       </Routes>
     </div>
   );
