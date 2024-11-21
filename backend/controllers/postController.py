@@ -43,15 +43,21 @@ def get_posts_by_poster():
     '''
     Gets all posts by a specific poster ID
     '''
-    poster_id = session['user']
+    poster_id = session['user']  # Get the logged-in user's ID
     posts = Post.get_posts_by_poster_id(poster_id)
+
     if not posts:
         return jsonify([]), 200
-        # return jsonify({"error": "No posts found for this poster."}), 404
 
-    post_list = [post.to_dict() for post in posts]
+    post_list = []
+    for post in posts:
+        post_data = post.to_dict()
+        poster_account = Account.get_acc_by_id(post.poster_id)
+        poster_name = poster_account.username if poster_account else "Unknown"
+        post_data['poster_name'] = poster_name
+        post_list.append(post_data)
+
     return jsonify(post_list), 200
-
 
 @bp.route('/get-friends-posts', methods=['GET'])
 @is_logged_in
@@ -317,11 +323,10 @@ def get_account_saves():
     account_id = session['user']
     saves = Save.get_saves_by_saver_id(account_id)
     if not saves:
-        return jsonify({"message": "No saves found for this account"}), 404
+        return jsonify([]), 200
     
     post_list = [{"post_id": save.post_id} for save in saves]
     return jsonify(post_list), 200
-
 
 # Comment
 @bp.route('/comment', methods=['POST'])
