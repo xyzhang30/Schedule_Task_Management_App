@@ -1,13 +1,13 @@
 from datetime import datetime
 from flask import Blueprint, jsonify, session
 from flask import request
-from ..models.friendRequests import FriendRequest
+from ..models.notifications import Notifications
 
 bp = Blueprint('friend_request', __name__, url_prefix='/friend_request')
 
 @bp.route('/', methods=['GET'])
 def index():
-    requests = FriendRequest.query.all()
+    requests = Notifications.query.all()
     request_list = [r.to_dict() for r in requests]
     return jsonify(request_list), 200
 
@@ -15,7 +15,7 @@ def index():
 @bp.route('/get-requests/', methods=['GET'])
 def get_requests_for():
     account_id = session['user']
-    allrequests = FriendRequest.get_messages_for_id(account_id)
+    allrequests = Notifications.get_messages_for_id(account_id)
     allrequestsList = [r.to_dict() for r in allrequests]
     return jsonify(allrequestsList), 200
 
@@ -26,7 +26,7 @@ def send_request():
     account_id_to = int(request.form.get("account_id_to"))
     message = request.form.get("message")
 
-    friendRequest = FriendRequest(
+    friendRequest = Notifications(
         account_id_from=account_id_from,
         account_id_to=account_id_to,
         message=message,
@@ -34,14 +34,14 @@ def send_request():
         is_pending=True
     )
     
-    friendRequest.save_request()
+    friendRequest.save_notification()
     return index()
 
 
 @bp.route('/get-pending-friends', methods=['GET'])
 def get_pending_friends():
     account_id = session['user']
-    pendingFriends = FriendRequest.get_pending_requests_from_id(account_id)
+    pendingFriends = Notifications.get_pending_notifications_from_id(account_id)
     pendingList = [p.to_dict() for p in pendingFriends]
     return jsonify(pendingList), 200
 
@@ -52,7 +52,7 @@ def update_request():
     Update pending status of a friend request.
     """
     request_id = int(request.form.get("request_id"))
-    friend_request = FriendRequest.get_request_by_request_id(request_id)
+    friend_request = Notifications.get_notification_by_notification_id(request_id)
     if not friend_request:
         return jsonify({'error': 'Friend request not found'}), 404
     
