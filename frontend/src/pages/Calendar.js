@@ -22,6 +22,7 @@ import { styled } from '@mui/material/styles';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import RepeatIcon from '@mui/icons-material/Repeat';
+import Tooltip from '@mui/material/Tooltip';
 
 axios.defaults.withCredentials = true;
 
@@ -34,28 +35,46 @@ const DEFAULT_APPOINTMENT_COLOR = '#2196F3';
 const CustomAppointmentContent = ({ data, ...restProps }) => {
   const event = data.originalEvent;
 
-  // Format start and end time
-  const startTime = data.startDate.toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-  const endTime = data.endDate.toLocaleTimeString([], {
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-
   return (
-    <div
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        padding: '2px 4px',
-        height: '100%',
-        boxSizing: 'border-box',
-        overflow: 'hidden',
-      }}
+    <Tooltip
+      title={
+        <React.Fragment>
+          <div>
+            <strong>Time:</strong>{' '}
+            {data.startDate.toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}{' '}
+            -{' '}
+            {data.endDate.toLocaleTimeString([], {
+              hour: '2-digit',
+              minute: '2-digit',
+            })}
+          </div>
+          {event.location && (
+            <div>
+              <strong>Location:</strong> {event.location}
+            </div>
+          )}
+          {event.category && (
+            <div>
+              <strong>Category:</strong> {event.category}
+            </div>
+          )}
+        </React.Fragment>
+      }
+      arrow
     >
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '2px 4px',
+          height: '100%',
+          boxSizing: 'border-box',
+          overflow: 'hidden',
+        }}
+      >
         <div
           style={{
             fontSize: '0.9rem',
@@ -68,57 +87,8 @@ const CustomAppointmentContent = ({ data, ...restProps }) => {
         >
           {data.title}
         </div>
-        {event.frequency && (
-          <RepeatIcon
-            style={{
-              color: '#fff',
-              backgroundColor: 'rgba(0, 0, 0, 0.3)',
-              padding: '2px',
-              borderRadius: '50%',
-              marginLeft: '4px',
-            }}
-            fontSize="small"
-          />
-        )}
       </div>
-      <div
-        style={{
-          fontSize: '0.8rem',
-          color: '#fff',
-          overflow: 'hidden',
-          textOverflow: 'ellipsis',
-          whiteSpace: 'nowrap',
-        }}
-      >
-        {startTime} - {endTime}
-      </div>
-      {data.category && (
-        <div
-          style={{
-            fontSize: '0.8rem',
-            color: '#fff',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Category: {data.category}
-        </div>
-      )}
-      {data.location && (
-        <div
-          style={{
-            fontSize: '0.8rem',
-            color: '#fff',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          Location: {data.location}
-        </div>
-      )}
-    </div>
+    </Tooltip>
   );
 };
 
@@ -253,7 +223,11 @@ const Calendar = () => {
   };
 
   const handleEdit = (event) => {
-    setEventToUpdate(event);
+    setEventToUpdate({
+      ...event,
+      customCategory: '',
+      label_color: event.label_color || DEFAULT_APPOINTMENT_COLOR,
+    });
     setShowUpdateEventModal(true);
     setTooltipVisible(false);
   };
@@ -321,11 +295,6 @@ const Calendar = () => {
       handleDelete(event.event_id);
     };
 
-    const onAppointmentClick = (e) => {
-      setAppointmentMeta({ target: e.currentTarget, data });
-      setTooltipVisible(true);
-    };
-
     return (
       <Appointments.Appointment
         {...restProps}
@@ -340,11 +309,11 @@ const Calendar = () => {
           boxShadow: '0 2px 5px rgba(0,0,0,0.2)',
           cursor: 'pointer',
         }}
-        onClick={onAppointmentClick}
       >
         <div style={{ height: '100%', position: 'relative' }}>
+          <CustomAppointmentContent data={data} />
           <div
-            className="buttons-container"
+            className="icons-container"
             style={{
               position: 'absolute',
               top: 2,
@@ -354,6 +323,17 @@ const Calendar = () => {
               zIndex: 1,
             }}
           >
+            {event.frequency && (
+              <RepeatIcon
+                style={{
+                  color: '#fff',
+                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                  padding: '2px',
+                  borderRadius: '4px',
+                }}
+                fontSize="small"
+              />
+            )}
             <EditIcon
               style={{
                 color: '#fff',
@@ -377,7 +357,6 @@ const Calendar = () => {
               onClick={onDeleteClick}
             />
           </div>
-          <CustomAppointmentContent data={data} />
         </div>
       </Appointments.Appointment>
     );

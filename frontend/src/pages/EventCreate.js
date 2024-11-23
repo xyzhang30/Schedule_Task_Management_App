@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './Events.css';
@@ -7,7 +6,14 @@ const baseUrl = process.env.REACT_APP_BASE_URL;
 
 const DEFAULT_LABEL_COLOR = '#2196F3';
 
-const EventCreate = ({ show, onClose, categories, refreshEvents, initialEventData = {} }) => {
+const EventCreate = ({
+  show,
+  onClose,
+  categories,
+  refreshEvents,
+  initialEventData = {},
+  timeRange = {},
+}) => {
   const [newEvent, setNewEvent] = useState({
     name: '',
     location: '',
@@ -38,6 +44,20 @@ const EventCreate = ({ show, onClose, categories, refreshEvents, initialEventDat
 
   const handleAddEvent = async (e) => {
     e.preventDefault();
+
+    // Check if time exceeds the available range
+    if (timeRange && timeRange.start && timeRange.end) {
+      const eventStart = new Date(newEvent.start_date);
+      const eventEnd = new Date(newEvent.end_date);
+      const rangeStart = new Date(timeRange.start);
+      const rangeEnd = new Date(timeRange.end);
+
+      if (eventStart < rangeStart || eventEnd > rangeEnd) {
+        alert('Selected time exceeds the available time range.');
+        return;
+      }
+    }
+
     const formData = {
       ...newEvent,
       category:

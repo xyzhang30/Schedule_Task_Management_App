@@ -12,6 +12,9 @@ bp = Blueprint('event', __name__, url_prefix='/event')
 @bp.route('/createEvent', methods=['POST'])
 @is_logged_in
 def create_event():
+    """Create a new event for the logged-in user.
+    :return: JSON response with success message and event data
+    """
     data = request.json
     logging.debug(f"Incoming data: {data}")
     account_id = session.get('user')
@@ -34,6 +37,10 @@ def create_event():
 @bp.route('/updateEvent/<int:event_id>', methods=['PUT'])
 @is_logged_in
 def update_event(event_id):
+    """Update an existing event by event ID.
+    :param event_id: ID of the event to update
+    :return: JSON response with success message and updated event data
+    """
     account_id = session.get('user')
     if not account_id:
         return jsonify({'message': 'User not logged in'}), 401
@@ -62,6 +69,10 @@ def update_event(event_id):
 @bp.route('/deleteEvent/<int:event_id>', methods=['DELETE'])
 @is_logged_in
 def delete_event(event_id):
+    """Delete an event by event ID.
+    :param event_id: ID of the event to delete
+    :return: JSON response with success message
+    """
     account_id = session.get('user')
     if not account_id:
         return jsonify({'message': 'User not logged in'}), 401
@@ -76,6 +87,10 @@ def delete_event(event_id):
 @bp.route('/getEvent/<int:event_id>', methods=['GET'])
 @is_logged_in
 def get_event(event_id):
+    """Retrieve an event by its ID.
+    :param event_id: ID of the event to retrieve
+    :return: JSON response with event data
+    """
     event = Event.get_event(event_id)
     if not event:
         return jsonify({'message': 'Event not found'}), 404
@@ -86,6 +101,9 @@ def get_event(event_id):
 @bp.route('/getEventsByAccount', methods=['GET'])
 @is_logged_in
 def get_events_by_account():
+    """Retrieve all events for the logged-in user.
+    :return: JSON response with list of events
+    """
     account_id = session.get('user')
     if not account_id:
         return jsonify({'message': 'User not logged in'}), 401
@@ -97,6 +115,9 @@ def get_events_by_account():
 @bp.route('/category/all', methods=['GET'])
 @is_logged_in
 def getAllCategory():
+    """Retrieve all event categories.
+    :return: JSON response with list of categories
+    """
     categories = EventCategory.all()
     categories_list = [a.to_dict() for a in categories]
     return jsonify(categories_list)
@@ -105,6 +126,9 @@ def getAllCategory():
 @bp.route('/category/create', methods=['POST'])
 @is_logged_in
 def createCategory():
+    """Create a new event category.
+    :return: JSON response with success message
+    """
     data = request.json
     category_name = data.get("category_name")
     if not category_name:
@@ -123,6 +147,9 @@ def createCategory():
 @bp.route('/category/clean', methods=['DELETE'])
 @is_logged_in
 def clean_unused_categories():
+    """Delete all unused event categories.
+    :return: JSON response with success message
+    """
     try:
         # Get all categories
         categories = EventCategory.all()

@@ -36,6 +36,7 @@ const FindSharedAvailability = () => {
   const [showAddEventModal, setShowAddEventModal] = useState(false);
   const [categories, setCategories] = useState([]);
   const [initialEventData, setInitialEventData] = useState({});
+  const [timeRange, setTimeRange] = useState({});
 
   const handleDateChange = (e) => {
     setDate(e.target.value);
@@ -107,6 +108,12 @@ const FindSharedAvailability = () => {
         withCredentials: true,
       });
       setAvailability(response.data);
+
+      // Set time range for creating events
+      setTimeRange({
+        start: `${date}T${timeFrom}`,
+        end: `${date}T${timeTo}`,
+      });
     } catch (err) {
       console.error('Error generating shared availability:', err);
       setError('Failed generating shared availability.');
@@ -287,13 +294,7 @@ const FindSharedAvailability = () => {
         ) : error ? (
           <p>{error}</p>
         ) : availability ? (
-          <ul>
-            {availability.map((interval, index) => (
-              <li key={index}>
-                {`Start: ${interval.start_time}, End: ${interval.end_time}`}
-              </li>
-            ))}
-          </ul>
+          <p>Available times are displayed below. Click on a time slot to create an event.</p>
         ) : (
           <p></p>
         )}
@@ -355,6 +356,7 @@ const FindSharedAvailability = () => {
         categories={categories}
         refreshEvents={handleSubmit}
         initialEventData={initialEventData}
+        timeRange={timeRange}
       />
     </div>
   );
