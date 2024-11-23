@@ -24,7 +24,7 @@ conn_details = psycopg2.connect(
 # create tables 
 cursor = conn_details.cursor()
 Table_creation = '''
-    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, friendrequests, groups, public_events, memberships, registrations, category, event_category, task_category, studytime CASCADE;    
+    DROP TABLE IF EXISTS assignment, task, student, friend, friendrequests, availability, likes, shares, saves, comments, events, post, accounts, notifications, groups, public_events, memberships, registrations, group_requests, category, event_category, task_category, studytime CASCADE;    
    
     
     CREATE TABLE accounts (
@@ -42,14 +42,6 @@ Table_creation = '''
         account_id1 INTEGER REFERENCES accounts(account_id),
         account_id2 INTEGER REFERENCES accounts(account_id),
         PRIMARY KEY (account_id1, account_id2)
-    );
-    
-    CREATE TABLE student (
-        account_id INTEGER PRIMARY KEY REFERENCES accounts(account_id),
-        major VARCHAR(100),
-        interest VARCHAR(100),
-        student_id SERIAL UNIQUE,
-        organization VARCHAR(100)
     );
 
     CREATE TABLE events ( 
@@ -133,10 +125,11 @@ Table_creation = '''
         text TEXT NOT NULL
     );
     
-    CREATE TABLE friendrequests (
+    CREATE TABLE notifications (
         notification_id SERIAL PRIMARY KEY,
         account_id_to INTEGER REFERENCES accounts(account_id),
         account_id_from INTEGER REFERENCES accounts(account_id),
+        notification_type VARCHAR(255),
         message VARCHAR(255),
         is_pending BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
@@ -172,6 +165,16 @@ Table_creation = '''
         PRIMARY KEY (event_id, account_id)
     );
 
+    CREATE TABLE group_requests (
+        request_id SERIAL PRIMARY KEY,
+        account_id INTEGER REFERENCES accounts(account_id),
+        group_id INTEGER REFERENCES groups(group_id),
+        message VARCHAR(255),
+        is_pending BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+
     CREATE TABLE studytime (
         account_id INTEGER REFERENCES accounts(account_id),
         date DATE,
@@ -179,8 +182,9 @@ Table_creation = '''
         PRIMARY KEY (account_id, date)
     );
 '''
+print("Start table creation")
 cursor.execute(Table_creation)
-
+print("Finish table creation")
 
 # generating test data
 faker = Faker()
@@ -204,6 +208,8 @@ for n in range(6):
         INSERT INTO accounts (username, password, email, phone, avatar, year_created)
         VALUES (%s, %s, %s, %s, %s, %s)
     ''', (username, hashed_password, email, phone, avatar, year_created))
+print("Account test data generated")
+
 
 # friends test data
 for n in range (3):
@@ -213,6 +219,7 @@ for n in range (3):
         INSERT INTO friend (account_id1, account_id2)
         VALUES (%s, %s)
     ''', (account_id1, account_id2))
+print("Friends test data generated")
 
 
 # events test data
@@ -226,7 +233,6 @@ for _ in range(10):
     e_date = datetime.combine(s_date.date(), end_time) 
     category = random.choice(['club', 'personal', 'school', 'work'])
     account_id = random.randint(1, 6)
-    print("_____ accountid: ", account_id)
     label_text = faker.word()  # Random word for label text
     label_color = faker.color_name()  # Random color name for label color
 
@@ -234,10 +240,11 @@ for _ in range(10):
         INSERT INTO events (name, location, start_date, end_date, category, account_id, label_text, label_color)
         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
     ''', (event_name, event_location, s_date, e_date, category, account_id, label_text, label_color))
+print("Events test data generated")
 
 
 # tasks test data
-for _ in range (9):
+for _ in range (30):
     due_time = faker.date_time_this_year() 
     task_name = faker.word()
     category = random.choice(['club', 'personal', 'school', 'work'])
@@ -249,6 +256,7 @@ for _ in range (9):
         INSERT INTO task (due_time, task_name, category, complete)
         VALUES (%s, %s, %s, %s)
     ''', (due_time, task_name, category, complete))
+print("Tasks test data generated")
 
 
 #studytime test data
@@ -261,9 +269,11 @@ for i in range (1, 6):
         INSERT INTO studytime (account_id, date, study_time)
         VALUES (%s, %s, %s)
     ''', (account_id, date, study_time))
+print("Studytime test data generated")
 
 
 # commit changes to save
 conn_details.commit()
 cursor.close()
 conn_details.close()
+print("Seeding finished")

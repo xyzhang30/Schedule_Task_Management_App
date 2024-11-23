@@ -56,11 +56,15 @@ def register():
     user_inputted_confirm_password = request.form['confirm_password']
     user_inputted_email = request.form['email']
     user_inputted_phone_number = request.form['phone_number']
-    user_inputted_avatar = request.files['profile_picture']
+    user_inputted_avatar = request.files.get('profile_picture')
     user_inputted_year_created = (int)(request.form['year'])
     user_inputted_major = request.form['major']
-
-    filename = upload_file(user_inputted_avatar, user_inputted_username)
+        
+    if user_inputted_avatar: 
+        #Checks the user input if they have submitted data in the profile_picture field
+        filename = create_file_name(user_inputted_avatar, user_inputted_username)
+    else:
+        filename = 'default.jpg'
 
     if not filename:
         response_message = {'msg': f'Please upload a file with one of the following extensions: {uploadParameters["ALLOWED_EXTENSIONS"]}'}
@@ -81,15 +85,16 @@ def register():
             year_created = user_inputted_year_created,
             major = user_inputted_major
         )
-
+        
         try:
+            if(filename != 'default.jpg'):
+                user_inputted_avatar.save(os.path.join(uploadParameters['UPLOAD_FOLDER'], filename))
             new_account.save()
-            user_inputted_avatar.save(os.path.join(uploadParameters['UPLOAD_FOLDER'], filename))
             response_message = {'msg': 'Successfully Registered'}
             status_code = 200
             session['user'] = new_account.account_id 
         except Exception as e:
-            response_message = {'msg': 'Invalid Email or Username - already taken'} 
+            response_message = {'msg': 'Invalid Email or Username'} 
             status_code = 409
 
     return jsonify(response_message), status_code
@@ -201,9 +206,9 @@ def reset_password():
     return jsonify(response_message), status_code
     
 #Helper functions
-def upload_file(file, username):
+def create_file_name(file, username):
     if allowed_file(file.filename): #Check the original file they uploaded
-        filename = username + '.' + secure_filename(file.filename).rsplit('.', 1)[1].lower() #Create a unique filename with username + extension of original file
+        filename = "avatar" + username + '.' + secure_filename(file.filename).rsplit('.', 1)[1].lower() #Create a unique filename with username + extension of original file
         return filename
     else: 
         return None

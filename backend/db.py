@@ -9,7 +9,7 @@ db_user = os.environ.get("POSTGRES_USER")
 db_password = os.environ.get("POSTGRES_PASSWORD")
 db_host = os.environ.get("POSTGRES_HOST")
 db_name = os.environ.get("POSTGRES_DB")
-engine = create_engine(f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}")
+engine = create_engine(f"postgresql+psycopg2://{db_user}:{db_password}@{db_host}/{db_name}", pool_size=20)
 
 db_session = scoped_session(sessionmaker(autocommit=False,
                                          autoflush=False,
@@ -27,9 +27,15 @@ def init_db():
     from app.models.task import Task
     # from app.models.event import Event
     from app.models.post import Post
-    from app.models.friendRequests import FriendRequest
+    from app.models.notifications import Notifications
     from app.models.task import Category
     from app.models.resetKeys import ResetKeys
     from app.models.studyTime import StudyTime
+    from app.models.task import Category
+    from app.models.group import Group
+    from app.models.membership import Membership
+    from app.models.publicEvent import PublicEvent
+    from app.models.registration import Registration
+    from app.models.groupRequest import GroupRequest
     # from flask_mvc_walkthrough.models.album import Album
     Base.metadata.create_all(bind=engine)
