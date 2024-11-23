@@ -46,7 +46,7 @@ const ChangeEmail = () => {
             required
           />
         </div>
-        <button type="submit">Change Username</button>
+        <button type="submit">Change Email</button>
       </form>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {success && <p style={{ color: 'green' }}>{success}</p>}
