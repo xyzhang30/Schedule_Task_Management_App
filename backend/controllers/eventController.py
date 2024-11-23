@@ -3,6 +3,14 @@ from ..models.event import Event, EventCategory
 from datetime import datetime
 import logging
 from ..decorators import is_logged_in
+from..db import db_session
+
+logger = logging.getLogger(__name__)
+handler = logging.FileHandler('event_controller.log')
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+logger.setLevel(logging.INFO)
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -29,96 +37,102 @@ bp = Blueprint('event', __name__, url_prefix='/event')
 @bp.route('/createEvent', methods=['POST'])
 @is_logged_in
 def create_event():
-    """Create a new event for the logged-in user."""
-    data = request.json
-    account_id = session.get('user')
-    new_event = Event(
-        account_id=account_id,
-        name=data['name'],
-        location=data.get('location'),
-        start_date=datetime.strptime(data['start_date'], '%Y-%m-%dT%H:%M'),
-        end_date=datetime.strptime(data['end_date'], '%Y-%m-%dT%H:%M'),
-        category=data.get('category'),
-        label_text=data.get('label_text'),
-        label_color=data.get('label_color'),
-        frequency=data.get('frequency'),
-        repeat_until=datetime.strptime(data['repeat_until'], '%Y-%m-%dT%H:%M') if data.get('repeat_until') else None
-    )
-    new_event.save()
-
-    # Create a notification for the event
-    notification_time = new_event.start_date - timedelta(minutes=15)
-    if notification_time > datetime.now():
-        notification = Notifications(
-            account_id_from=0,  # System notification
-            account_id_to=account_id,
-            notification_type='Event Reminder',
-            message=f"Your event '{new_event.name}' is starting at {new_event.start_date.strftime('%Y-%m-%d %H:%M')}.",
-            is_pending=True,
-            created_at=notification_time
+    try:
+        data = request.json
+        account_id = session.get('user')
+        new_event = Event(
+            account_id=account_id,
+            name=data['name'],
+            location=data.get('location'),
+            start_date=datetime.strptime(data['start_date'], '%Y-%m-%dT%H:%M'),
+            end_date=datetime.strptime(data['end_date'], '%Y-%m-%dT%H:%M'),
+            category=data.get('category'),
+            label_text=data.get('label_text'),
+            label_color=data.get('label_color'),
+            frequency=data.get('frequency'),
+            repeat_until=datetime.strptime(data['repeat_until'], '%Y-%m-%dT%H:%M') if data.get('repeat_until') else None
         )
-        notification.save_notification()
-    else:
-        # Event is starting soon or in the past; notify immediately
-        notification = Notifications(
-            account_id_from=0,  # System notification
-            account_id_to=account_id,
-            notification_type='Event Reminder',
-            message=f"Your event '{new_event.name}' is starting at {new_event.start_date.strftime('%Y-%m-%d %H:%M')}.",
-            is_pending=True,
-            created_at=datetime.now()
-        )
-        notification.save_notification()
+        new_event.save()
 
-    return jsonify({'message': 'Event created successfully', 'event': new_event.to_dict()}), 201
+        # If the event is happening today, create a notification
+        if new_event.start_date.date() == datetime.now().date():
+            notification = Notifications(
+                account_id_from=0,  # System notification
+                account_id_to=account_id,
+                notification_type='Event Today',
+                message=f"Your event '{new_event.name}' is happening today at {new_event.start_date.strftime('%H:%M')}.",
+                is_pending=True,
+                created_at=datetime.now()
+            )
+            notification.save_notification()
 
+        return jsonify({'message': 'Event created successfully', 'event': new_event.to_dict()}), 201
+    except Exception as e:
+        logger.error(f"Error in create_event: {e}")
+        return jsonify({'error': 'Failed to create event.'}), 500
 
-# Update Event
+# In update_event function
 @bp.route('/updateEvent/<int:event_id>', methods=['PUT'])
 @is_logged_in
 def update_event(event_id):
-    """Update an existing event by event ID.
-    :param event_id: ID of the event to update
-    :return: JSON response with success message and updated event data
-    """
-    account_id = session.get('user')
-    if not account_id:
-        return jsonify({'message': 'User not logged in'}), 401
-    event = Event.get_event(event_id)
-    if not event:
-        return jsonify({'message': 'Event not found'}), 404
+    try:
+        account_id = session.get('user')
+        event = Event.get_event(event_id)
+        if not event:
+            return jsonify({'message': 'Event not found'}), 404
 
-    data = request.json
-    event.name = data.get('name', event.name)
-    event.location = data.get('location', event.location)
-    if 'start_date' in data:
-        event.start_date = datetime.strptime(data['start_date'], '%Y-%m-%dT%H:%M')
-    if 'end_date' in data:
-        event.end_date = datetime.strptime(data['end_date'], '%Y-%m-%dT%H:%M')
-    event.category = data.get('category', event.category)
-    event.label_text = data.get('label_text', event.label_text)
-    event.label_color = data.get('label_color', event.label_color)
-    event.frequency = data.get('frequency', event.frequency)
-    if 'repeat_until' in data:
-        event.repeat_until = datetime.strptime(data['repeat_until'], '%Y-%m-%dT%H:%M') if data.get('repeat_until') else None
-    event.update()
+        data = request.json
+        event.name = data.get('name', event.name)
+        event.location = data.get('location', event.location)
+        if 'start_date' in data:
+            event.start_date = datetime.strptime(data['start_date'], '%Y-%m-%dT%H:%M')
+        if 'end_date' in data:
+            event.end_date = datetime.strptime(data['end_date'], '%Y-%m-%dT%H:%M')
+        event.category = data.get('category', event.category)
+        event.label_text = data.get('label_text', event.label_text)
+        event.label_color = data.get('label_color', event.label_color)
+        event.frequency = data.get('frequency', event.frequency)
+        if 'repeat_until' in data:
+            event.repeat_until = datetime.strptime(data['repeat_until'], '%Y-%m-%dT%H:%M') if data.get('repeat_until') else None
+        event.update()
 
-    return jsonify({'message': 'Event updated successfully', 'event': event.to_dict()}), 200
+        # Delete existing notifications for this event
+        existing_notifications = db_session.query(Notifications).filter_by(
+            account_id_to=account_id,
+            notification_type='Event Today',
+            event_id=event.event_id
+        ).all()
 
-# Delete Event
+        for notification in existing_notifications:
+            db_session.delete(notification)
+        db_session.commit()
+
+        return jsonify({'message': 'Event updated successfully', 'event': event.to_dict()}), 200
+    except Exception as e:
+        logger.error(f"Error in update_event: {e}")
+        return jsonify({'error': 'Failed to update event.'}), 500
+
 @bp.route('/deleteEvent/<int:event_id>', methods=['DELETE'])
 @is_logged_in
 def delete_event(event_id):
-    """Delete an event by event ID.
-    :param event_id: ID of the event to delete
-    :return: JSON response with success message
-    """
+    """Delete an event by event ID."""
     account_id = session.get('user')
     if not account_id:
         return jsonify({'message': 'User not logged in'}), 401
     event = Event.get_event(event_id)
     if not event or event.account_id != account_id:
         return jsonify({'message': 'Event not found'}), 404
+
+    # Delete any notifications for this event
+    existing_notifications = db_session.query(Notifications).filter_by(
+        account_id_to=account_id,
+        notification_type='Event Today',
+        event_id=event_id
+    ).all()
+
+    for notification in existing_notifications:
+        db_session.delete(notification)
+    db_session.commit()
 
     event.delete()
     return jsonify({'message': 'Event deleted successfully'}), 200

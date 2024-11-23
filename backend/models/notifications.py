@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, Boolean, TIMESTAMP, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, registry, relationship
 from .account import Account
+from .event import Event
 
 from ..db import Base, db_session
 
@@ -13,6 +14,7 @@ class Notifications(Base):
     message = Column(String, unique=False)
     is_pending = Column(Boolean, unique=False)
     created_at = Column(DateTime, unique=False)
+    event_id = Column(Integer, ForeignKey('events.event_id'), nullable=True)
 	
     def __repr__(self):
         return f"<Notification account_id_from={self.account_id_from} account_id_to={self.account_id_to} message={self.message}>"
@@ -22,8 +24,11 @@ class Notifications(Base):
         return db_session.query(cls).all()
     
     @classmethod
-    def get_messages_for_id(cls, id):
-        return db_session.query(cls).filter_by(account_id_to=id, is_pending=True).all()
+    def get_messages_for_id(cls, id, notification_type=None):
+        query = db_session.query(cls).filter_by(account_id_to=id, is_pending=True)
+        if notification_type:
+            query = query.filter_by(notification_type=notification_type)
+        return query.all()
     
     @classmethod
     def get_pending_notifications_from_id(cls, id):
