@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, TIMESTAMP, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, TIMESTAMP, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, registry, relationship
 from .account import Account
 
@@ -12,7 +12,7 @@ class Notifications(Base):
     notification_type = Column(String, unique = False)
     message = Column(String, unique=False)
     is_pending = Column(Boolean, unique=False)
-    created_at = Column(TIMESTAMP, unique=False)
+    created_at = Column(DateTime, unique=False)
 	
     def __repr__(self):
         return f"<Notification account_id_from={self.account_id_from} account_id_to={self.account_id_to} message={self.message}>"

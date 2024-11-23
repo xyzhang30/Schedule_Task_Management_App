@@ -1,6 +1,8 @@
+/* EventInbox.css */
+
 .event-inbox {
     padding: 20px;
-    background-color: #f8f9fa;
+    background-color: #f0f2f5;
   }
   
   .notifications-container {
@@ -28,22 +30,27 @@
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   }
   
+  .notification-content {
+    max-width: 80%;
+  }
+  
   .notification-content p {
     margin: 5px 0;
     color: #495057;
   }
   
   .delete-button {
-    background-color: #dc3545;
+    background-color: #28a745;
     color: #fff;
     border: none;
     padding: 8px 12px;
     border-radius: 6px;
     cursor: pointer;
     align-self: center;
+    transition: background-color 0.3s ease;
   }
   
   .delete-button:hover {
-    background-color: #c82333;
+    background-color: #218838;
   }
   

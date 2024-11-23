@@ -8,15 +8,29 @@ logging.basicConfig(level=logging.DEBUG)
 
 bp = Blueprint('event', __name__, url_prefix='/event')
 
+# def schedule_event_notification(event):
+#     """Schedule a notification for an event 15 minutes before it starts."""
+#     def notify():
+#         time_until_notification = (event.start_date - timedelta(minutes=15)) - datetime.now()
+#         if time_until_notification.total_seconds() > 0:
+#             sleep(time_until_notification.total_seconds())
+#         notification = Notifications(
+#             account_id_from=0,  # System notification
+#             account_id_to=event.account_id,
+#             notification_type='Event Reminder',
+#             message=f"Your event '{event.name}' is starting in 15 minutes.",
+#             is_pending=True,
+#             created_at=datetime.now()
+#         )
+#         notification.save_notification()
+#     Thread(target=notify).start()
+
 # Create Event
 @bp.route('/createEvent', methods=['POST'])
 @is_logged_in
 def create_event():
-    """Create a new event for the logged-in user.
-    :return: JSON response with success message and event data
-    """
+    """Create a new event for the logged-in user."""
     data = request.json
-    logging.debug(f"Incoming data: {data}")
     account_id = session.get('user')
     new_event = Event(
         account_id=account_id,
@@ -31,7 +45,33 @@ def create_event():
         repeat_until=datetime.strptime(data['repeat_until'], '%Y-%m-%dT%H:%M') if data.get('repeat_until') else None
     )
     new_event.save()
+
+    # Create a notification for the event
+    notification_time = new_event.start_date - timedelta(minutes=15)
+    if notification_time > datetime.now():
+        notification = Notifications(
+            account_id_from=0,  # System notification
+            account_id_to=account_id,
+            notification_type='Event Reminder',
+            message=f"Your event '{new_event.name}' is starting at {new_event.start_date.strftime('%Y-%m-%d %H:%M')}.",
+            is_pending=True,
+            created_at=notification_time
+        )
+        notification.save_notification()
+    else:
+        # Event is starting soon or in the past; notify immediately
+        notification = Notifications(
+            account_id_from=0,  # System notification
+            account_id_to=account_id,
+            notification_type='Event Reminder',
+            message=f"Your event '{new_event.name}' is starting at {new_event.start_date.strftime('%Y-%m-%d %H:%M')}.",
+            is_pending=True,
+            created_at=datetime.now()
+        )
+        notification.save_notification()
+
     return jsonify({'message': 'Event created successfully', 'event': new_event.to_dict()}), 201
+
 
 # Update Event
 @bp.route('/updateEvent/<int:event_id>', methods=['PUT'])
@@ -163,3 +203,29 @@ def clean_unused_categories():
         return jsonify({'message': 'Unused categories deleted successfully'}), 200
     except Exception as e:
         return jsonify({'message': 'Failed to clean categories', 'error': str(e)}), 500
+    
+def create_event_notifications():
+    """Create notifications for events starting soon."""
+    now = datetime.now()
+    upcoming_events = Event.get_upcoming_events()
+    for event in upcoming_events:
+        event_start = event.start_date
+        time_diff = event_start - now
+        if timedelta(minutes=0) <= time_diff <= timedelta(minutes=15):
+            # Check if notification already exists
+            existing_notification = Notifications.query.filter_by(
+                account_id_to=event.account_id,
+                notification_type='event',
+                message=f"Event '{event.name}' is starting soon.",
+                is_pending=True
+            ).first()
+            if not existing_notification:
+                notification = Notifications(
+                    account_id_from=0,  # System notification
+                    account_id_to=event.account_id,
+                    notification_type='event',
+                    message=f"Event '{event.name}' is starting soon.",
+                    is_pending=True,
+                    created_at=now
+                )
+                notification.save_notification()
