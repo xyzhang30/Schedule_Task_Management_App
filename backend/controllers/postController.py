@@ -1,6 +1,8 @@
-from flask import Blueprint, jsonify, request, session
+import os
+from flask import Blueprint, jsonify, request, session, current_app, send_file
 from ..models.post import Post, Like, Save, Comment
 from ..models.friend import Friend
+from ..models.account import Account
 from ..decorators import is_logged_in
 
 bp = Blueprint('post', __name__, url_prefix='/post')
@@ -25,7 +27,14 @@ def get_post(post_id):
     post = Post.get_post_by_id(post_id)
     if post is None:
         return jsonify({"error": "Post not found."}), 404
-    return jsonify(post.to_dict()), 200
+    
+    poster_account = Account.get_acc_by_id(post.poster_id)
+    poster_name = poster_account.username if poster_account else "Unknown"
+
+    post_data = post.to_dict()
+    post_data['poster_name'] = poster_name
+
+    return jsonify(post_data), 200
 
 
 @bp.route('/get-posts', methods=['GET'])
@@ -34,15 +43,21 @@ def get_posts_by_poster():
     '''
     Gets all posts by a specific poster ID
     '''
-    poster_id = session['user']
+    poster_id = session['user']  # Get the logged-in user's ID
     posts = Post.get_posts_by_poster_id(poster_id)
+
     if not posts:
         return jsonify([]), 200
-        # return jsonify({"error": "No posts found for this poster."}), 404
 
-    post_list = [post.to_dict() for post in posts]
+    post_list = []
+    for post in posts:
+        post_data = post.to_dict()
+        poster_account = Account.get_acc_by_id(post.poster_id)
+        poster_name = poster_account.username if poster_account else "Unknown"
+        post_data['poster_name'] = poster_name
+        post_list.append(post_data)
+
     return jsonify(post_list), 200
-
 
 @bp.route('/get-friends-posts', methods=['GET'])
 @is_logged_in
@@ -68,17 +83,23 @@ def get_friends_posts_by_poster():
     post_list = [post.to_dict() for post in posts]
     return jsonify(post_list), 200
 
+def allowed_file(filename):
+    """
+    Checks if a file has a valid extension for post images.
+    """
+    allowed_extensions = current_app.config['POST_IMAGE_PARAMETERS']['ALLOWED_EXTENSIONS']
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
 @bp.route('/add-post', methods=['POST'])
 @is_logged_in
 def add_post():
-    '''
-    Adds a new post
-    '''
+    """
+    Adds a new post with an optional image upload.
+    """
     title = request.form.get('title')
     content = request.form.get('content')
-    image_url = request.form.get('image_url')
     poster_id = session['user']
+    image_url = None
 
     if not title or not content:
         return jsonify({"error": "Title and content are required."}), 400
@@ -86,13 +107,37 @@ def add_post():
     new_post = Post(
         title=title,
         content=content,
-        image_url=image_url,
+        image_url=None,
         poster_id=poster_id
     )
-
     new_post.save()
-    return index()
+    post_id = new_post.post_id
 
+    # Handle post image upload
+    if 'image' in request.files:
+        file = request.files['image']
+        
+        if file and allowed_file(file.filename):
+            try:
+                upload_folder = current_app.config['POST_IMAGE_PARAMETERS']['UPLOAD_FOLDER']
+                filename = f"{post_id}_{file.filename}"
+                filepath = os.path.join(upload_folder, filename)
+                file.save(filepath)
+
+                new_post.image_url = upload_folder + '/' + filename
+                new_post.save()
+            except Exception as e:
+                return jsonify({"error": "Failed to save image."}), 500
+
+    return jsonify(new_post.to_dict()), 201
+
+@bp.route('/get_image/<int:post_id>', methods = ['GET'])
+@is_logged_in
+def get_image(post_id):
+    post = Post.get_post_by_id(post_id)
+    file_path = post.image_url
+    file_name = os.path.basename(file_path)
+    return send_file(file_path, file_name)
 
 @bp.route('/update-post/<int:post_id>', methods=['PUT'])
 @is_logged_in
@@ -100,6 +145,7 @@ def update_post(post_id):
     '''
     Updates a specific post by post_id
     '''
+
     account_id = session['user']  # Get the account ID from the session
     post = Post.get_post_by_id(post_id)
     
@@ -111,9 +157,27 @@ def update_post(post_id):
         return jsonify({"error": "You are not authorized to update this post."}), 403
 
     # Update the post with new values, if provided
-    title = request.form.get('title', post.title)
-    content = request.form.get('content', post.content)
-    image_url = request.form.get('image_url', post.image_url)
+    title = request.form.get('title') or post.title
+    content = request.form.get('content') or post.content
+    image_url = post.image_url
+    upload_folder = current_app.config['POST_IMAGE_PARAMETERS']['UPLOAD_FOLDER']
+
+    # Handle post image upload
+    if 'image' in request.files:
+        if post.image_url:
+            old_image_path = os.path.join(upload_folder, os.path.basename(post.image_url))
+            if os.path.exists(old_image_path):
+                os.remove(old_image_path)
+
+        file = request.files['image']
+        
+        if file and allowed_file(file.filename):
+            upload_folder = current_app.config['POST_IMAGE_PARAMETERS']['UPLOAD_FOLDER']
+            filename = f"{post_id}_{file.filename}"
+            filepath = os.path.join(upload_folder, filename)
+            file.save(filepath)
+
+            image_url = upload_folder + '/' + filename
 
     post.title = title
     post.content = content
@@ -155,6 +219,12 @@ def remove_post(post_id):
     # Check if the logged-in user owns the post
     if post.poster_id != account_id:
         return jsonify({"error": "You are not authorized to delete this post."}), 403
+    
+    # Remove the image file associated with the post
+    if post.image_url:
+        image_path = os.path.join(current_app.config['POST_IMAGE_PARAMETERS']['UPLOAD_FOLDER'], os.path.basename(post.image_url))
+        if os.path.exists(image_path):
+            os.remove(image_path)
 
     # Remove all related data and delete the post
     remove_all(post_id)
@@ -253,11 +323,10 @@ def get_account_saves():
     account_id = session['user']
     saves = Save.get_saves_by_saver_id(account_id)
     if not saves:
-        return jsonify({"message": "No saves found for this account"}), 404
+        return jsonify([]), 200
     
     post_list = [{"post_id": save.post_id} for save in saves]
     return jsonify(post_list), 200
-
 
 # Comment
 @bp.route('/comment', methods=['POST'])
