@@ -43,6 +43,8 @@ const LandingPage = () => {
             <button className="btn change-email" onClick={() => navigate('/change-email')}>Change Email</button>
             <button className="btn change-password" onClick={() => navigate('/change-password')}>Change Password</button>
             <button className="btn change-phone" onClick={() => navigate('/change-phone-number')}>Change Phone Number</button>
+            <button className="btn change-major" onClick={() => navigate('/change-major')}>Change Major</button>
+            <button className="btn change-avatar" onClick={() => navigate('/change-avatar')}>Change Avatar</button>
             <button className="btn forgot-password" onClick={() => navigate('/forgot-password')}>Forgot Password</button>
             <button className="btn profile" onClick={() => navigate('/profile')}>View Your Profile</button>
           </div>
