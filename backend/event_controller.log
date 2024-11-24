@@ -13,3 +13,7 @@
 2024-11-23 22:39:47,740 ERROR Error in create_event: name 'Notifications' is not defined
 2024-11-23 22:39:47,874 ERROR Error in create_event: name 'Notifications' is not defined
 2024-11-23 22:39:48,014 ERROR Error in create_event: name 'Notifications' is not defined
+2024-11-24 05:31:48,350 ERROR Error in create_event: name 'Notifications' is not defined
+2024-11-24 05:31:50,125 ERROR Error in create_event: name 'Notifications' is not defined
+2024-11-24 05:33:27,902 ERROR Error in update_event: name 'Notifications' is not defined
+2024-11-24 05:33:42,548 ERROR Error in update_event: name 'Notifications' is not defined
