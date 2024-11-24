@@ -144,7 +144,6 @@ def update_task(task_id):
         task.event_id = event_id
 
     task.save() 
-    return jsonify({"message": "Task updated", "task": task.to_dict()}), 200
 
 
 @bp.route('/complete/<int:task_id>', methods = ['POST'])

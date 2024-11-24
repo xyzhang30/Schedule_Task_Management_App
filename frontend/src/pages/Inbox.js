@@ -7,15 +7,17 @@ const baseUrl = process.env.REACT_APP_BASE_URL;
 const Inbox = () => {
   const [requests, setRequests] = useState([]);
   const [eventNotifications, setEventNotifications] = useState([]);
+  const [taskNotifications, setTaskNotifications] = useState([]);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     fetchFriendRequestNotifications();
     fetchEventNotifications();
-
+    fetchTaskNotifications();
     
     const interval = setInterval(() => {
       fetchEventNotifications();
+      fetchTaskNotifications();
     }, 300000); 
 
     return () => clearInterval(interval);
@@ -87,6 +89,39 @@ const Inbox = () => {
     }
   };
 
+  const fetchTaskNotifications = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/task_inbox/get-task-notifications`, { withCredentials: true });
+      setTaskNotifications(response.data);
+    } catch (err) {
+      console.error("Error fetching task notifications:", err);
+      setError('Failed to fetch task notifications.');
+    }
+  };
+
+  const handleDeleteTaskNotification = async (notification_id) => {
+    try {
+      const data = { notification_id };
+      await axios.post(`${baseUrl}/task_inbox/delete-task-notification`, data, { withCredentials: true });
+      fetchTaskNotifications();
+    } catch (err) {
+      console.error('Error deleting task notification:', err);
+      setError('Failed to delete task notification.');
+    }
+  };
+
+  const groupedTaskNotifications = taskNotifications.reduce((groups, notification) => {
+    const date = new Date(notification.created_at).toLocaleDateString();
+    if (!groups[date]) {
+      groups[date] = [];
+    }
+    groups[date].push(notification);
+    return groups;
+  }, {});
+
+  const sortedTaskDates = Object.keys(groupedTaskNotifications).sort(
+    (a, b) => new Date(b) - new Date(a)
+  );
 
   const groupedNotifications = eventNotifications.reduce((groups, notification) => {
     const date = new Date(notification.created_at).toLocaleDateString();
@@ -164,6 +199,36 @@ const Inbox = () => {
           </div>
         ) : (
           <p>No new event notifications.</p>
+        )}
+      </div>
+
+
+      <div className="task-notifications">
+        <h3>Task Notifications</h3>
+        {taskNotifications.length > 0 ? (
+          <div className="task-notifications-list">
+            {sortedTaskDates.map((date) => (
+              <div key={date} className="notification-date-group">
+                <h4>{date}</h4>
+                {groupedTaskNotifications[date].map((notification) => (
+                  <div key={notification.notification_id} className="notification-item">
+                    <p>{notification.message}</p>
+                    <p>Time: {new Date(notification.created_at).toLocaleTimeString()}</p>
+                    <div className="notification-actions">
+                      <button
+                        className="delete-button"
+                        onClick={() => handleDeleteTaskNotification(notification.notification_id)}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p>No new task notifications.</p>
         )}
       </div>
     </div>

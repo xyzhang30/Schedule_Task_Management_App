@@ -133,7 +133,8 @@ Table_creation = '''
         message VARCHAR(255),
         is_pending BOOLEAN DEFAULT TRUE,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        event_id INTEGER REFERENCES events(event_id)
+        event_id INTEGER REFERENCES events(event_id),
+        task_id INTEGER REFERENCES task(task_id)
     );
 
     

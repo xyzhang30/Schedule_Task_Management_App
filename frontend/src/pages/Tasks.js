@@ -232,7 +232,6 @@ const Tasks = () => {
             }
     };
 
-
     return (
         <div className="tasks-page-container">
             <div className="tasks-header">

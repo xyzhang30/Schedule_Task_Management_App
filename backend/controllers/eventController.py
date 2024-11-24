@@ -1,5 +1,6 @@
 from flask import Blueprint, request, jsonify, session
 from ..models.event import Event, EventCategory
+from ..models.notifications import Notifications
 from datetime import datetime
 import logging
 from ..decorators import is_logged_in
