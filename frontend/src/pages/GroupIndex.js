@@ -4,6 +4,8 @@ import axios from 'axios';
 // list all groups
 // for the groups of which the user is a guest, has request to join button
 
+// TODO: ADD to sidebar
+
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
 const GroupIndex = () => {
@@ -18,6 +20,9 @@ const GroupIndex = () => {
 
     const [sentRequestModal, setSentRequestModal] = useState(false);
     const [newRequest, setNewRequest] = useState({ message: '' });
+
+    const [viewPendingRequest, setViewPendingRequest] = useState(false);
+    const [pendingRequest, setPendingRequest] = useState(null);
 
     // Fetch Groups - Runs once when the component mounts
     useEffect(() => {
@@ -61,17 +66,28 @@ const GroupIndex = () => {
         return <div>{error}</div>;
     }
 
-    // Show Group Detail Info & Buttons for edit, delete, leave, request_join
+    // Show Group Detail Info & Buttons for edit, delete, leave, request_join, request_pending
     const handleGroupClick = async (e, group_id) => {
         console.log("_________E", e);
         console.log("_________GROUPID", group_id);
         try {
+            const request_response = await axios.get(`${baseUrl}/group-request/get-grp-request/${group_id}`);
+            if (request_response.data) {
+                const requestData = request_response.data;
+                console.log('Request fectched:', requestData);
+                if (requestData.is_pending) {
+                    console.log('Pending request fectched:', requestData);
+                    setPendingRequest(requestData);
+                }
+            }
+
             const response = await axios.get(`${baseUrl}/group/to-group/${group_id}`);
             const groupData = await response.data;
             console.log('Group clicked:', groupData);
             setSelectedGroup(groupData);
+
         } catch (err) {
-            console.error('Failed to fetch group data:', err);
+            console.error('Failed to fetch group data and/or pending request:', err);
         }
     };
 
@@ -153,12 +169,17 @@ const GroupIndex = () => {
                                 <p>Administrator: {selectedGroup.admin_id}</p>
                             </div>
                             <div className="group-actions">
-                                {selectedGroup.is_guest && (
+                                {selectedGroup.is_guest && !pendingRequest && (
                                     <>
                                         <button onClick={() => setSentRequestModal(true)}>Request to Join</button>
                                     </>
                                 )}
-                                <button className='close-group-button' onClick={handleCloseGroup}>
+                                {pendingRequest && (
+                                    <>
+                                        <button onClick={() => setViewPendingRequest(true)}>Request Pending</button>
+                                    </>
+                                )}
+                                <button className="close-group-button" onClick={handleCloseGroup}>
                                     Close
                                 </button>
                             </div>
@@ -192,6 +213,26 @@ const GroupIndex = () => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {viewPendingRequest && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>Pending Request</h2>
+                        <div key={pendingRequest.request_id} className="request-card">
+                            <p>Group ID: {pendingRequest.group_id}</p>
+                            <p>Admin ID: {pendingRequest.account_id_to}</p>
+                            <p>Message: {pendingRequest.message}</p>
+                            <p>Created at: {pendingRequest.created_at}</p>
+                        </div>
+
+                        <div className="modal-actions">
+                            <button type="button" onClick={() => setViewPendingRequest(false)}>
+                                Close
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}

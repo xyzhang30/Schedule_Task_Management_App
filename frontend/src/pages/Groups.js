@@ -3,15 +3,6 @@ import axios from 'axios';
 // import './SplitScreen.css'
 // import './Groups.css';
 
-// DEBUG:
-// calendar.js
-
-// TODO: add request functionalities into inbox
-// TOOD: create spotify iframe page
-
-// TODO: add redirect to login page if not
-// TODO: how to upload an avatar when creating group / editing group
-
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
 const Groups = () => {
@@ -24,12 +15,12 @@ const Groups = () => {
     const [error, setError] = useState(null);
     
     const [createGroupModal, setCreateGroupModal] = useState(false);
-    const [newGroup, setNewGroup] = useState({ group_name: '', group_avatar: '' });
+    const [newGroup, setNewGroup] = useState({ group_name: '' });
 
     const [selectedGroup, setSelectedGroup] = useState(null);
 
     const [editGroupModal, setEditGroupModal] = useState(false);
-    const [editedGroup, setEditedGroup] = useState({ group_name: '', group_avatar: '' });
+    const [editedGroup, setEditedGroup] = useState({ group_name: '' });
 
     const [createEventModal, setCreateEventModal] = useState(false);
     const [newEvent, setNewEvent] = useState({ event_name: '', start_date_time: '', end_date_time: '', start_date: '', end_date: '', is_all_day: null });
@@ -165,7 +156,7 @@ const Groups = () => {
         try {
             const formData = new FormData();
             formData.append('group_name', newGroup.group_name);
-            formData.append('group_avatar', newGroup.group_avatar);
+            // formData.append('group_avatar', newGroup.group_avatar);
     
             const response = await axios.post(`${baseUrl}/group/create-group`, formData);
             console.log('Group created:', response.data);
@@ -177,7 +168,7 @@ const Groups = () => {
             setMemberRequests(updatedMemberRequests.data);
 
             setCreateGroupModal(false);
-            setNewGroup({ group_name: '', group_avatar: '' });
+            setNewGroup({ group_name: '' });
         } catch (err) {
             console.error('Failed to create group:', err);
         }
@@ -208,7 +199,7 @@ const Groups = () => {
     const handleEditGroupClick = async () => {
         setEditedGroup({
             group_name: selectedGroup.group_name,
-            group_avatar: selectedGroup.group_avatar
+            // group_avatar: selectedGroup.group_avatar
         });
         setEditGroupModal(true);
     };
@@ -219,8 +210,8 @@ const Groups = () => {
         e.preventDefault();
         try {
             const formData = new FormData();
-            formData.append('group_name', editedGroup.group_name);
-            formData.append('group_avatar', editedGroup.group_avatar);
+            formData.append('new_group_name', editedGroup.group_name);
+            // formData.append('group_avatar', editedGroup.group_avatar);
     
             const response = await axios.put(`${baseUrl}/group/edit-group/${selectedGroup.group_id}`, formData);
             console.log('Group updated:', response.data);
@@ -229,7 +220,7 @@ const Groups = () => {
             setGroups(updatedGroups.data);
             
             setEditGroupModal(false);
-            setEditedGroup({ group_name: '', group_avatar: '' });
+            setEditedGroup({ group_name: '' });
         } catch (err) {
             console.error('Failed to edit group:', err);
         }
@@ -358,8 +349,8 @@ const Groups = () => {
         setEditedEvent({
             event_name: selectedEvent.event_name,
 
-            start_date: selectedEvent.is_all_day ? new Date(selectedEvent.start_date).toISOString().slice(0, 10) : new Date(),
-            end_date: selectedEvent.is_all_day ? new Date(selectedEvent.end_date).toISOString().slice(0, 10) : new Date(),
+            start_date: selectedEvent.is_all_day ? new Date(selectedEvent.start_date_time).toISOString().slice(0, 10) : new Date(),
+            end_date: selectedEvent.is_all_day ? new Date(selectedEvent.end_date_time).toISOString().slice(0, 10) : new Date(),
 
             start_date_time: selectedEvent.is_all_day ? new Date() : new Date(selectedEvent.start_date_time).toISOString().slice(0, 16),
             end_date_time: selectedEvent.is_all_day ? new Date() : new Date(selectedEvent.end_date_time).toISOString().slice(0, 16),
@@ -563,7 +554,7 @@ const Groups = () => {
     // Handle Accept Request
     const handleAcceptRequest = async (request_id) => {
         try {
-            const response = await axios.post(`${baseUrl}/group-request/accept-request/${request_id}`);
+            const response = await axios.put(`${baseUrl}/group-request/accept-request/${request_id}`);
             console.log('Request accepted:', response.data);
 
             const updatedMemberRequests = await axios.get(`${baseUrl}/group-request/show-in-request`);
@@ -599,9 +590,9 @@ const Groups = () => {
                     {filteredGroups.map(group => (
                         <div key={group.group_id} className="group-section">
                             <div className="group-card">
-                                <div className="profile-picture">
+                                {/* <div className="profile-picture">
                                     <img src={group.avatar} alt="Group's Avatar" />
-                                </div>
+                                </div> */}
                                 <div className="profile-info">
                                     <h2 onClick={(e) => handleGroupClick(e, group.group_id)}> {group.group_name} </h2>
                                     <p>ID: {group.group_id}</p>
@@ -631,9 +622,9 @@ const Groups = () => {
                 <div className="group-details">
                     {selectedGroup ? (
                         <div className="group-details-content">
-                            <div className="group-avatar">
+                            {/* <div className="group-avatar">
                                 <img src={selectedGroup.avatar} alt="Group's Avatar" />
-                            </div>
+                            </div> */}
                             <div className="group-profile">
                                 <h2> {selectedGroup.group_name} </h2>
                                 <p>ID: {selectedGroup.group_id}</p>
@@ -748,16 +739,16 @@ const Groups = () => {
                                     required 
                                 />
                             </label>
-                            <label>
+                            {/* <label>
                                 Avatar:
                                 <input 
                                     type="text" 
                                     name="group_avatar" 
-                                    value={newGroup.group_avatar} // how to upload a photo
+                                    value={newGroup.group_avatar}
                                     onChange={handleGroupInputChange} 
                                     required 
                                 />
-                            </label>
+                            </label> */}
                             <div className="modal-actions">
                                 <button type="submit">Create Group</button>
                                 <button type="button" onClick={() => setCreateGroupModal(false)}>
@@ -784,7 +775,7 @@ const Groups = () => {
                                     required 
                                 />
                             </label>
-                            <label>
+                            {/* <label>
                                 Group Avatar:
                                 <input
                                     type="text"   
@@ -793,7 +784,7 @@ const Groups = () => {
                                     onChange={(e) => setEditedGroup({ ...editedGroup, category: e.target.value })} 
                                     required
                                 />
-                            </label>
+                            </label> */}
                             <div className="modal-actions">
                                 <button type="submit">Update Group</button>
                                 <button type="button" onClick={() => setEditGroupModal(false)}>
@@ -1005,8 +996,8 @@ const Groups = () => {
                         {selectedMembers.members && selectedMembers.members.length > 0 ? (
                             selectedMembers.members.map(member => (
                                 <div key={member.account_id} className="member-card">
-                                    <p>{member.username}</p>
                                     <p>{member.account_id}</p>
+                                    <p>{member.username}</p>
                                     {selectedGroup.is_admin && (
                                         <>  
                                             <button onClick={() => handleRemoveMember(member.account_id)}>

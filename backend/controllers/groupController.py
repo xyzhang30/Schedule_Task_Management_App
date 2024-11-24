@@ -14,21 +14,6 @@ from ..models.registration import Registration
 from ..decorators import is_logged_in
 
 
-# TODO: send notification when an account is added to a group by group admin
-# TODO: send notification to members when a group is deleted
-# TODO: send notification when an account is added to an event by group admin
-# TODO: send notification to participants when an event is edited/canceled
-# TODO: send notification to members when new events are created
-
-# TODO: UPDATE docker-compose.yml backend environment to integrate smtplib
-# TODO: IMPORT smtplib and UNCOMMENT this function
-
-    # - SMTP_SERVER=smtp.example.com
-    # - SMTP_PORT=587
-    # - SMTP_USER=smtp_user@example.com
-    # - SMTP_PASSWORD=smtp_password
-
-
 # Functions included:
 
 # Get all groups (index)
@@ -103,7 +88,7 @@ def showAdminGroups():
 @is_logged_in
 def createGroup():
     group_name = request.form.get("group_name")
-    group_avatar = request.form.get("group_avatar")
+    # group_avatar = request.form.get("group_avatar")
     year_created = datetime.now().year
 
     user_id = session.get('user')
@@ -118,7 +103,7 @@ def createGroup():
     group = Group(
         # group_id=generated_id,
         group_name=group_name,
-        group_avatar=group_avatar,
+        # group_avatar=group_avatar,
         year_created=year_created,
         admin_id=user_id
     )
@@ -150,7 +135,7 @@ def toGroup(group_id):
     group_data = {
         'group_id': group.group_id,
         'group_name': group.group_name,
-        'group_avatar': group.group_avatar, 
+        # 'group_avatar': group.group_avatar, 
         'year_created': group.year_created,
         'admin_id': group.admin_id,
         'events': [event.to_dict() for event in PublicEvent.get_evts_by_grp_id(group_id)]
@@ -179,18 +164,14 @@ def editGroup(group_id):
     group, error = groupAdminError(group_id)
     if error:
         return error
-
-    # group = Group.get_grp_by_id(group_id)
-    # if not group:
-    #     return jsonify({'message': 'Group not found'}), 404
     
     new_group_name = request.form.get("new_group_name")
-    new_group_avatar = request.form.get("new_group_avatar")
+    # new_group_avatar = request.form.get("new_group_avatar")
 
     if new_group_name:
         group.group_name = new_group_name
-    if new_group_avatar:
-        group.group_avatar = new_group_avatar
+    # if new_group_avatar:
+    #     group.group_avatar = new_group_avatar
     
     group.save()
     return jsonify({'message': 'Group updated successfully', 'group': group.to_dict()}), 200
@@ -214,20 +195,29 @@ def deleteGroup(group_id):
 @bp.route('/show-members/<int:group_id>', methods=['GET'])
 @is_logged_in
 def showMembers(group_id):
-
     group = Group.get_grp_by_id(group_id)
     if not group:
         return jsonify({'message': 'Group not found'}), 404
-    
+
     user_id = session.get('user')
-    
+
+    memberships = Membership.get_accs_by_grp_id(group_id)
+
+    members = []
+    for membership in memberships:
+        account = Account.get_acc_by_id(membership.account_id)
+        member_data = membership.to_dict()
+        if account:
+            member_data['username'] = account.username
+        members.append(member_data)
+
     group_data = {
         'group_id': group.group_id,
         'group_name': group.group_name,
         'admin_id': group.admin_id,
-        'members': [member.to_dict() for member in Membership.get_accs_by_grp_id(group_id)]
+        'members': members,
     }
-    
+
     membership = Membership.get_membership(user_id, group_id)
 
     if membership:
@@ -237,7 +227,7 @@ def showMembers(group_id):
         else:
             group_data['is_member'] = True
             group_data['permissions'] = ['add_friend']
-    else: 
+    else:
         # NOTE: below should not happen, bc non-member cannot see to_member_page button on group page
         return jsonify({'message': 'Access denied: You are not a group member'}), 403
 
@@ -377,16 +367,15 @@ def showRegEvents():
     registrations = Registration.get_evts_by_acc_id(user_id)
 
     if not registrations:
-        return jsonify({"message": "No registered events found."}), 404
+        return jsonify({"message": "No registrations found."}), 204
 
     events = []
     for registr in registrations:
         event = PublicEvent.get_evt_by_id(registr.event_id)
         if event:
             events.append(event)
-
-    if not events:
-        return jsonify({"message": "No registered events found."}), 404
+        else:
+            return jsonify({"message": "Registered event not found."}), 404
 
     event_list = [event.to_dict() for event in events]
     return jsonify(event_list), 200

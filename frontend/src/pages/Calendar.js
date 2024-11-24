@@ -138,6 +138,7 @@ const Calendar = () => {
   // Public Events
   const [pubEvents, setPubEvents] = useState([])
   const [pubAppointments, setPubAppointments] = useState([])
+  const [loadingPub, setLoadingPub] = useState(true);
 
   // All Events
   const allAppointments = [...appointments, ...pubAppointments];
@@ -316,29 +317,27 @@ const Calendar = () => {
 
   // Fetch Public events
 
-  useEffect(() => {
-    refreshPubEvents();
-  }, []);
-
   const refreshPubEvents = async () => {
     try {
       const response = await axios.get(`${baseUrl}/group/show-reg-events`);
-      setPubEvents(response.data);
-      const appointmentsData = generatePubAppointments(pubEvents);
-      setPubAppointments(appointmentsData);
+      const pubEventData = response.data || [];
+      setPubEvents(pubEventData);
+      console.log('_____REPONSE_PUB_EVENTS', pubEventData);
     } catch (error) {
       console.error('Error fetching public events!', error);
       if (error.response && error.response.status === 401) {
         window.location.href = '/login';
       }
     } finally {
-      setLoading(false);
+      setLoadingPub(false);
     }
   };
 
-  const generatePubAppointments = () => {
+
+  const generatePubAppointments = (pubEvents) => {
     const pubAppointments = [];
     pubEvents.forEach((pubEvent) => {
+      console.log('GENERATING THIS PUBEVENT: ', pubEvent)
 
       const event_id = pubEvent.event_id;
       const event_name = pubEvent.event_name;
@@ -361,6 +360,24 @@ const Calendar = () => {
     });
     return pubAppointments;
   };
+
+
+  useEffect(() => {
+    refreshPubEvents();
+  }, []);
+
+
+  useEffect(() => {
+    const pubAppointments = generatePubAppointments(pubEvents);
+    setAppointments(pubAppointments);
+    console.log('_____GENERATE_PUB_APPTS', pubAppointments);
+  }, [pubEvents]);
+
+
+  if (loadingPub) {
+    return <div>Loading public events...</div>;
+  }
+
 
   // Modified Appointment Component
   const Appointment = (props) => {
@@ -471,7 +488,7 @@ const Calendar = () => {
   return (
     <div className="scheduler-container">
       <Paper>
-        <Scheduler data={appointments} height={700}>
+        <Scheduler data={allAppointments} height={700}>
           <ViewState
             currentDate={currentDate}
             onCurrentDateChange={setCurrentDate}

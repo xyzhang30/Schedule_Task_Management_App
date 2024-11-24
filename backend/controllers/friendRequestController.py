@@ -15,7 +15,7 @@ def index():
 @bp.route('/get-requests/', methods=['GET'])
 def get_requests_for():
     account_id = session['user']
-    allrequests = Notifications.get_messages_for_id(account_id)
+    allrequests = Notifications.get_frd_notifications_by_acc_recv(account_id)
     allrequestsList = [r.to_dict() for r in allrequests]
     return jsonify(allrequestsList), 200
 
@@ -29,6 +29,7 @@ def send_request():
     friendRequest = Notifications(
         account_id_from=account_id_from,
         account_id_to=account_id_to,
+        notification_type="friend",
         message=message,
         created_at=datetime.now(),
         is_pending=True
@@ -41,7 +42,7 @@ def send_request():
 @bp.route('/get-pending-friends', methods=['GET'])
 def get_pending_friends():
     account_id = session['user']
-    pendingFriends = Notifications.get_pending_notifications_from_id(account_id)
+    pendingFriends = Notifications.get_frd_notifications_by_acc_send(account_id)
     pendingList = [p.to_dict() for p in pendingFriends]
     return jsonify(pendingList), 200
 
