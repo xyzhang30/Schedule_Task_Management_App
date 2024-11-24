@@ -345,12 +345,19 @@ const Posts = () => {
 
   return (
     <div className="split-screen-container">
-      <div className="split-screen-left">
-        <div className="posts-header">
-          <h2>Posts</h2>
-          <button className="add-post-button" onClick={openAddPostModal}>Add Post</button>
-        </div>
+      <div className="split-screen-content">
 
+      <div className="split-screen-filter-container">
+        
+          <h2>Posts</h2>
+          <div className="button-group">
+          <button className="button" onClick={openAddPostModal}>Add Post</button>
+          </div>
+        
+      
+      </div>
+
+        <div className="split-screen-left">
         <div className="posts-list">
           <p>Available Posts: </p>
           {loading ? (
@@ -372,7 +379,7 @@ const Posts = () => {
             <p>No posts available.</p>
           )}
         </div>
-      </div>
+        </div>
 
       <div className="split-screen-right">
         <div className="post-details">
@@ -431,7 +438,7 @@ const Posts = () => {
           )}
         </div>
       </div>
-
+      </div>
       {showModal && (
         <div className="modal-overlay">
           <div className="modal-content">

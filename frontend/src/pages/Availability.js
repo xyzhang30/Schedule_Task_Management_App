@@ -255,49 +255,78 @@ const FindSharedAvailability = () => {
   );
 
   return (
-    <div className="find-shared-availability">
-      <h2>Find Shared Availability</h2>
-
-      <div className="input-group">
-        <label>Date:</label>
-        <input type="date" value={date} onChange={handleDateChange} />
-      </div>
-
-      <div className="input-group">
-        <label>Time range: from</label>
-        <input type="time" value={timeFrom} onChange={handleTimeFromChange} />
-        <label>to</label>
-        <input type="time" value={timeTo} onChange={handleTimeToChange} />
-      </div>
-
-      <div className="participants-section">
-        <label>Participants:</label>
-        <div className="participants">
-          {participants.map((participant) => (
-            <div key={participant.account_id} className="participant-item">
-              <p>{participant.username}</p>
-            </div>
-          ))}
-          <button className="add-participant-button" onClick={toggleAddParticipantsPopup}>
-            Add Participant
-          </button>
+    
+    <div className="split-screen-container">
+      <div className="split-screen-content">
+        <div className="split-screen-filter-container">
+        
+          <h2>Find Shared Availability</h2>
         </div>
-      </div>
+        <div className="split-screen-left">
+          <div className="input-group">
+            <label>Date:</label>
+            <input type="date" value={date} onChange={handleDateChange} />
+          </div>
 
-      <button onClick={handleSubmit} className="generate-button">
-        Generate
-      </button>
+          <div className="input-group">
+            <label>Time range: from</label>
+            <input type="time" value={timeFrom} onChange={handleTimeFromChange} />
+            <label>to</label>
+            <input type="time" value={timeTo} onChange={handleTimeToChange} />
+          </div>
 
-      <div className="availability-display">
-        {loading ? (
-          <p>Generating your shared availability...</p>
-        ) : error ? (
-          <p>{error}</p>
-        ) : availability ? (
-          <p>Available times are displayed below. Click on a time slot to create an event.</p>
-        ) : (
-          <p></p>
-        )}
+          <div className="participants-section">
+            <label>Participants:</label>
+            <div className="participants">
+              {participants.map((participant) => (
+                <div key={participant.account_id} className="participant-item">
+                  <p>{participant.username}</p>
+                </div>
+              ))}
+              <button className="add-participant-button" onClick={toggleAddParticipantsPopup}>
+                Add Participant
+              </button>
+            </div>
+          </div>
+
+          <button onClick={handleSubmit} className="generate-button">
+            Generate
+          </button>
+        
+
+          <div className="availability-display">
+            {loading ? (
+              <p>Generating your shared availability...</p>
+            ) : error ? (
+              <p>{error}</p>
+            ) : availability ? (
+              <p>Available times are displayed below. Click on a time slot to create an event.</p>
+            ) : (
+              <p></p>
+            )}
+          </div>
+        </div>
+        <div className="split-screen-right">
+          <div className="scheduler-container">
+            <Paper>
+              <Scheduler data={appointments} height={660}>
+                <ViewState currentDate={currentDate} onCurrentDateChange={setCurrentDate} />
+                <DayView startDayHour={0} endDayHour={24} />
+                <AllDayPanel />
+                <Appointments appointmentComponent={Appointment} />
+                <Toolbar />
+                <DateNavigator />
+                <TodayButton />
+                <CurrentTimeIndicator
+                  shadePreviousCells
+                  shadePreviousAppointments
+                  updateInterval={60000}
+                  indicatorComponent={TimeIndicator}
+                />
+              </Scheduler>
+            </Paper>
+          </div>
+        </div>
       </div>
 
       {showAddParticipantsPopup && (
@@ -330,25 +359,6 @@ const FindSharedAvailability = () => {
         </div>
       )}
 
-      <div className="scheduler-container">
-        <Paper>
-          <Scheduler data={appointments} height={660}>
-            <ViewState currentDate={currentDate} onCurrentDateChange={setCurrentDate} />
-            <DayView startDayHour={0} endDayHour={24} />
-            <AllDayPanel />
-            <Appointments appointmentComponent={Appointment} />
-            <Toolbar />
-            <DateNavigator />
-            <TodayButton />
-            <CurrentTimeIndicator
-              shadePreviousCells
-              shadePreviousAppointments
-              updateInterval={60000}
-              indicatorComponent={TimeIndicator}
-            />
-          </Scheduler>
-        </Paper>
-      </div>
 
       <EventCreate
         show={showAddEventModal}

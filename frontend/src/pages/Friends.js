@@ -174,68 +174,76 @@ const Friends = () => {
 
 
   return (
-    <div className="friends-page-container">
-      <div className="friends-header">
-        <h2>Friends</h2>
-        <button
-          className='friend-request-button'
-          onClick={toggleFrendRequestPopup}
-          >
-          Requests
-        </button>
-        <button 
-          className="add-friends-button"
-          onClick={toggleAddFriendsPopup}
-          >
-          Add Friends
-        </button>
-      </div>
-
-      <div className="search-bar">
-        <input 
-          type="text" 
-          placeholder="Search friends"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)} />
-      </div>
-
-      <div className="friends-list">
-        <p>My Friends: </p>
-        {loading ? (
-          <p>Loading friends...</p>
-        ) : filteredFriends.length > 0 ? (
-          filteredFriends.map((friend, index) => (
-            <div 
-              key={index} 
-              className="friend-item"
-              onClick={() => handleFriendClick(friend)}
+    <div className="split-screen-container">
+      <div className="split-screen-content"> 
+        <div className="split-screen-filter-container">
+          <h2>Friends</h2>
+          <div className="button-group">
+          <button
+            className='friend-request-button'
+            onClick={toggleFrendRequestPopup}
             >
-              <p>Name: {friend.username}</p>
+            Requests
+          </button>
+          <button 
+            className="add-friends-button"
+            onClick={toggleAddFriendsPopup}
+            >
+            Add Friends
+          </button>
+        </div>
+      </div>
+
+      <div className="split-screen-left">
+        <div className="search-bar">
+          <input 
+            type="text" 
+            placeholder="Search friends"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)} />
+        </div>
+
+        <div className="friends-list">
+          <p>My Friends: </p>
+          {loading ? (
+            <p>Loading friends...</p>
+          ) : filteredFriends.length > 0 ? (
+            filteredFriends.map((friend, index) => (
+              <div 
+                key={index} 
+                className="friend-item"
+                onClick={() => handleFriendClick(friend)}
+              >
+                <p>Name: {friend.username}</p>
+              </div>
+            ))
+          ) : (
+            <p>No friends found.</p>
+          )}
+        </div>
+      </div>
+      <div className="split-screen-right">
+        {selectedFriend &&(
+          <div className="friends-profile-section">
+            <div className="profile-picture">
+              <img src={selectedFriend.avatar} alt="Friend's Avatar" />
             </div>
-          ))
-        ) : (
-          <p>No friends found.</p>
+            <div className="profile-info">
+              <p>Name: {selectedFriend.username}</p>
+              <p>Email: {selectedFriend.email}</p>
+              <p>Phone: {selectedFriend.phone}</p>
+            </div>
+            <button 
+              className="remove-friend-button" 
+              onClick={() => removeFriend(selectedFriend.account_id)}
+            >
+              Remove Friend
+            </button>
+          </div>
         )}
       </div>
 
-      {selectedFriend &&(
-        <div className="friends-profile-section">
-          <div className="profile-picture">
-            <img src={selectedFriend.avatar} alt="Friend's Avatar" />
-          </div>
-          <div className="profile-info">
-            <p>Name: {selectedFriend.username}</p>
-            <p>Email: {selectedFriend.email}</p>
-            <p>Phone: {selectedFriend.phone}</p>
-          </div>
-          <button 
-            className="remove-friend-button" 
-            onClick={() => removeFriend(selectedFriend.account_id)}
-          >
-            Remove Friend
-          </button>
-        </div>
-      )}
+    </div>
 
       {showFriendRequestPopup && (
         <div className="modal-overlay">

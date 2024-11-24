@@ -50,7 +50,7 @@
 
 .task-details {
     grid-column: 2;
-    padding: 20px;
+    padding: 20px; 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -130,10 +130,10 @@
     background-color: #4CAF50;
     color: white;
     border: none;
-    padding: 5px; /* Adjust for icon size */
+    padding: 5px; 
     border-radius: 5px;
     cursor: pointer;
-    font-size: 1rem; /* Adjust icon size */
+    font-size: 1rem; 
 }
 
 .complete-task-button:hover {

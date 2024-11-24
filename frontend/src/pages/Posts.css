@@ -11,7 +11,6 @@
   border: 1px solid #ddd;
   border-radius: 8px;
   padding: 1rem;
-  height: calc(100vh - 2rem);
   overflow-y: auto;
   box-sizing: border-box;
 }

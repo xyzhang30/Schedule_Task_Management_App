@@ -256,29 +256,40 @@ const Tasks = () => {
     };
 
     return (
-        <div className="tasks-page-container">
-            <div className="tasks-header">
-                <h2>Tasks</h2>
-                <div className="button-container">
-                <button className="button" onClick={() => setShowAddCategoryModal(true)}>
-                    Add Category
-                </button>
-                <button className="button" onClick={() => setShowAddTaskModal(true)}>
-                    Add Task
-                </button>
-                </div>
-            </div>
+        <div className="split-screen-container">
+            <div className="split-screen-content">
+            
+                <div className="split-screen-filter-container">
+                    <h2>Tasks</h2>
+                    <div className="filter-group">
+                        <label htmlFor="categoryFilter">Filter by Category: </label>
+                        <select id="categoryFilter" value={selectedCategory} onChange={handleCategoryChange}>
+                            <option value="">All Categories</option>
+                            {categories.map(category => (
+                                <option key={category.category_name} value={category.category_name}>
+                                    {category.category_name}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <div className="button-group">
+                        <button className="button" onClick={() => setShowAddCategoryModal(true)}>
+                            Add Category
+                        </button>
+                        <button className="button" onClick={() => setShowAddTaskModal(true)}>
+                            Add Task
+                        </button>
+                    </div>
+
+            
+                
+            
+            
+       
     
-            <div>
-                <label htmlFor="categoryFilter">Filter by Category: </label>
-                <select id="categoryFilter" value={selectedCategory} onChange={handleCategoryChange}>
-                    <option value="">All Categories</option>
-                    {categories.map(category => (
-                        <option key={category.category_name} value={category.category_name}>
-                            {category.category_name}
-                        </option>
-                    ))}
-                </select>
+            
+                
                 
                 {/* <form onSubmit={handleAddCategory} className="add-category-form">
                     <input 
@@ -292,7 +303,8 @@ const Tasks = () => {
                         Add Category
                     </button>
                 </form> */}
-            </div>
+                
+            
 
             {showAddCategoryModal && (
                 <div className="modal-overlay">
@@ -319,7 +331,7 @@ const Tasks = () => {
                     </div>
                 </div>
             )}
-    
+            </div>
             {showAddTaskModal && (
                 <div className="modal-overlay">
                     <div className="modal-content">
@@ -445,7 +457,7 @@ const Tasks = () => {
             ) : error ? (
                 <p>{error}</p>
             ) : (
-                <div className="tasks-list">
+                <div className="split-screen-left">
                     {Object.keys(filteredTasks).map(date => (
                         <div key={date} className="tasks-date">
                             <h3>{date}</h3>
@@ -467,7 +479,7 @@ const Tasks = () => {
                 </div>
             )}
     
-                <div className="task-details">
+            <div className="split-screen-right">
                 {selectedTask ? (
                     <div className="task-details-content">
                         <div className="task-header">
@@ -497,6 +509,7 @@ const Tasks = () => {
             </div>
 
         </div>
+    </div>
     );    
 };
 

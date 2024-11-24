@@ -408,6 +408,7 @@ const Events = () => {
               ))}
             </select>
           </div>
+          
           <div className="filter-group">
             <label htmlFor="labelFilter">Filter by Label: </label>
             <select
