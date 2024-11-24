@@ -17,7 +17,11 @@ const Tasks = () => {
     const [selectedCategory, setSelectedCategory] = useState('');
     const [newCategory, setNewCategory] = useState('');
     const [showEditTaskModal, setShowEditTaskModal] = useState(false);
+    const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
     const [editedTask, setEditedTask] = useState({ task_name: '', category: '', due_time: '' });
+    const [events, setEvents] = useState([]);
+    const [notifications, setNotifications] = useState([]);
+
 
 
     useEffect(() => {
@@ -41,7 +45,7 @@ const Tasks = () => {
     useEffect(() => {
         const fetchCategories = async () => {
             try {
-                const response = await axios.get(`${baseUrl}/task/category/all`);
+                const response = await axios.get(`${baseUrl}/task/category/all`, {withCredentials:true});
                 console.log("Fetched categories:", response.data);
                 setCategories(response.data);
             } catch (err) {
@@ -51,6 +55,21 @@ const Tasks = () => {
         };
 
         fetchCategories();
+    }, []);
+
+    useEffect(() => {
+        const fetchEvents = async () => {
+            try {
+                const response = await axios.get(`${baseUrl}/task/events`, { withCredentials: true });
+                console.log("Fetched events:", response.data.events);
+                setEvents(response.data.events);
+            } catch (err) {
+                console.error("Error fetching events:", err);
+                setError('Failed to fetch events.');
+            }
+        };
+
+        fetchEvents();
     }, []);
 
     const handleTaskClick = (task) => {
@@ -81,6 +100,17 @@ const Tasks = () => {
         });
     };
 
+    const handleInputChangeEventID = (e) => {
+        const selectedEventName = e.target.value;
+        const selectedEvent = events.find(event => event.name === selectedEventName);
+        
+        setNewTask({
+            ...newTask,
+            event_id: selectedEvent ? selectedEvent.event_id : '',
+            event_name: selectedEventName 
+        });
+    };
+
     const handleAddTask = async (e) => {
         e.preventDefault();
         try {
@@ -89,11 +119,14 @@ const Tasks = () => {
             formData.append('category', newTask.category);
             formData.append('due_time', newTask.due_time);
             formData.append('account_id', '1');
+            console.log(events)
+            formData.append('event_id', newTask.event_id);
+            console.log(newTask)
 
             const response = await axios.post(`${baseUrl}/task/create`, formData, {withCredentials:true});
             console.log('Task created:', response.data);
             setShowAddTaskModal(false);
-            setNewTask({ task_name: '', category: '', due_time: '' });
+            setNewTask({ task_name: '', category: '', due_time: '', event_id: ''});
 
             const updatedTasks = await axios.get(`${baseUrl}/task/sorted`, {withCredentials:true});
             setTasks(updatedTasks.data);
@@ -113,6 +146,10 @@ const Tasks = () => {
 
     const handleAddCategory = async (e) => {
         e.preventDefault();
+        if (categories.some(category => category.category_name === newCategory)) {
+            alert('This category already exists.');
+            return;
+        }
         try {
             const formData = new FormData();
             formData.append('category_name', newCategory);
@@ -120,6 +157,7 @@ const Tasks = () => {
             const response = await axios.post(`${baseUrl}/task/category/create`, formData);
             console.log('Category created:', response.data);
             setNewCategory('');
+            setShowAddCategoryModal(false);
             const updatedCategories = await axios.get(`${baseUrl}/task/category/all`);
             setCategories(updatedCategories.data);
         } catch (err) {
@@ -138,6 +176,22 @@ const Tasks = () => {
         return filtered;
     }, {});
 
+
+    const updateTaskNotification = async (taskId) => {
+        try {
+            const response = await axios.put(`${baseUrl}/task/update-task-notification/${taskId}`, null, {
+                withCredentials: true,
+            });
+            console.log('Task notification updated:', response.data);
+            return true;
+        } catch (err) {
+            console.error('Error updating task notification:', err);
+            setError('Failed to update task notification.');
+            return false;
+        }
+    };
+
+
     const handleEditTask = async (e) => {
         console.log('Edit task called')
         e.preventDefault();
@@ -149,6 +203,11 @@ const Tasks = () => {
     
             const response = await axios.put(`${baseUrl}/task/update/${selectedTask.task_id}`, formData, {withCredentials:true});
             console.log('Task updated:', response.data);
+
+            const notificationUpdated = await updateTaskNotification(selectedTask.task_id);
+            if (notificationUpdated) {
+                console.log('Notification updated successfully.');
+            }
     
             const updatedTasks = await axios.get(`${baseUrl}/task/sorted`, {withCredentials:true});
             setTasks(updatedTasks.data);
@@ -195,16 +254,19 @@ const Tasks = () => {
                 setError('Failed to complete task.');
             }
     };
-     
-    
 
     return (
         <div className="tasks-page-container">
             <div className="tasks-header">
                 <h2>Tasks</h2>
-                <button className="add-task-button" onClick={() => setShowAddTaskModal(true)}>
+                <div className="button-container">
+                <button className="button" onClick={() => setShowAddCategoryModal(true)}>
+                    Add Category
+                </button>
+                <button className="button" onClick={() => setShowAddTaskModal(true)}>
                     Add Task
                 </button>
+                </div>
             </div>
     
             <div>
@@ -218,7 +280,7 @@ const Tasks = () => {
                     ))}
                 </select>
                 
-                <form onSubmit={handleAddCategory} className="add-category-form">
+                {/* <form onSubmit={handleAddCategory} className="add-category-form">
                     <input 
                         type="text" 
                         placeholder="New Category" 
@@ -226,11 +288,37 @@ const Tasks = () => {
                         onChange={handleNewCategoryChange} 
                         required 
                     />
-                    <button type="submit" className="add-category-button">
+                    <button type="submit" className="button">
                         Add Category
                     </button>
-                </form>
+                </form> */}
             </div>
+
+            {showAddCategoryModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>Add a New Category</h2>
+                        <form onSubmit={handleAddCategory}>
+                            <label>
+                                Category Name:
+                                <input
+                                    type="text"
+                                    placeholder="New Category"
+                                    value={newCategory}
+                                    onChange={handleNewCategoryChange}
+                                    required
+                                />
+                            </label>
+                            <div className="modal-actions">
+                                <button type="submit">Create Category</button>
+                                <button type="button" onClick={() => setShowAddCategoryModal(false)}>
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
     
             {showAddTaskModal && (
                 <div className="modal-overlay">
@@ -272,6 +360,21 @@ const Tasks = () => {
                                     onChange={handleInputChange} 
                                     required 
                                 />
+                            </label>
+                            <label>
+                                Associated Event:
+                                <select
+                                    name="event_name" 
+                                    value={newTask.event_name || ''}
+                                    onChange={handleInputChangeEventID}
+                                >
+                                    <option value="">Select an Event</option>
+                                    {events.map(event => (
+                                        <option key={event.event_id} value={event.name}>
+                                            {event.name}
+                                        </option>
+                                    ))}
+                                </select>
                             </label>
                             <div className="modal-actions">
                                 <button type="submit">Create Task</button>
@@ -375,6 +478,9 @@ const Tasks = () => {
                         </div>
                         <p>Category: {selectedTask.category}</p>
                         <p>Due Time: {formatDueTime(selectedTask.due_time)}</p>
+                        <p>Associated Event: {
+                            events.find(event => event.event_id === selectedTask.event_id)?.name || "No associated event"
+                        }</p>
                     
                         <div className="task-actions">
                             <button className="edit-task-button" onClick={() => handleEditButtonClick(selectedTask)}>

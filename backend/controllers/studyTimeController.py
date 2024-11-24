@@ -6,10 +6,13 @@ from ..decorators import is_logged_in
 
 bp = Blueprint('studytime', __name__, url_prefix='/studytime')
 
-#get daily study time for an account
+
 @bp.route('/day', methods=['GET'])
 @is_logged_in
 def get_daily_study_time():
+    '''
+    Gets daily study time for an account_id
+    '''
     account_id = session['user']
     current_date = date.today()
     study_time = StudyTime.daily_study_time(account_id, current_date)
@@ -20,10 +23,12 @@ def get_daily_study_time():
     return jsonify(study_time=study_time)
 
 
-#get weekly study time for an account
 @bp.route('/week', methods=['GET'])
 @is_logged_in
 def get_weekly_study_time():
+    '''
+    Gets weekly study time (the current week) for an account_id
+    '''
     account_id = session['user']
     current_date = date.today()
     study_time = StudyTime.weekly_study_time(account_id, current_date)
@@ -34,10 +39,13 @@ def get_weekly_study_time():
     return jsonify(study_time=study_time)
 
 
-#update study time; input time should have the format hours:minutes:seconds
 @bp.route('/update/<string:time>', methods=['POST'])
 @is_logged_in
 def update_study_time(time):
+    '''
+    Updates study time for an account_id
+    Input format: hours:minutes:seconds
+    '''
     account_id = session['user']
     current_date = date.today()
     try:
@@ -49,10 +57,12 @@ def update_study_time(time):
     return jsonify(message="Study time updated successfully."), 200
 
 
-# Get weekly study time for all accounts
 @bp.route('/all_weekly', methods=['GET'])
 @is_logged_in
 def get_all_weekly_study_times():
+    '''
+    Gets weekly study time for all accounts
+    '''
     current_date = date.today()
     result = StudyTime.get_all_users_weekly_study_time(current_date)
     return jsonify(weekly_study_times=result), 200

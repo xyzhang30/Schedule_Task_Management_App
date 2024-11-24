@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './StudyTime.css';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
@@ -12,6 +13,7 @@ const StudyTime = () => {
     const [weekMinutes, setWeekMinutes] = useState(0);
     const [weekHours, setWeekHours] = useState(0);
     const [error, setError] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         let timer;
@@ -96,8 +98,17 @@ const StudyTime = () => {
         setIsRunning(false);
     };
 
+    const handleNavigate = () => {
+      navigate('/leaderboard');
+    };
+
   return (
     <div className="container">
+      <div className="header-container">
+          <button className="button" onClick={() => navigate('/leaderboard')}>
+              Go to LeaderBoard
+          </button>
+      </div>
       <div className="timer-container">
         <div className="timer-circle">
           <span className="timer-text">{formatTime(time)}</span>
