@@ -1,0 +1,56 @@
+/* EventInbox.css */
+
+.event-inbox {
+    padding: 20px;
+    background-color: #f0f2f5;
+  }
+  
+  .notifications-container {
+    max-height: 600px;
+    overflow-y: auto;
+  }
+  
+  .date-group {
+    margin-bottom: 20px;
+  }
+  
+  .date-group h3 {
+    color: #17a2b8;
+    border-bottom: 1px solid #ced4da;
+    padding-bottom: 5px;
+  }
+  
+  .notification-item {
+    display: flex;
+    justify-content: space-between;
+    background-color: #ffffff;
+    padding: 15px;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+  
+  .notification-content {
+    max-width: 80%;
+  }
+  
+  .notification-content p {
+    margin: 5px 0;
+    color: #495057;
+  }
+  
+  .delete-button {
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    align-self: center;
+    transition: background-color 0.3s ease;
+  }
+  
+  .delete-button:hover {
+    background-color: #218838;
+  }
+  

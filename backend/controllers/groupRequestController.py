@@ -86,7 +86,7 @@ def showOutRequests():
 
     user_id = session.get('user')
 
-    out_requests = Notifications.get_grp_notifications_by_acc_send(user_id)
+    out_requests = Notifications.get_notifications_by_acc_send(user_id, "group")
     out_requests_dict = [request.to_dict() for request in out_requests]
 
     return jsonify(out_requests_dict), 200
@@ -98,7 +98,7 @@ def showInRequests():
     
     user_id = session.get('user')
 
-    in_requests = Notifications.get_grp_notifications_by_acc_recv(user_id)
+    in_requests = Notifications.get_notifications_by_acc_recv(user_id, "group")
     in_requests_dict = [request.to_dict() for request in in_requests]
 
     return jsonify(in_requests_dict), 200

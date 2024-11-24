@@ -1,7 +1,8 @@
-from sqlalchemy import Column, Integer, String, Boolean, TIMESTAMP, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, TIMESTAMP, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, registry, relationship
 from .account import Account
 from .group import Group
+from .event import Event
 
 from ..db import Base, db_session
 
@@ -14,7 +15,11 @@ class Notifications(Base):
     notification_type = Column(String, unique = False)
     message = Column(String, unique=False)
     is_pending = Column(Boolean, unique=False)
-    created_at = Column(TIMESTAMP, unique=False)
+    created_at = Column(DateTime, unique=False)
+    event_id = Column(Integer, ForeignKey('events.event_id'), nullable=True)
+    task_id = Column(Integer, ForeignKey('task.task_id'), nullable=True)
+
+    event = relationship("Event", backref="notifications", lazy='joined')
 	
     def __repr__(self):
         return f"<Notification account_id_from={self.account_id_from} account_id_to={self.account_id_to} message={self.message}>"
@@ -24,35 +29,19 @@ class Notifications(Base):
         return db_session.query(cls).all()
     
     @classmethod
-    def get_frd_notifications_by_acc_recv(cls, id):
+    def get_notifications_by_acc_recv(cls, id, type):
         return db_session.query(cls).filter_by(
             account_id_to=id, 
             is_pending=True,
-            notification_type='friend'
+            notification_type=type
         ).all()
-
+    
     @classmethod
-    def get_frd_notifications_by_acc_send(cls, id):
+    def get_notifications_by_acc_send(cls, id, type):
         return db_session.query(cls).filter_by(
-            account_id_from=id, 
+            account_id_to=id,
             is_pending=True,
-            notification_type='friend'
-        ).all()
-
-    @classmethod
-    def get_grp_notifications_by_acc_recv(cls, id):
-        return db_session.query(cls).filter_by(
-            account_id_to=id, 
-            is_pending=True,
-            notification_type='group'
-        ).all()
-
-    @classmethod
-    def get_grp_notifications_by_acc_send(cls, id):
-        return db_session.query(cls).filter_by(
-            account_id_from=id, 
-            is_pending=True,
-            notification_type='group'
+            notification_type=type
         ).all()
     
     @classmethod
@@ -81,3 +70,7 @@ class Notifications(Base):
     def update_pending_status(self):
         self.is_pending = False
         db_session.commit()
+
+    @classmethod
+    def get_notifications_by_task(cls, task_id):
+        return db_session.query(Notifications).filter_by(task_id=task_id, notification_type='Task Due Today', is_pending=True).first()

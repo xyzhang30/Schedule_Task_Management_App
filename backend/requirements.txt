@@ -13,3 +13,4 @@ typing_extensions==4.10.0
 Werkzeug==3.0.1
 Flask-Cors==5.0.0
 Faker==30.6.0
+requests==2.31.0

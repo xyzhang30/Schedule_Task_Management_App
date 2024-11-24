@@ -68,7 +68,8 @@ Table_creation = '''
         due_time TIMESTAMP NOT NULL,
         task_name VARCHAR(20) NOT NULL,
         category VARCHAR(100),
-        complete BOOLEAN DEFAULT false
+        complete BOOLEAN DEFAULT false,
+        event_id INTEGER REFERENCES events(event_id)
     );
 
     CREATE TABLE assignment ( 
@@ -123,7 +124,7 @@ Table_creation = '''
         timestamp TIMESTAMP NOT NULL,
         text TEXT NOT NULL
     );
-    
+
     CREATE TABLE groups (
         group_id SERIAL PRIMARY KEY,
         group_name VARCHAR(50) UNIQUE NOT NULL,
@@ -164,6 +165,8 @@ Table_creation = '''
         account_id_to INTEGER REFERENCES accounts(account_id),
         account_id_from INTEGER REFERENCES accounts(account_id),
         group_id INTEGER REFERENCES groups(group_id) DEFAULT NULL,
+        event_id INTEGER REFERENCES events(event_id) DEFAULT NULL,
+        task_id INTEGER REFERENCES task(task_id) DEFAULT NULL,
         notification_type VARCHAR(255) NOT NULL,
         message VARCHAR(255),
         is_pending BOOLEAN DEFAULT TRUE,
@@ -237,7 +240,8 @@ for _ in range (30):
     task_name = faker.word()
     category = random.choice(['club', 'personal', 'school', 'work'])
     complete = random.choice([True, False])
-    account_id = random.randint(1, 6)
+    account_id = random.randint(1, 5)
+    event_id = random.randint(1, 3)
 
     cursor.execute('''
         INSERT INTO task (due_time, task_name, category, complete)

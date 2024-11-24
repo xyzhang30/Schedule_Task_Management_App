@@ -27,6 +27,8 @@ services:
       - POSTGRES_PASSWORD=notarealpassword
       - POSTGRES_DB=development
       - POSTGRES_HOST=db
+      - SPOTIFY_CLIENT_ID=54c9a1bf7fc64698b3dd369c59f5beb3
+      - SPOTIFY_CLIENT_SECRET=cb22bc4327a64797a67417180b5fca9d
 
   db:
     image: postgres

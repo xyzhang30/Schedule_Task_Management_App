@@ -480,7 +480,7 @@ const Events = () => {
                           )}
                           {event.name}
                         </div>
-                        <button
+                        {/* <button
                           className="add-label-button"
                           onClick={(e) => {
                             e.stopPropagation();
@@ -488,7 +488,7 @@ const Events = () => {
                           }}
                         >
                           +
-                        </button>
+                        </button> */}
                         <button
                           className="delete-event-button"
                           onClick={(e) => {

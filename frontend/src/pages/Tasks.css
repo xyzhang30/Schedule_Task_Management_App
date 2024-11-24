@@ -196,3 +196,8 @@
     color: green;
     text-decoration: line-through;
 }
+
+.button-container {
+    display: flex;
+    gap: 10px;
+}

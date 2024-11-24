@@ -1,87 +1,89 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ViewState, EditingState } from '@devexpress/dx-react-scheduler';
+import { ViewState } from '@devexpress/dx-react-scheduler';
 import {
   Scheduler,
-  WeekView,
-  MonthView,
   DayView,
   Appointments,
-  Toolbar,
   DateNavigator,
+  Toolbar,
   TodayButton,
-  ViewSwitcher,
-  AppointmentTooltip,
   AllDayPanel,
   CurrentTimeIndicator,
 } from '@devexpress/dx-react-scheduler-material-ui';
 import Paper from '@mui/material/Paper';
 import './Calendar.css';
-import EventUpdateModal from './EventUpdate';
 import { withStyles } from '@mui/styles';
-import { AccessTime } from '@mui/icons-material';
 import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
 import '../App.css';
 import './SplitScreen.css';
+import EventCreate from './EventCreate';
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
 const FindSharedAvailability = () => {
-  const [currentDate, setCurrentDate] = useState(new Date());
   const [date, setDate] = useState('');
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [timeFrom, setTimeFrom] = useState('');
   const [timeTo, setTimeTo] = useState('');
   const [participants, setParticipants] = useState([]);
   const [showAddParticipantsPopup, setShowAddParticipantsPopup] = useState(false);
   const [friends, setFriends] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false); // Set initial loading to false
   const [error, setError] = useState(null);
   const [availability, setAvailability] = useState(null);
   const [appointments, setAppointments] = useState([]);
-  const [appointmentMeta, setAppointmentMeta] = useState({});
+  const [showAddEventModal, setShowAddEventModal] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [initialEventData, setInitialEventData] = useState({});
+  const [timeRange, setTimeRange] = useState({});
 
   const handleDateChange = (e) => {
-    console.log('Date changed:', e.target.value); 
     setDate(e.target.value);
-  }
+    // Update currentDate when date changes
+    if (e.target.value) {
+      const [year, month, day] = e.target.value.split('-').map(Number);
+      setCurrentDate(new Date(year, month - 1, day));
+    }
+  };
+
   const handleTimeFromChange = (e) => {
-    console.log('time changed:', e.target.value); 
     setTimeFrom(e.target.value);
-  }
+  };
 
   const handleTimeToChange = (e) => setTimeTo(e.target.value);
 
   useEffect(() => {
     fetchFriends();
-    
-  }, []); 
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     const appointmentsData = generateAppointments();
     setAppointments(appointmentsData);
   }, [availability]);
 
-  const handleParticipantChange = (index, event) => {
-    const updatedParticipants = [...participants];
-    updatedParticipants[index].name = event.target.value;
-    setParticipants(updatedParticipants);
+  const fetchCategories = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/event/category/all`, { withCredentials: true });
+      setCategories(response.data.map((cat) => cat.category_name));
+    } catch (err) {
+      console.error('Error fetching categories:', err);
+      setError('Failed to fetch categories.');
+    }
   };
 
-  const toggleAddParticipantPopup = () => {
+  const toggleAddParticipantsPopup = () => {
     setShowAddParticipantsPopup(!showAddParticipantsPopup);
-  }
-
+  };
 
   const handleSelectFriend = (friend) => {
-    if (participants.some(p => p.account_id === friend.account_id)) {
-      // remove
-      setParticipants(participants.filter(p => p.account_id !== friend.account_id));
-      console.log(participants);
+    if (participants.some((p) => p.account_id === friend.account_id)) {
+      // Remove participant
+      setParticipants(participants.filter((p) => p.account_id !== friend.account_id));
     } else {
-      // add
-      setParticipants(prevParticipants => [...prevParticipants, friend]);
-      console.log(participants);
+      // Add participant
+      setParticipants((prevParticipants) => [...prevParticipants, friend]);
     }
   };
 
@@ -97,94 +99,99 @@ const FindSharedAvailability = () => {
 
     try {
       const formData = new FormData();
-      formData.append("date", date);
-      formData.append("start_time", timeFrom);
-      formData.append("end_time", timeTo);
-      formData.append("participant_ids", participants.map(p => p.account_id).join(','));
+      formData.append('date', date);
+      formData.append('start_time', timeFrom);
+      formData.append('end_time', timeTo);
+      formData.append('participant_ids', participants.map((p) => p.account_id).join(','));
 
-      const response = await axios.post(`${baseUrl}/availability/generate`, formData, {withCredentials: true});
-      setAvailability(response.data)
-      console.log("______availability: ", availability);
-      setLoading(false);
-      // generateAppointments();
+      const response = await axios.post(`${baseUrl}/availability/generate`, formData, {
+        withCredentials: true,
+      });
+      setAvailability(response.data);
+
+      // Set time range for creating events
+      setTimeRange({
+        start: `${date}T${timeFrom}`,
+        end: `${date}T${timeTo}`,
+      });
     } catch (err) {
-      console.error("Error generating shared availability:", err);
+      console.error('Error generating shared availability:', err);
       setError('Failed generating shared availability.');
+    } finally {
       setLoading(false);
     }
   };
 
   const fetchFriends = async () => {
     try {
-      const response = await axios.get(`${baseUrl}/friend/get-friends`, {withCredentials: true});
-      setFriends(response.data); 
-      setLoading(false);
+      const response = await axios.get(`${baseUrl}/friend/get-friends`, { withCredentials: true });
+      setFriends(response.data);
     } catch (err) {
-      console.error("Error fetching friends:", err);
+      console.error('Error fetching friends:', err);
       setError('Failed to fetch friends.');
+    } finally {
       setLoading(false);
     }
   };
 
-  // useEffect(() => {
-  //   refreshEvents();
-  // }, []);
+  // Function to parse date and time strings without timezone effects
+  const parseLocalDateTime = (dateTimeString) => {
+    if (!dateTimeString) {
+      console.error("parseLocalDateTime called with undefined dateTimeString");
+      return null;
+    }
+    const splitDateTime = dateTimeString.includes('T')
+      ? dateTimeString.split('T')
+      : dateTimeString.split(' ');
+    const [datePart, timePart] = splitDateTime;
+    if (!datePart || !timePart) {
+      console.error("Invalid dateTimeString format:", dateTimeString);
+      return null;
+    }
 
-  // const refreshEvents = async () => {
-  //   try {
-  //     const formData = new FormData();
-  //     formData.append("date", date);
-  //     formData.append("start_time", timeFrom);
-  //     formData.append("end_time", timeTo);
-  //     formData.append("participant_ids", participants.map(p => p.account_id).join(','));
-  //     // const response = await axios.get(`${baseUrl}/event/getEventsByAccount`);
-  //     const response = await axios.post(`${baseUrl}/availability/generate`, formData, {withCredentials: true});
-  //     setAvailability(response.data)
-
-  //     // const eventData = response.data.events || [];
-  //     // setEvents(eventData);
-  //     const appointmentsData = generateAppointments(response.data);
-  //     setAppointments(appointmentsData);
-  //    }
-  //    catch (error) {
-  //   //   console.error('Error fetching events!', error);
-  //   //   if (error.response && error.response.status === 401) {
-  //   //     window.location.href = '/login';
-  //   //   }
-  //   // } finally {
-  //   //   setLoading(false);
-  //    }
-  // };
+    const [year, month, day] = datePart.split('-').map(Number);
+    const [hour, minute] = timePart.split(':').map(Number);
+    return new Date(year, month - 1, day, hour, minute);
+  };
 
   const generateAppointments = () => {
-    try{
+    try {
       if (availability) {
         const appointments = [];
-        console.log("______ in generate: ", availability);
-        availability.map((interval) => {
-          const startDate = new Date(interval.start_time);
-          const endDate = new Date(interval.end_time);
+        availability.forEach((interval) => {
+          const startDate = parseLocalDateTime(interval.start_time);
+          const endDate = parseLocalDateTime(interval.end_time);
 
-          appointments.push({
-            // title: event.name,
-            startDate,
-            endDate
-            // id: event.event_id,
-            // originalEvent: event,
-          });
+          if (startDate && endDate) {
+            appointments.push({
+              startDate,
+              endDate,
+            });
+          } else {
+            console.error("Invalid interval:", interval);
+          }
         });
         return appointments;
       }
-    }catch (error) {
-      console.error('Error fetching events!', error);
+    } catch (error) {
+      console.error('Error generating appointments!', error);
     }
+    return [];
+  };
+
+  // Function to format Date objects to 'YYYY-MM-DDTHH:mm' without timezone effects
+  const formatDateTimeLocal = (date) => {
+    const year = date.getFullYear();
+    const month = ('0' + (date.getMonth() + 1)).slice(-2); // Months are zero-based
+    const day = ('0' + date.getDate()).slice(-2);
+    const hour = ('0' + date.getHours()).slice(-2);
+    const minute = ('0' + date.getMinutes()).slice(-2);
+    return `${year}-${month}-${day}T${hour}:${minute}`;
   };
 
   const Appointment = withStyles({
     appointment: {
       borderRadius: '8px',
-      // backgroundColor: (props) =>
-      //   props.data.label_color ? props.data.label_color : '#1976d2',
       position: 'relative',
     },
     buttonsContainer: {
@@ -207,39 +214,33 @@ const FindSharedAvailability = () => {
     title: {
       color: '#fff',
     },
-  })(({ classes, ...restProps }) => {
+  })(function AppointmentComponent({ classes, ...restProps }) {
     const { data } = restProps;
-    // const event = data.originalEvent;
+    const onEditClick = (e) => {
+      e.stopPropagation();
+      setShowAddEventModal(true);
+      setInitialEventData({
+        start_date: formatDateTimeLocal(data.startDate),
+        end_date: formatDateTimeLocal(data.endDate),
+      });
+    };
     return (
-      <Appointments.Appointment
-        {...restProps}
-        className={classes.appointment}
-      >
+      <Appointments.Appointment {...restProps} className={classes.appointment}>
         <div>
           <div className={classes.buttonsContainer}>
-            <EditIcon
-              className={classes.iconButton}
-              fontSize="small"
-              // onClick={onEditClick}
-            />
-            <DeleteIcon
-              className={classes.iconButton}
-              fontSize="small"
-              // onClick={onDeleteClick}
-            />
+            <EditIcon className={classes.iconButton} fontSize="small" onClick={onEditClick} />
           </div>
           <Appointments.AppointmentContent
             {...restProps}
             formatDate={() => ''}
             className={classes.title}
-            
           />
         </div>
       </Appointments.Appointment>
     );
   });
 
-  const TimeIndicator = ({ top, ...restProps }) => (
+  const TimeIndicator = ({ top }) => (
     <div
       style={{
         position: 'absolute',
@@ -256,42 +257,30 @@ const FindSharedAvailability = () => {
   return (
     <div className="find-shared-availability">
       <h2>Find Shared Availability</h2>
-      
+
       <div className="input-group">
         <label>Date:</label>
-        <input
-            type="date"
-            value={date}
-            onChange={handleDateChange}
-        />
+        <input type="date" value={date} onChange={handleDateChange} />
       </div>
 
       <div className="input-group">
         <label>Time range: from</label>
-        <input
-          type="time"
-          value={timeFrom}
-          onChange={handleTimeFromChange}
-        />
+        <input type="time" value={timeFrom} onChange={handleTimeFromChange} />
         <label>to</label>
-        <input
-          type="time"
-          value={timeTo}
-          onChange={handleTimeToChange}
-        />
+        <input type="time" value={timeTo} onChange={handleTimeToChange} />
       </div>
 
       <div className="participants-section">
         <label>Participants:</label>
         <div className="participants">
-            {participants.map(participant => (
-                <div key={participant.account_id} className='participant-item'>
-                    <p>{participant.username}</p>
-                </div>
-            ))}
-            <button className='add-participant-button' onClick={toggleAddParticipantPopup}>
-                Add Participant
-            </button>
+          {participants.map((participant) => (
+            <div key={participant.account_id} className="participant-item">
+              <p>{participant.username}</p>
+            </div>
+          ))}
+          <button className="add-participant-button" onClick={toggleAddParticipantsPopup}>
+            Add Participant
+          </button>
         </div>
       </div>
 
@@ -299,73 +288,58 @@ const FindSharedAvailability = () => {
         Generate
       </button>
 
-      <div className='availability-display'>
-      {loading ? (
+      <div className="availability-display">
+        {loading ? (
           <p>Generating your shared availability...</p>
         ) : error ? (
           <p>{error}</p>
         ) : availability ? (
-          <ul>
-            {availability.map((interval, index) => (
-              <li key={index}>
-                {`Start: ${interval.start_time}, End: ${interval.end_time}`}
-              </li>
-            ))}
-          </ul>
+          <p>Available times are displayed below. Click on a time slot to create an event.</p>
         ) : (
           <p></p>
         )}
       </div>
 
       {showAddParticipantsPopup && (
-        <div className='modal-overlay'>
-            <div className='modal-content'>
-                <h3>Select Participants</h3>
-                <button className='close-popup' onClick={toggleAddParticipantPopup}>Close</button>
-                <div className='friends-list'>
-                    {friends.map(friend => (
-                        <div key={friend.account_id} className='friend-item'>
-                            <p>{friend.username}</p>
-                            <button 
-                                onClick={() => handleSelectFriend(friend)}
-                                className={participants.some(p => p.account_id === friend.account_id) ? 'selected' : ''}
-                            />
-                            {participants.some(p => p.account_id === friend.account_id) ? 'Selected' : 'Select'}
-                        </div>
-                    ))}
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Select Participants</h3>
+            <button className="close-popup" onClick={toggleAddParticipantsPopup}>
+              Close
+            </button>
+            <div className="friends-list">
+              {friends.map((friend) => (
+                <div key={friend.account_id} className="friend-item">
+                  <p>{friend.username}</p>
+                  <button
+                    onClick={() => handleSelectFriend(friend)}
+                    className={
+                      participants.some((p) => p.account_id === friend.account_id)
+                        ? 'selected'
+                        : ''
+                    }
+                  >
+                    {participants.some((p) => p.account_id === friend.account_id)
+                      ? 'Selected'
+                      : 'Select'}
+                  </button>
                 </div>
+              ))}
             </div>
+          </div>
         </div>
-      )};
+      )}
 
       <div className="scheduler-container">
         <Paper>
           <Scheduler data={appointments} height={660}>
-            <ViewState
-              currentDate={currentDate}
-              onCurrentDateChange={setCurrentDate}
-            />
-            
-            {/* <MonthView />
-            <WeekView startDayHour={0} endDayHour={24} /> */}
+            <ViewState currentDate={currentDate} onCurrentDateChange={setCurrentDate} />
             <DayView startDayHour={0} endDayHour={24} />
-            {/* <AllDayPanel /> */}
-            <Appointments
-              appointmentComponent={Appointment}
-            />
-            {/* <Toolbar /> */}
-            {/* <DateNavigator /> */}
-            {/*  */}
-            {/* <ViewSwitcher /> */}
-            {/* <TodayButton /> */}
-{/*             
-            <AppointmentTooltip
-              showCloseButton
-              visible={tooltipVisible}
-              onVisibilityChange={setTooltipVisible}
-              appointmentMeta={appointmentMeta}
-              onAppointmentMetaChange={setAppointmentMeta}
-            /> */}
+            <AllDayPanel />
+            <Appointments appointmentComponent={Appointment} />
+            <Toolbar />
+            <DateNavigator />
+            <TodayButton />
             <CurrentTimeIndicator
               shadePreviousCells
               shadePreviousAppointments
@@ -374,17 +348,16 @@ const FindSharedAvailability = () => {
             />
           </Scheduler>
         </Paper>
-        {/* <EventUpdateModal
-          showUpdateEventModal={showUpdateEventModal}
-          setShowUpdateEventModal={setShowUpdateEventModal}
-          eventToUpdate={eventToUpdate}
-          setEventToUpdate={setEventToUpdate}
-          categories={categories}
-          setCategories={setCategories}
-          refreshEvents={refreshEvents}
-        /> */}
       </div>
 
+      <EventCreate
+        show={showAddEventModal}
+        onClose={() => setShowAddEventModal(false)}
+        categories={categories}
+        refreshEvents={handleSubmit}
+        initialEventData={initialEventData}
+        timeRange={timeRange}
+      />
     </div>
   );
 };

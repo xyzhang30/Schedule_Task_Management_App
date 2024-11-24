@@ -25,6 +25,8 @@ import FindSharedAvailability from './pages/Availability.js';
 import Groups from './pages/Groups.js';
 import Inbox from './pages/Inbox.js';
 import GroupIndex from './pages/GroupIndex.js';
+import SpotifyLogin from './pages/SpotifyLogin.js';
+import SpotifyCallback from './pages/SpotifyCallback.js';
 
 function App() {
   return (
@@ -70,6 +72,8 @@ const Main = () => {
         <Route path="/availability" element={<FindSharedAvailability />} />
         <Route path="/groups" element={<Groups />} />
         <Route path="/groupindex" element={<GroupIndex />} />
+        <Route path="/spotify-login" element={<SpotifyLogin />} />
+        <Route path="/spotify-callback" element={<SpotifyCallback />} />
       </Routes>
     </div>
   );

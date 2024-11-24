@@ -2,11 +2,13 @@ import os
 from flask import Flask
 from flask_cors import CORS
 from flask_mail import Mail
-from app.controllers import accountController, availabilityController, friendController, groupController, taskController, postController, authController, friendRequestController, eventController, studyTimeController, groupRequestController
+from app.controllers import accountController, availabilityController, friendController, groupController, taskController, postController, authController, friendRequestController, eventController, studyTimeController, groupRequestController, eventinboxController, taskinboxController, spotifyController
 from .db import init_db
 
 mail = Mail() #create mail instance for importing
 uploadParameters = {'UPLOAD_FOLDER': '/srv/app/avatars', 'ALLOWED_EXTENSIONS': {'png', 'jpg', 'jpeg', 'gif'}}
+postImageParameters = {'UPLOAD_FOLDER': '/srv/app/post_images','ALLOWED_EXTENSIONS': {'png', 'jpg', 'jpeg', 'gif'}}
+
 def create_app(test_config=None):
     # create and configure the app
     # app = Flask(__name__, instance_relative_config=True)
@@ -18,6 +20,8 @@ def create_app(test_config=None):
     app.config['MAIL_PASSWORD'] = '8e672db61ef2da51084921860643e226'
     app.config['MAIL_USE_TLS'] = True
     app.config['MAIL_USE_SSL'] = False
+    app.config['POST_IMAGE_PARAMETERS'] = postImageParameters
+
     mail.init_app(app)
     CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000"]}})
     # app.config.from_mapping(
@@ -55,6 +59,9 @@ def create_app(test_config=None):
     app.register_blueprint(postController.bp)
     app.register_blueprint(studyTimeController.bp)
     app.register_blueprint(groupRequestController.bp)
+    app.register_blueprint(eventinboxController.bp)
+    app.register_blueprint(taskinboxController.bp)
+    app.register_blueprint(spotifyController.bp)
 
     init_db()
     return app
