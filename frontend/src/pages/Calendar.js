@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useRef} from 'react';
 import axios from 'axios';
 import { ViewState, EditingState } from '@devexpress/dx-react-scheduler';
 import {
@@ -30,6 +30,7 @@ const baseUrl = process.env.REACT_APP_BASE_URL;
 
 // Define the default color for appointments without a label
 const DEFAULT_APPOINTMENT_COLOR = '#2196F3';
+
 
 // Custom Appointment Content Component
 const CustomAppointmentContent = ({ data, ...restProps }) => {
@@ -104,11 +105,21 @@ const Calendar = () => {
   const [appointmentMeta, setAppointmentMeta] = useState({});
   const [showCreateEventModal, setShowCreateEventModal] = useState(false);
   const [newEventData, setNewEventData] = useState(null);
+  const schedulerRef = useRef(null);
+  
 
   // Fetch events from backend
   useEffect(() => {
     refreshEvents();
   }, []);
+
+  useEffect(() => {
+    const container = schedulerRef.current?.querySelector('.dx-scheduler-scrollable-appointments');
+    if (container) {
+      const scrollTop = (8 * container.scrollHeight) / 24; // Calculate position for 8 AM
+      container.scrollTop = scrollTop;
+    }
+  }, [appointments]);
 
   const refreshEvents = async () => {
     try {
@@ -295,6 +306,8 @@ const Calendar = () => {
       handleDelete(event.event_id);
     };
 
+    
+
     return (
       <Appointments.Appointment
         {...restProps}
@@ -380,15 +393,15 @@ const Calendar = () => {
   return (
     <div className="scheduler-container">
       <Paper>
-        <Scheduler data={appointments} height={700}>
+        <Scheduler data={appointments} height={700} ref={schedulerRef}>
           <ViewState
             currentDate={currentDate}
             onCurrentDateChange={setCurrentDate}
           />
           <EditingState onCommitChanges={handleCommitChanges} />
-          <MonthView />
+          <DayView startDayHour={8} endDayHour={24} />
           <WeekView startDayHour={0} endDayHour={24} />
-          <DayView startDayHour={0} endDayHour={24} />
+          <MonthView />
           <AllDayPanel />
           <Appointments appointmentComponent={Appointment} />
           <Toolbar />
