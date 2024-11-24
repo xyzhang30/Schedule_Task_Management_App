@@ -20,19 +20,22 @@ logger.setLevel(logging.INFO)
 @bp.route('/get-task-notifications', methods=['GET'])
 @is_logged_in
 def get_task_notifications():
+    '''
+    Creates and gets task notifications for tasks that are due today
+    '''
     try:
         account_id = session['user']
         today = datetime.now().date()
         print("start")
 
-        #Get all tasks due today
+        #Gets all tasks due today
         tasks_due_today = db_session.query(Task).filter(
             Task.account_id == account_id,
             func.date(Task.due_time) == today,
             Task.complete == False
         ).all()
 
-        #Create notifications for tasks if they don't exist now
+        #Creates notifications for tasks if not already exist
         for task in tasks_due_today:
             existing_notification = db_session.query(Notifications).filter_by(
                 account_id_to=account_id,
@@ -73,6 +76,9 @@ def get_task_notifications():
 @bp.route('/delete-task-notification', methods=['POST'])
 @is_logged_in
 def delete_task_notification():
+    '''
+    Deletes a task notification
+    '''
     try:
         data = request.get_json()
         notification_id = data.get('notification_id')
@@ -86,4 +92,3 @@ def delete_task_notification():
     except Exception as e:
         logger.error(f"Error in delete_task_notification: {e}\n{traceback.format_exc()}")
         return jsonify({'error': 'Failed to delete task notification.'}), 500
-    

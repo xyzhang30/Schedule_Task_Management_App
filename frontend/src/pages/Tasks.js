@@ -20,6 +20,8 @@ const Tasks = () => {
     const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
     const [editedTask, setEditedTask] = useState({ task_name: '', category: '', due_time: '' });
     const [events, setEvents] = useState([]);
+    const [notifications, setNotifications] = useState([]);
+
 
 
     useEffect(() => {
@@ -174,6 +176,22 @@ const Tasks = () => {
         return filtered;
     }, {});
 
+
+    const updateTaskNotification = async (taskId) => {
+        try {
+            const response = await axios.put(`${baseUrl}/task/update-task-notification/${taskId}`, null, {
+                withCredentials: true,
+            });
+            console.log('Task notification updated:', response.data);
+            return true;
+        } catch (err) {
+            console.error('Error updating task notification:', err);
+            setError('Failed to update task notification.');
+            return false;
+        }
+    };
+
+
     const handleEditTask = async (e) => {
         console.log('Edit task called')
         e.preventDefault();
@@ -185,6 +203,11 @@ const Tasks = () => {
     
             const response = await axios.put(`${baseUrl}/task/update/${selectedTask.task_id}`, formData, {withCredentials:true});
             console.log('Task updated:', response.data);
+
+            const notificationUpdated = await updateTaskNotification(selectedTask.task_id);
+            if (notificationUpdated) {
+                console.log('Notification updated successfully.');
+            }
     
             const updatedTasks = await axios.get(`${baseUrl}/task/sorted`, {withCredentials:true});
             setTasks(updatedTasks.data);

@@ -49,3 +49,7 @@ class Notifications(Base):
     def update_pending_status(self):
         self.is_pending = False
         db_session.commit()
+
+    @classmethod
+    def get_notifications_by_task(cls, task_id):
+        return db_session.query(Notifications).filter_by(task_id=task_id, notification_type='Task Due Today', is_pending=True).first()

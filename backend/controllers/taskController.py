@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, session
 from flask import request
 from ..models.task import Task, Category
 from ..models.event import Event
+from ..models.notifications import Notifications
 from ..decorators import is_logged_in
 
 bp = Blueprint('task', __name__, url_prefix='/task')
@@ -144,6 +145,7 @@ def update_task(task_id):
         task.event_id = event_id
 
     task.save() 
+    return index()
 
 
 @bp.route('/complete/<int:task_id>', methods = ['POST'])
@@ -241,3 +243,28 @@ def get_all_events():
         return jsonify({'message': 'No available events'}), 404
     events_list = [event.to_dict() for event in events]
     return jsonify({'events': events_list}), 200
+
+
+@bp.route('/update-task-notification/<int:task_id>', methods=['PUT'])
+@is_logged_in
+def update_task_notification(task_id):
+    '''
+    Updates the notification message for the task with task_id == task_id that is due today
+    '''
+    try:
+        task = Task.get_task(task_id)
+        if not task:
+            return jsonify({"error": "Task not found."}), 404
+
+        notification = Notifications.get_notifications_by_task(task_id)
+
+        if not notification:
+            return jsonify({"error": "Notification not found."}), 404
+
+        notification.message = f"Your task '{task.task_name}' is due today at {task.due_time.strftime('%H:%M')}."
+        notification.save_notification()
+
+        return jsonify({"message": "Task notification updated", "notification": notification.to_dict()}), 200
+
+    except Exception as e:
+        return jsonify({"error": "Failed to update task notification."}), 500
