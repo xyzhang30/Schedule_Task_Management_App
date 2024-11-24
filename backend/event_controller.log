@@ -23,3 +23,15 @@ DETAIL:  Key (account_id_from)=(0) is not present in table "accounts".
 [SQL: INSERT INTO notifications (account_id_from, account_id_to, notification_type, message, is_pending, created_at, event_id, task_id) VALUES (%(account_id_from)s, %(account_id_to)s, %(notification_type)s, %(message)s, %(is_pending)s, %(created_at)s, %(event_id)s, %(task_id)s) RETURNING notifications.notification_id]
 [parameters: {'account_id_from': 0, 'account_id_to': 6, 'notification_type': 'Event Today', 'message': "Your event 'Test Event' is happening today at 03:00.", 'is_pending': True, 'created_at': datetime.datetime(2024, 11, 24, 8, 1, 0, 538888), 'event_id': None, 'task_id': None}]
 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-11-24 15:42:46,904 ERROR Error in create_event: (psycopg2.errors.ForeignKeyViolation) insert or update on table "notifications" violates foreign key constraint "notifications_account_id_from_fkey"
+DETAIL:  Key (account_id_from)=(0) is not present in table "accounts".
+
+[SQL: INSERT INTO notifications (account_id_from, account_id_to, notification_type, message, is_pending, created_at, event_id, task_id) VALUES (%(account_id_from)s, %(account_id_to)s, %(notification_type)s, %(message)s, %(is_pending)s, %(created_at)s, %(event_id)s, %(task_id)s) RETURNING notifications.notification_id]
+[parameters: {'account_id_from': 0, 'account_id_to': 6, 'notification_type': 'Event Today', 'message': "Your event 'Test Event' is happening today at 10:42.", 'is_pending': True, 'created_at': datetime.datetime(2024, 11, 24, 15, 42, 46, 900360), 'event_id': None, 'task_id': None}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-11-24 15:44:45,156 ERROR Error in create_event: (psycopg2.errors.ForeignKeyViolation) insert or update on table "notifications" violates foreign key constraint "notifications_account_id_from_fkey"
+DETAIL:  Key (account_id_from)=(0) is not present in table "accounts".
+
+[SQL: INSERT INTO notifications (account_id_from, account_id_to, notification_type, message, is_pending, created_at, event_id, task_id) VALUES (%(account_id_from)s, %(account_id_to)s, %(notification_type)s, %(message)s, %(is_pending)s, %(created_at)s, %(event_id)s, %(task_id)s) RETURNING notifications.notification_id]
+[parameters: {'account_id_from': 0, 'account_id_to': 6, 'notification_type': 'Event Today', 'message': "Your event 'Test Event' is happening today at 12:44.", 'is_pending': True, 'created_at': datetime.datetime(2024, 11, 24, 15, 44, 45, 151697), 'event_id': None, 'task_id': None}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)

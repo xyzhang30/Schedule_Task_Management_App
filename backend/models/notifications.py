@@ -16,6 +16,8 @@ class Notifications(Base):
     created_at = Column(DateTime, unique=False)
     event_id = Column(Integer, ForeignKey('events.event_id'), nullable=True)
     task_id = Column(Integer, ForeignKey('task.task_id'), nullable=True)
+
+    event = relationship("Event", backref="notifications", lazy='joined')
 	
     def __repr__(self):
         return f"<Notification account_id_from={self.account_id_from} account_id_to={self.account_id_to} message={self.message}>"

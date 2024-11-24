@@ -5288,3 +5288,45 @@ WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notifi
 [parameters: {'account_id_to_1': 6, 'notification_type_1': 'Event Today', 'event_id_1': 19, 'param_1': 1}]
 (Background on this error at: https://sqlalche.me/e/20/f405)
 
+2024-11-24 15:39:42,007 ERROR Error in get_event_notifications: 'Notifications' object has no attribute 'event'
+Traceback (most recent call last):
+  File "/srv/app/controllers/eventinboxController.py", line 75, in get_event_notifications
+    notification_dict['event_start_date'] = n.event.start_date.strftime('%Y-%m-%dT%H:%M')
+                                            ^^^^^^^
+AttributeError: 'Notifications' object has no attribute 'event'
+
+2024-11-24 15:39:42,063 ERROR Error in get_event_notifications: 'Notifications' object has no attribute 'event'
+Traceback (most recent call last):
+  File "/srv/app/controllers/eventinboxController.py", line 75, in get_event_notifications
+    notification_dict['event_start_date'] = n.event.start_date.strftime('%Y-%m-%dT%H:%M')
+                                            ^^^^^^^
+AttributeError: 'Notifications' object has no attribute 'event'
+
+2024-11-24 15:41:45,813 ERROR Error in get_event_notifications: 'Notifications' object has no attribute 'event'
+Traceback (most recent call last):
+  File "/srv/app/controllers/eventinboxController.py", line 75, in get_event_notifications
+    notification_dict['event_start_date'] = n.event.start_date.strftime('%Y-%m-%dT%H:%M')
+                                            ^^^^^^^
+AttributeError: 'Notifications' object has no attribute 'event'
+
+2024-11-24 15:41:45,840 ERROR Error in get_event_notifications: 'Notifications' object has no attribute 'event'
+Traceback (most recent call last):
+  File "/srv/app/controllers/eventinboxController.py", line 75, in get_event_notifications
+    notification_dict['event_start_date'] = n.event.start_date.strftime('%Y-%m-%dT%H:%M')
+                                            ^^^^^^^
+AttributeError: 'Notifications' object has no attribute 'event'
+
+2024-11-24 15:43:04,658 ERROR Error in get_event_notifications: 'Notifications' object has no attribute 'event'
+Traceback (most recent call last):
+  File "/srv/app/controllers/eventinboxController.py", line 75, in get_event_notifications
+    notification_dict['event_start_date'] = n.event.start_date.strftime('%Y-%m-%dT%H:%M')
+                                            ^^^^^^^
+AttributeError: 'Notifications' object has no attribute 'event'
+
+2024-11-24 15:43:04,807 ERROR Error in get_event_notifications: 'Notifications' object has no attribute 'event'
+Traceback (most recent call last):
+  File "/srv/app/controllers/eventinboxController.py", line 75, in get_event_notifications
+    notification_dict['event_start_date'] = n.event.start_date.strftime('%Y-%m-%dT%H:%M')
+                                            ^^^^^^^
+AttributeError: 'Notifications' object has no attribute 'event'
+

@@ -42,6 +42,12 @@ const Inbox = () => {
       setError('Failed to fetch event notifications.');
     }
   };
+  // Sort event notifications by event_start_date
+  const sortedEventNotifications = [...eventNotifications].sort((a, b) => {
+    const dateA = new Date(a.event_start_date);
+    const dateB = new Date(b.event_start_date);
+    return dateA - dateB;
+  });
 
   const handleAcceptRequest = async (account_id, request_id) => {
     try {

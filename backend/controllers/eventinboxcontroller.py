@@ -24,6 +24,7 @@ def get_event_notifications():
         account_id = session['user']
         now = datetime.now().date()
 
+        # Get events happening today
         events_today = db_session.query(Event).filter(
             Event.account_id == account_id,
             Event.start_date >= datetime.combine(now, datetime.min.time()),
@@ -31,15 +32,15 @@ def get_event_notifications():
         ).all()
 
         for event in events_today:
-            # Check if notification already exists for this event (regardless of is_pending status)
+            # Check if notification already exists for this event
             existing_notification = db_session.query(Notifications).filter_by(
                 account_id_to=account_id,
                 notification_type='Event Today',
                 event_id=event.event_id
             ).first()
 
+            message = f"Your event '{event.name}' is happening today at {event.start_date.strftime('%H:%M')}."
             if not existing_notification:
-                message = f"Your event '{event.name}' is happening today at {event.start_date.strftime('%H:%M')}."
                 # Create a new notification
                 notification = Notifications(
                     account_id_from=account_id,
@@ -51,15 +52,29 @@ def get_event_notifications():
                     event_id=event.event_id
                 )
                 notification.save_notification()
+            else:
+                # Update existing notification message if event has been updated
+                existing_notification.message = message
+                existing_notification.created_at = datetime.now()
+                existing_notification.is_pending = True
+                existing_notification.save_notification()
 
-        # Retrieve event notifications
-        notifications = db_session.query(Notifications).filter_by(
-            account_id_to=account_id,
-            notification_type='Event Today',
-            is_pending=True
-        ).order_by(Notifications.created_at.desc()).all()
+        # Retrieve event notifications and join with Event to get start_date
+        notifications = db_session.query(Notifications).join(Event, Notifications.event_id == Event.event_id).filter(
+            Notifications.account_id_to == account_id,
+            Notifications.notification_type == 'Event Today',
+            Notifications.is_pending == True,
+            Event.start_date >= datetime.combine(now, datetime.min.time()),
+            Event.start_date <= datetime.combine(now, datetime.max.time())
+        ).order_by(Event.start_date.asc()).all()
 
-        notifications_list = [n.to_dict() for n in notifications]
+        # Prepare notifications list including event start_date
+        notifications_list = []
+        for n in notifications:
+            notification_dict = n.to_dict()
+            notification_dict['event_start_date'] = n.event.start_date.strftime('%Y-%m-%dT%H:%M')
+            notifications_list.append(notification_dict)
+
         return jsonify(notifications_list), 200
     except Exception as e:
         logger.error(f"Error in get_event_notifications: {e}\n{traceback.format_exc()}")
