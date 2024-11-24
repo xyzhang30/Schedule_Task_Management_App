@@ -11,22 +11,7 @@ from ..models.membership import Membership
 from ..models.account import Account
 from ..models.publicEvent import PublicEvent
 from ..models.registration import Registration
-
-# TODO: add the login check decorator
-
-# TODO: send notification when an account is added to a group by group admin
-# TODO: send notification to members when a group is deleted
-# TODO: send notification when an account is added to an event by group admin
-# TODO: send notification to participants when an event is edited/canceled
-# TODO: send notification to members when new events are created
-
-# TODO: UPDATE docker-compose.yml backend environment to integrate smtplib
-# TODO: IMPORT smtplib and UNCOMMENT this function
-
-    # - SMTP_SERVER=smtp.example.com
-    # - SMTP_PORT=587
-    # - SMTP_USER=smtp_user@example.com
-    # - SMTP_PASSWORD=smtp_password
+from ..decorators import is_logged_in
 
 
 # Functions included:
@@ -61,6 +46,7 @@ bp = Blueprint('group', __name__, url_prefix='/group')
 
 
 @bp.route('/', methods = ['GET'])
+@is_logged_in
 def index():
     group = Group.all()
     groups_list = [grp.to_dict() for grp in group]
@@ -68,6 +54,7 @@ def index():
 
 
 @bp.route('/show-groups', methods=['GET'])
+@is_logged_in
 def showGroups():
     user_id = session.get('user')
     # user_id = 1 # HARDCODE
@@ -82,10 +69,26 @@ def showGroups():
     return jsonify(group_list), 200
 
 
+@bp.route('/show-admin-groups', methods=['GET'])
+@is_logged_in
+def showAdminGroups():
+    user_id = session.get('user')
+    # user_id = 1 # HARDCODE
+
+    groups = Group.get_grp_by_admin(user_id)
+
+    if groups is None:
+        return jsonify({"message": "No groups found."}), 404
+
+    group_list = [group.to_dict() for group in groups]
+    return jsonify(group_list), 200
+
+
 @bp.route('/create-group', methods = ['POST'])
+@is_logged_in
 def createGroup():
     group_name = request.form.get("group_name")
-    group_avatar = request.form.get("group_avatar")
+    # group_avatar = request.form.get("group_avatar")
     year_created = datetime.now().year
 
     user_id = session.get('user')
@@ -100,7 +103,7 @@ def createGroup():
     group = Group(
         # group_id=generated_id,
         group_name=group_name,
-        group_avatar=group_avatar,
+        # group_avatar=group_avatar,
         year_created=year_created,
         admin_id=user_id
     )
@@ -119,6 +122,7 @@ def addAdminAsMember(group_id, admin_id):
 
 
 @bp.route('/to-group/<int:group_id>', methods=['GET'])
+@is_logged_in
 def toGroup(group_id):
 
     user_id = session.get('user')
@@ -131,7 +135,7 @@ def toGroup(group_id):
     group_data = {
         'group_id': group.group_id,
         'group_name': group.group_name,
-        'group_avatar': group.group_avatar, 
+        # 'group_avatar': group.group_avatar, 
         'year_created': group.year_created,
         'admin_id': group.admin_id,
         'events': [event.to_dict() for event in PublicEvent.get_evts_by_grp_id(group_id)]
@@ -154,29 +158,27 @@ def toGroup(group_id):
 
 
 @bp.route('/edit-group/<int:group_id>', methods = ['PUT'])
+@is_logged_in
 def editGroup(group_id):
 
     group, error = groupAdminError(group_id)
     if error:
         return error
-
-    # group = Group.get_grp_by_id(group_id)
-    # if not group:
-    #     return jsonify({'message': 'Group not found'}), 404
     
     new_group_name = request.form.get("new_group_name")
-    new_group_avatar = request.form.get("new_group_avatar")
+    # new_group_avatar = request.form.get("new_group_avatar")
 
     if new_group_name:
         group.group_name = new_group_name
-    if new_group_avatar:
-        group.group_avatar = new_group_avatar
+    # if new_group_avatar:
+    #     group.group_avatar = new_group_avatar
     
     group.save()
     return jsonify({'message': 'Group updated successfully', 'group': group.to_dict()}), 200
 
 
 @bp.route('/delete-group/<int:group_id>', methods = ['GET', 'DELETE'])
+@is_logged_in
 def deleteGroup(group_id):
 
     group, error = groupAdminError(group_id)
@@ -191,21 +193,31 @@ def deleteGroup(group_id):
 
 
 @bp.route('/show-members/<int:group_id>', methods=['GET'])
+@is_logged_in
 def showMembers(group_id):
-
     group = Group.get_grp_by_id(group_id)
     if not group:
         return jsonify({'message': 'Group not found'}), 404
-    
+
     user_id = session.get('user')
-    
+
+    memberships = Membership.get_accs_by_grp_id(group_id)
+
+    members = []
+    for membership in memberships:
+        account = Account.get_acc_by_id(membership.account_id)
+        member_data = membership.to_dict()
+        if account:
+            member_data['username'] = account.username
+        members.append(member_data)
+
     group_data = {
         'group_id': group.group_id,
         'group_name': group.group_name,
         'admin_id': group.admin_id,
-        'members': [member.to_dict() for member in Membership.get_accs_by_grp_id(group_id)]
+        'members': members,
     }
-    
+
     membership = Membership.get_membership(user_id, group_id)
 
     if membership:
@@ -215,7 +227,7 @@ def showMembers(group_id):
         else:
             group_data['is_member'] = True
             group_data['permissions'] = ['add_friend']
-    else: 
+    else:
         # NOTE: below should not happen, bc non-member cannot see to_member_page button on group page
         return jsonify({'message': 'Access denied: You are not a group member'}), 403
 
@@ -223,37 +235,39 @@ def showMembers(group_id):
 
 
 @bp.route('/add-member/<int:group_id>', methods=['POST'])
+@is_logged_in
 def addMember(group_id):
 
     group, error = groupAdminError(group_id)
     if error:
         return error
     
-    member_id = request.form.get('member_id')
-    if not member_id:
-        return jsonify({'message': 'Member ID is required'}), 400
+    member_name = request.form.get('member_name')
+    if not member_name:
+        return jsonify({'message': 'Member Name is required'}), 400
     
-    membership = Membership.query.filter_by(group_id=group_id, account_id=member_id).first()
+    member = Account.get_acc_by_username(member_name)
+    if not member:
+        return jsonify({'message': 'The Member Name is not a valid username'}), 400
+    
+    membership = Membership.query.filter_by(group_id=group_id, account_id=member.account_id).first()
     if membership:
         return jsonify({'message': 'Member is already part of the group'}), 400
 
-    new_membership = Membership(group_id=group_id, account_id=member_id)
+    new_membership = Membership(group_id=group_id, account_id=member.account_id)
 
     new_membership.save()
 
-    return jsonify({'message': 'Member added to the group successfully'}), 200
+    return jsonify({'message': 'Member added to the group successfully', 'member': new_membership.to_dict()}), 200
 
 
-@bp.route('/remove-member/<int:group_id>', methods=['DELETE'])
-def removeMember(group_id):
+@bp.route('/remove-member/<int:group_id>/<int:member_id>', methods=['DELETE'])
+@is_logged_in
+def removeMember(group_id, member_id):
 
     group, error = groupAdminError(group_id)
     if error:
         return error
-
-    member_id = request.form.get('member_id')
-    if not member_id:
-        return jsonify({'message': 'Member ID is required'}), 400
     
     membership = Membership.query.filter_by(group_id=group_id, account_id=member_id).first()
     if not membership:
@@ -261,10 +275,11 @@ def removeMember(group_id):
     
     membership.delete()
 
-    return jsonify({'message': 'Member deleted successfully'}), 200
+    return jsonify({'message': 'Member removed successfully', 'member': membership.to_dict()}), 200
 
 
 @bp.route('/leave-group/<int:group_id>', methods=['DELETE'])
+@is_logged_in
 def leaveGroup(group_id):
 
     group = Group.get_grp_by_id(group_id)
@@ -278,15 +293,15 @@ def leaveGroup(group_id):
     if not membership:
         return jsonify({'message': 'You are not a member of this group'}), 400
 
-    admin_id = group.admin_id
-    admin_email = Account.query.filter_by(account_id=admin_id).first().email
+    # admin_id = group.admin_id
+    # admin_email = Account.query.filter_by(account_id=admin_id).first().email
 
-    send_email(
-        from_email=Account.query.filter_by(account_id=user_id).first().email,
-        to_email=admin_email,
-        subject="Member Left Group",
-        message=f"User ID {user_id} has left the group {group.group_name}."
-    )
+    # send_email(
+    #     from_email=Account.query.filter_by(account_id=user_id).first().email,
+    #     to_email=admin_email,
+    #     subject="Member Left Group",
+    #     message=f"User ID {user_id} has left the group {group.group_name}."
+    # )
 
     membership.delete()
 
@@ -331,6 +346,7 @@ def leaveGroup(group_id):
 
 
 @bp.route('/get-group-id/<int:event_id>', methods=['GET'])
+@is_logged_in
 def getGroupID(event_id):
     event = PublicEvent.get_evt_by_id(event_id)
     return jsonify(event.group_id)
@@ -342,7 +358,31 @@ def showEvents(group_id):
     return jsonify(events)
 
 
+@bp.route('/show-reg-events', methods=['GET'])
+@is_logged_in
+def showRegEvents():
+    user_id = session.get('user')
+    # user_id = 1 # HARDCODE
+
+    registrations = Registration.get_evts_by_acc_id(user_id)
+
+    if not registrations:
+        return jsonify({"message": "No registrations found."}), 204
+
+    events = []
+    for registr in registrations:
+        event = PublicEvent.get_evt_by_id(registr.event_id)
+        if event:
+            events.append(event)
+        else:
+            return jsonify({"message": "Registered event not found."}), 404
+
+    event_list = [event.to_dict() for event in events]
+    return jsonify(event_list), 200
+
+
 @bp.route('/to-event/<int:event_id>', methods=['GET'])
+@is_logged_in
 def toEvent(event_id):
     
     event = PublicEvent.get_evt_by_id(event_id)
@@ -396,6 +436,7 @@ def toEvent(event_id):
 
 
 @bp.route('/create-event/<int:group_id>', methods = ['POST'])
+@is_logged_in
 def createEvent(group_id):
 
     group, error_message = groupAdminError(group_id)
@@ -432,6 +473,7 @@ def createEvent(group_id):
 
 
 @bp.route('/edit-event/<int:event_id>', methods = ['PUT'])
+@is_logged_in
 def editEvent(event_id):
 
     event = PublicEvent.get_evt_by_id(event_id)
@@ -463,6 +505,7 @@ def editEvent(event_id):
 
 
 @bp.route('/cancel-event/<int:event_id>', methods=['DELETE'])
+@is_logged_in
 def cancelEvent(event_id):
     event = PublicEvent.get_evt_by_id(event_id)
     if not event:
@@ -482,6 +525,7 @@ def cancelEvent(event_id):
 
 
 @bp.route('/register-event/<int:event_id>', methods=['GET', 'POST'])
+@is_logged_in
 def registerEvent(event_id):
     
     event = PublicEvent.get_evt_by_id(event_id)
@@ -508,6 +552,7 @@ def registerEvent(event_id):
 
 
 @bp.route('/drop-event/<int:event_id>', methods=['GET', 'DELETE'])
+@is_logged_in
 def dropEvent(event_id):
     
     event = PublicEvent.get_evt_by_id(event_id)
@@ -569,6 +614,7 @@ def dropEvent(event_id):
 
 
 @bp.route('/add-participant/<int:event_id>', methods=['POST'])
+@is_logged_in
 def addParticipant(event_id):
     
     event = Group.get_evt_by_id(event_id)
@@ -612,28 +658,28 @@ def groupAdminError(group_id):
     return group, None
 
 
-def send_email(from_email, to_email, subject, message):
-    smtp_server = os.getenv('SMTP_SERVER')
-    smtp_port = int(os.getenv('SMTP_PORT', 587))  # default port is 587
-    smtp_user = os.getenv('SMTP_USER')
-    smtp_password = os.getenv('SMTP_PASSWORD')
+# def send_email(from_email, to_email, subject, message):
+#     smtp_server = os.getenv('SMTP_SERVER')
+#     smtp_port = int(os.getenv('SMTP_PORT', 587))  # default port is 587
+#     smtp_user = os.getenv('SMTP_USER')
+#     smtp_password = os.getenv('SMTP_PASSWORD')
 
-    if not smtp_server or not smtp_user or not smtp_password:
-        return False, "SMTP configuration missing."
+#     if not smtp_server or not smtp_user or not smtp_password:
+#         return False, "SMTP configuration missing."
 
-    msg = MIMEText(message)
-    msg['Subject'] = subject
-    msg['From'] = from_email
-    msg['To'] = to_email
+#     msg = MIMET(message)
+#     msg['Subject'] = subject
+#     msg['From'] = from_email
+#     msg['To'] = to_email
 
-    try:
-        with smtplib.SMTP(smtp_server, smtp_port) as server:
-            server.starttls()  # Encrypt the connection
-            server.login(smtp_user, smtp_password)  # Log in to the SMTP server
-            server.sendmail(from_email, [to_email], msg.as_string())  # Send the email
-        return True, "Email sent successfully."
-    except Exception as e:
-        return False, f"Failed to send email: {str(e)}"
+#     try:
+#         with smtplib.SMTP(smtp_server, smtp_port) as server:
+#             server.starttls()  # Encrypt the connection
+#             server.login(smtp_user, smtp_password)  # Log in to the SMTP server
+#             server.sendmail(from_email, [to_email], msg.as_string())  # Send the email
+#         return True, "Email sent successfully."
+#     except Exception as e:
+#         return False, f"Failed to send email: {str(e)}"
 
 
 # def convertDateType(date_str):

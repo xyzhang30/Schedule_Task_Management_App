@@ -124,24 +124,10 @@ Table_creation = '''
         timestamp TIMESTAMP NOT NULL,
         text TEXT NOT NULL
     );
-    
-    CREATE TABLE notifications (
-        notification_id SERIAL PRIMARY KEY,
-        account_id_to INTEGER REFERENCES accounts(account_id),
-        account_id_from INTEGER REFERENCES accounts(account_id),
-        notification_type VARCHAR(255),
-        message VARCHAR(255),
-        is_pending BOOLEAN DEFAULT TRUE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        event_id INTEGER REFERENCES events(event_id),
-        task_id INTEGER REFERENCES task(task_id)
-    );
 
-    
     CREATE TABLE groups (
         group_id SERIAL PRIMARY KEY,
         group_name VARCHAR(50) UNIQUE NOT NULL,
-        group_avatar VARCHAR(255),
         year_created INTEGER NOT NULL,
         admin_id INTEGER REFERENCES accounts(account_id)
     );
@@ -167,21 +153,24 @@ Table_creation = '''
         PRIMARY KEY (event_id, account_id)
     );
 
-    CREATE TABLE group_requests (
-        request_id SERIAL PRIMARY KEY,
-        account_id INTEGER REFERENCES accounts(account_id),
-        group_id INTEGER REFERENCES groups(group_id),
-        message VARCHAR(255),
-        is_pending BOOLEAN DEFAULT TRUE,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-    );
-
-
     CREATE TABLE studytime (
         account_id INTEGER REFERENCES accounts(account_id),
         date DATE,
         study_time INTERVAL,
         PRIMARY KEY (account_id, date)
+    );
+
+    CREATE TABLE notifications (
+        notification_id SERIAL PRIMARY KEY,
+        account_id_to INTEGER REFERENCES accounts(account_id),
+        account_id_from INTEGER REFERENCES accounts(account_id),
+        group_id INTEGER REFERENCES groups(group_id) DEFAULT NULL,
+        event_id INTEGER REFERENCES events(event_id) DEFAULT NULL,
+        task_id INTEGER REFERENCES task(task_id) DEFAULT NULL,
+        notification_type VARCHAR(255) NOT NULL,
+        message VARCHAR(255),
+        is_pending BOOLEAN DEFAULT TRUE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
 '''
 print("Start table creation")

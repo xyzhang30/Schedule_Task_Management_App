@@ -58,7 +58,7 @@ def create_event():
         # If the event is happening today, create a notification
         if new_event.start_date.date() == datetime.now().date():
             notification = Notifications(
-                account_id_from=0,  # System notification
+                account_id_from=session.get('user'),  
                 account_id_to=account_id,
                 notification_type='Event Today',
                 message=f"Your event '{new_event.name}' is happening today at {new_event.start_date.strftime('%H:%M')}.",
@@ -236,7 +236,7 @@ def create_event_notifications():
             ).first()
             if not existing_notification:
                 notification = Notifications(
-                    account_id_from=0,  # System notification
+                    account_id_from=session.get('user'),  
                     account_id_to=event.account_id,
                     notification_type='event',
                     message=f"Event '{event.name}' is starting soon.",

@@ -3,19 +3,6 @@ import axios from 'axios';
 // import './SplitScreen.css'
 // import './Groups.css';
 
-// TODO: add redirect to login page if not
-// TODO: add login page constraint decorator in groupController
-
-// TODO: give administrator right to add and delete members
-// TODO: change backend group request
-// TODO: add button accept request for group and request for event for admin
-
-// TODO: filter group by alpha, event by date
-// TODO: add group description
-// TODO: consider group & event info to show in main page / modal
-// TODO: how to upload an avatar when creating group / editing group
-
-
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
 const Groups = () => {
@@ -28,12 +15,12 @@ const Groups = () => {
     const [error, setError] = useState(null);
     
     const [createGroupModal, setCreateGroupModal] = useState(false);
-    const [newGroup, setNewGroup] = useState({ group_name: '', group_avatar: '' });
+    const [newGroup, setNewGroup] = useState({ group_name: '' });
 
     const [selectedGroup, setSelectedGroup] = useState(null);
 
-    const [editedGroup, setEditedGroup] = useState({ group_name: '', group_avatar: '' });
     const [editGroupModal, setEditGroupModal] = useState(false);
+    const [editedGroup, setEditedGroup] = useState({ group_name: '' });
 
     const [createEventModal, setCreateEventModal] = useState(false);
     const [newEvent, setNewEvent] = useState({ event_name: '', start_date_time: '', end_date_time: '', start_date: '', end_date: '', is_all_day: null });
@@ -43,6 +30,19 @@ const Groups = () => {
     const [editEventModal, setEditEventModal] = useState(false);
     const [editedEvent, setEditedEvent] = useState({ event_name: '', start_date_time: '', end_date_time: '', start_date: '', end_date: '', is_all_day: null })
 
+    const [selectedMembers, setSelectedMembers] = useState([]);
+
+    const [addMemberModal, setAddMemberModal] = useState(false);
+    const [newMembership, setNewMembership] = useState({ group_id: '', member_name: '' });
+
+    const [myRequestsModal, setMyRequestsModal] = useState(false);
+    const [myRequests, setMyRequests] = useState([]);
+
+    const [sentRequestModal, setSentRequestModal] = useState(false);
+    const [newRequest, setNewRequest] = useState({ message: '' });
+
+    const [memberRequestsModal, setMemberRequestsModal] = useState(false);
+    const [memberRequests, setMemberRequests] = useState([]);
 
     
     // Fetch Groups - Runs once when the component mounts
@@ -98,6 +98,37 @@ const Groups = () => {
         };
     }, [filteredGroups, groupEvents]);
 
+    // Fetch My Requests - Runs once when the component mounts
+    useEffect(() => {
+        const fetchMyRequests = async () => {
+            try {
+                const response = await axios.get(`${baseUrl}/group-request/show-out-request`);
+                console.log("____RESPONSE_MY_RQ: ", response.data);
+                setMyRequests(response.data);
+                setLoading(false);
+            } catch (err) {
+                console.error("Error fetching my requests: ", err);
+                setError('Failed to fetch my requests.');
+                setLoading(false);
+            }
+        };
+        fetchMyRequests();
+    }, []);
+
+    // Fetch Member Requests - Runs once when the component mounts
+    useEffect(() => {
+        const fetchMemberRequests = async () => {
+            try {
+                const response = await axios.get(`${baseUrl}/group-request/show-in-request`);
+                console.log("____RESPONSE_MEM_RQ: ", response.data);
+                setMemberRequests(response.data);
+            } catch (err) {
+                console.error("Error fetching member requests: ", err);
+            }
+        };
+        fetchMemberRequests();
+    }, []);
+
     // Handler for search input
     const handleSearch = (e) => {
         setSearchTerm(e.target.value);
@@ -125,7 +156,7 @@ const Groups = () => {
         try {
             const formData = new FormData();
             formData.append('group_name', newGroup.group_name);
-            formData.append('group_avatar', newGroup.group_avatar);
+            // formData.append('group_avatar', newGroup.group_avatar);
     
             const response = await axios.post(`${baseUrl}/group/create-group`, formData);
             console.log('Group created:', response.data);
@@ -133,8 +164,11 @@ const Groups = () => {
             const updatedGroups = await axios.get(`${baseUrl}/group/show-groups`);
             setGroups(updatedGroups.data);
 
+            const updatedMemberRequests = await axios.get(`${baseUrl}/group-request/show-in-request`);
+            setMemberRequests(updatedMemberRequests.data);
+
             setCreateGroupModal(false);
-            setNewGroup({ group_name: '', group_avatar: '' });
+            setNewGroup({ group_name: '' });
         } catch (err) {
             console.error('Failed to create group:', err);
         }
@@ -158,13 +192,14 @@ const Groups = () => {
     const handleCloseGroup = async () => {
         if (!selectedGroup) return;
         setSelectedGroup(null);
+        setSelectedMembers([]);
     };
 
     // Show Edit Group Modal & Prepare Edit
     const handleEditGroupClick = async () => {
         setEditedGroup({
             group_name: selectedGroup.group_name,
-            group_avatar: selectedGroup.group_avatar
+            // group_avatar: selectedGroup.group_avatar
         });
         setEditGroupModal(true);
     };
@@ -175,8 +210,8 @@ const Groups = () => {
         e.preventDefault();
         try {
             const formData = new FormData();
-            formData.append('group_name', editedGroup.group_name);
-            formData.append('group_avatar', editedGroup.group_avatar);
+            formData.append('new_group_name', editedGroup.group_name);
+            // formData.append('group_avatar', editedGroup.group_avatar);
     
             const response = await axios.put(`${baseUrl}/group/edit-group/${selectedGroup.group_id}`, formData);
             console.log('Group updated:', response.data);
@@ -185,7 +220,7 @@ const Groups = () => {
             setGroups(updatedGroups.data);
             
             setEditGroupModal(false);
-            setEditedGroup({ group_name: '', group_avatar: '' });
+            setEditedGroup({ group_name: '' });
         } catch (err) {
             console.error('Failed to edit group:', err);
         }
@@ -205,6 +240,9 @@ const Groups = () => {
                 const updatedGroups = await axios.get(`${baseUrl}/group/show-groups`);
                 setGroups(updatedGroups.data);
                 setSelectedGroup(null);
+
+                const updatedMemberRequests = await axios.get(`${baseUrl}/group-request/show-in-request`);
+                setMemberRequests(updatedMemberRequests.data);
             } catch (err) {
                 console.error('Failed to delete group:', err);
             }
@@ -221,20 +259,6 @@ const Groups = () => {
             setGroups(updatedGroups.data);
         } catch (err) {
             console.error('Failed to leave group:', err);
-        }
-    };
-
-    // Request to Join Group
-    const handleRequestGroup = async () => {
-        try {
-            const response = await axios.get(`${baseUrl}/group/request-join/${selectedGroup.group_id}`);
-            console.log('Group requested:', response.data);
-
-            // const updatedGroups = await axios.get(`${baseUrl}/group/show-groups`);
-            // setGroups(updatedGroups.data);
-
-        } catch (err) {
-            console.error('Failed to request to join group:', err);
         }
     };
 
@@ -325,8 +349,8 @@ const Groups = () => {
         setEditedEvent({
             event_name: selectedEvent.event_name,
 
-            start_date: selectedEvent.is_all_day ? new Date(selectedEvent.start_date).toISOString().slice(0, 10) : new Date(),
-            end_date: selectedEvent.is_all_day ? new Date(selectedEvent.end_date).toISOString().slice(0, 10) : new Date(),
+            start_date: selectedEvent.is_all_day ? new Date(selectedEvent.start_date_time).toISOString().slice(0, 10) : new Date(),
+            end_date: selectedEvent.is_all_day ? new Date(selectedEvent.end_date_time).toISOString().slice(0, 10) : new Date(),
 
             start_date_time: selectedEvent.is_all_day ? new Date() : new Date(selectedEvent.start_date_time).toISOString().slice(0, 16),
             end_date_time: selectedEvent.is_all_day ? new Date() : new Date(selectedEvent.end_date_time).toISOString().slice(0, 16),
@@ -435,31 +459,140 @@ const Groups = () => {
         }
     };
 
+    // Show View Members Modal & Set Selected Members
+    const handleViewMembersClick = async () => {
+        try {
+            const response = await axios.get(`${baseUrl}/group/show-members/${selectedGroup.group_id}`);
+            console.log("Fetched members:", response.data);
+            setSelectedMembers(response.data);
+        } catch (err) {
+            console.error("Error fetching group members: ", err);
+        }
+    };
 
+    // Deselect Members
+    const handleCloseMembers = async () => {
+        if (!selectedMembers) return;
+        setSelectedMembers([]);
+    };
+
+    // Handle New Member Input
+    const handleMemberInputChange = (e) => {
+        setNewMembership({
+            ...newMembership,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    // Add Member
+    const handleAddMember = async (e) => {
+        e.preventDefault();
+        try {
+            const formData = new FormData();
+            formData.append('group_id', selectedGroup.group_id);
+            formData.append('member_name', newMembership.member_name);
+    
+            const response = await axios.post(`${baseUrl}/group/add-member/${selectedGroup.group_id}`, formData);
+            console.log('Member added:', response.data);
+            
+            const updatedMembers = await axios.get(`${baseUrl}/group/show-members/${selectedGroup.group_id}`);
+            setSelectedMembers(updatedMembers.data);
+    
+            setNewMembership({ group_id: '', member_name: '' });
+            setAddMemberModal(false);
+        } catch (err) {
+            console.error('Failed to add member:', err);
+        }
+    };
+
+    // Remove Member
+    const handleRemoveMember = async (member_id) => {
+        
+        const confirmRemove = window.confirm(`Are you sure you want to remove member: ${member_id}?`);
+        
+        if (confirmRemove) {
+            try {
+                const response = await axios.delete(`${baseUrl}/group/remove-member/${selectedGroup.group_id}/${member_id}`);
+                console.log('Member removed:', response.data);
+    
+                const updatedMembers = await axios.get(`${baseUrl}/group/show-members/${selectedGroup.group_id}`);
+                setSelectedMembers(updatedMembers.data);
+            } catch (err) {
+                console.error('Failed to remove member:', err);
+            }
+        }
+    };
+
+    // Handle Request Input Change
+    const handleRequestInputChange = (e) => {
+        setNewRequest({
+            ...newRequest,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    // Handle Sent Request
+    const handleSentRequest = async (e) => {
+        e.preventDefault();
+        try {
+            const formData = new FormData();
+            formData.append('message', newRequest.message);
+    
+            const response = await axios.post(`${baseUrl}/group-request/send-request/${selectedGroup.group_id}`, formData);
+            console.log('Request sent:', response.data);
+
+            const updatedMyRequests = await axios.get(`${baseUrl}/group-request/show-out-request`);
+            setMyRequests(updatedMyRequests.data);
+
+            setNewRequest({ message: '' });
+            setSentRequestModal(false);
+        } catch (err) {
+            console.error('Failed to send request:', err);
+        }
+    };
+
+    // Handle Accept Request
+    const handleAcceptRequest = async (request_id) => {
+        try {
+            const response = await axios.put(`${baseUrl}/group-request/accept-request/${request_id}`);
+            console.log('Request accepted:', response.data);
+
+            const updatedMemberRequests = await axios.get(`${baseUrl}/group-request/show-in-request`);
+            setMemberRequests(updatedMemberRequests.data);
+        } catch (err) {
+            console.error('Failed to accept request:', err);
+        }
+    };
 
     return (
         <div className="group-index-page-container">
             <div className="group-index-header">
-                <h2>Groups</h2>
-                <button className="create-group-button" onClick={() => setCreateGroupModal(true)}>
-                        Create Group
-                </button>
-            </div>
-        
-            <div>
+                <h2>My Groups</h2>
                 <input 
                     type="text" 
                     placeholder="Search by group ID or name..." 
                     value={searchTerm} 
                     onChange={(e) => handleSearch(e)} 
                 />
+                <button className="create-group-button" onClick={() => setCreateGroupModal(true)}>
+                    Create Group
+                </button>
+                <button className="view-my-requests-button" onClick={() => setMyRequestsModal(true)}>
+                    View My Pending Requests
+                </button>
+                <button className="view-member-requests-button" onClick={() => setMemberRequestsModal(true)}>
+                    View Member Pending Requests
+                </button>
+            </div>
+        
+            <div className="left-section">
                 <div className="group-list">
                     {filteredGroups.map(group => (
                         <div key={group.group_id} className="group-section">
                             <div className="group-card">
-                                <div className="profile-picture">
+                                {/* <div className="profile-picture">
                                     <img src={group.avatar} alt="Group's Avatar" />
-                                </div>
+                                </div> */}
                                 <div className="profile-info">
                                     <h2 onClick={(e) => handleGroupClick(e, group.group_id)}> {group.group_name} </h2>
                                     <p>ID: {group.group_id}</p>
@@ -484,6 +617,112 @@ const Groups = () => {
                     ))}
                 </div>
             </div>
+            
+            <div className="right-section">
+                <div className="group-details">
+                    {selectedGroup ? (
+                        <div className="group-details-content">
+                            {/* <div className="group-avatar">
+                                <img src={selectedGroup.avatar} alt="Group's Avatar" />
+                            </div> */}
+                            <div className="group-profile">
+                                <h2> {selectedGroup.group_name} </h2>
+                                <p>ID: {selectedGroup.group_id}</p>
+                                <p>Administrator: {selectedGroup.admin_id}</p>
+                            </div>
+                            <div className="group-actions">
+                                {selectedGroup.is_admin && (
+                                    <>  
+                                        <button onClick={() => setCreateEventModal(true)}>Create Event</button>
+                                        <button onClick={() => handleEditGroupClick()}>Edit Group</button>
+                                        <button onClick={() => handleDeleteGroup()}>Delete Group</button>
+                                        <button onClick={() => handleViewMembersClick()}>Manage Members</button>
+                                    </>
+                                )}
+                                {selectedGroup.is_member && (
+                                    <>
+                                        <button onClick={() => handleLeaveGroup()}>Leave Group</button>
+                                        <button onClick={() => handleViewMembersClick()}>View Members</button>
+                                    </>
+                                )}
+                                {selectedGroup.is_guest && (
+                                    <>
+                                        <button onClick={() => setSentRequestModal(true)}>Request to Join</button>
+                                    </>
+                                )}
+                                <button className='close-group-button' onClick={handleCloseGroup}>
+                                    Close
+                                </button>
+                            </div>
+
+                        </div>
+                    ) : (
+                        <p>Select a group to view details</p>
+                    )}
+                </div>
+
+                <div className="event-details">
+                    {selectedEvent ? (
+                        <div className="event-details-content">
+                            <div className="event-profile">
+                                <h2> {selectedEvent.event_name} </h2>
+                                <p>ID: {selectedEvent.event_id}</p>
+                                {/* <p>Organized by: {selectedGroup.group_name}</p> */}
+                                <p>{formatDateTime(selectedEvent.start_date_time)} - {formatDateTime(selectedEvent.end_date_time)}</p>
+                            </div>
+                            <div className="event-actions">
+                                {selectedEvent.is_admin && (
+                                    <>
+                                        {selectedEvent.registered ? (
+                                            <>
+                                                <button onClick={() => handleDropEvent()}>Drop Registration</button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <button onClick={() => handleRegisterEvent()}>Register</button>
+                                            </>
+                                        )}
+                                        <button onClick={() => handleEditEventClick()}>Edit Event</button>
+                                        <button onClick={() => handleCancelEvent()}>Cancel Event</button>
+                                    </>
+                                )}
+                                {selectedEvent.is_member && (
+                                    <>
+                                        {selectedEvent.registered ? (
+                                            <>
+                                                <button onClick={() => handleDropEvent()}>Drop Registration</button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <button onClick={() => handleRegisterEvent()}>Register</button>
+                                            </>
+                                        )}
+                                    </>
+                                )}
+                                {selectedEvent.is_guest && (
+                                    <>
+                                        {selectedEvent.registered ? (
+                                            <>
+                                                <button onClick={() => handleDropEvent()}>Drop Registration</button>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <button onClick={() => setSentRequestModal(true)}>Request to Join Group</button>
+                                            </>
+                                        )}
+                                    </>
+                                )}
+                                <button className='close-event-button' onClick={handleCloseEvent}>
+                                    Close
+                                </button>
+                            </div>
+
+                        </div>
+                    ) : (
+                        <p>Select an event to view details</p>
+                    )}
+                </div>
+            </div>
 
             {createGroupModal && (
                 <div className="modal-overlay">
@@ -500,16 +739,16 @@ const Groups = () => {
                                     required 
                                 />
                             </label>
-                            <label>
+                            {/* <label>
                                 Avatar:
                                 <input 
                                     type="text" 
                                     name="group_avatar" 
-                                    value={newGroup.group_avatar} // how to upload a photo
+                                    value={newGroup.group_avatar}
                                     onChange={handleGroupInputChange} 
                                     required 
                                 />
-                            </label>
+                            </label> */}
                             <div className="modal-actions">
                                 <button type="submit">Create Group</button>
                                 <button type="button" onClick={() => setCreateGroupModal(false)}>
@@ -520,48 +759,6 @@ const Groups = () => {
                     </div>
                 </div>
             )}
-
-            <div className="group-details">
-                {selectedGroup ? (
-                    <div className="group-details-content">
-                        <div className="group-avatar">
-                            <img src={selectedGroup.avatar} alt="Group's Avatar" />
-                        </div>
-                        <div className="group-profile">
-                            <h2> {selectedGroup.group_name} </h2>
-                            <p>ID: {selectedGroup.group_id}</p>
-                            <p>Administrator: {selectedGroup.admin_id}</p>
-                        </div>
-                        <div className="group-actions">
-                            {selectedGroup.is_admin && (
-                                <>  
-                                    <button onClick={() => setCreateEventModal(true)}>Create Event</button>
-                                    <button onClick={() => handleEditGroupClick()}>Edit Group</button>
-                                    <button onClick={() => handleDeleteGroup()}>Delete Group</button>
-                                    {/* <button onClick={handleManageMembers}>Manage Members</button> */}
-                                </>
-                            )}
-                            {selectedGroup.is_member && (
-                                <>
-                                    <button onClick={() => handleLeaveGroup()}>Leave Group</button>
-                                    {/* <button onClick={handleViewMembers}>View Members</button> */}
-                                </>
-                            )}
-                            {selectedGroup.is_guest && (
-                                <>
-                                    <button onClick={handleRequestGroup()}>Request to Join</button>
-                                </>
-                            )}
-                            <button className='close-group-button' onClick={handleCloseGroup}>
-                                Close
-                            </button>
-                        </div>
-
-                    </div>
-                ) : (
-                    <p>Select a group to view details</p>
-                )}
-            </div>
 
             {editGroupModal && (
                 <div className="modal-overlay">
@@ -578,7 +775,7 @@ const Groups = () => {
                                     required 
                                 />
                             </label>
-                            <label>
+                            {/* <label>
                                 Group Avatar:
                                 <input
                                     type="text"   
@@ -587,7 +784,7 @@ const Groups = () => {
                                     onChange={(e) => setEditedGroup({ ...editedGroup, category: e.target.value })} 
                                     required
                                 />
-                            </label>
+                            </label> */}
                             <div className="modal-actions">
                                 <button type="submit">Update Group</button>
                                 <button type="button" onClick={() => setEditGroupModal(false)}>
@@ -693,68 +890,6 @@ const Groups = () => {
                 </div>
             )}
 
-            <div className="event-details">
-                {selectedEvent ? (
-                    <div className="event-details-content">
-                        <div className="event-profile">
-                            <h2> {selectedEvent.event_name} </h2>
-                            <p>ID: {selectedEvent.event_id}</p>
-                            {/* <p>Organized by: {selectedGroup.group_name}</p> */}
-                            <p>{formatDateTime(selectedEvent.start_date_time)} - {formatDateTime(selectedEvent.end_date_time)}</p>
-                        </div>
-                        <div className="event-actions">
-                            {selectedEvent.is_admin && (
-                                <>
-                                    {selectedEvent.registered ? (
-                                        <>
-                                            <button onClick={() => handleDropEvent()}>Drop Registration</button>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <button onClick={() => handleRegisterEvent()}>Register</button>
-                                        </>
-                                    )}
-                                    <button onClick={() => handleEditEventClick()}>Edit Event</button>
-                                    <button onClick={() => handleCancelEvent()}>Cancel Event</button>
-                                </>
-                            )}
-                            {selectedEvent.is_member && (
-                                <>
-                                    {selectedEvent.registered ? (
-                                        <>
-                                            <button onClick={() => handleDropEvent()}>Drop Registration</button>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <button onClick={() => handleRegisterEvent()}>Register</button>
-                                        </>
-                                    )}
-                                </>
-                            )}
-                            {selectedEvent.is_guest && (
-                                <>
-                                    {selectedEvent.registered ? (
-                                        <>
-                                            <button onClick={() => handleDropEvent()}>Drop Registration</button>
-                                        </>
-                                    ) : (
-                                        <>
-                                            <button onClick={() => handleRequestGroup()}>Request to Join Group</button>
-                                        </>
-                                    )}
-                                </>
-                            )}
-                            <button className='close-event-button' onClick={handleCloseEvent}>
-                                Close
-                            </button>
-                        </div>
-
-                    </div>
-                ) : (
-                    <p>Select an event to view details</p>
-                )}
-            </div>
-
             {editEventModal && (
                 <div className="modal-overlay">
                     <div className="modal-content">
@@ -848,6 +983,151 @@ const Groups = () => {
                                 </button>
                             </div>
                         </form>
+                    </div>
+                </div>
+            )}
+
+            {selectedMembers.members && selectedGroup && (
+                <div className="group-members">
+                    <div className="group-profile">
+                        <h2> {selectedGroup.group_name} </h2>
+                    </div>
+                    <div className="member-list">
+                        {selectedMembers.members && selectedMembers.members.length > 0 ? (
+                            selectedMembers.members.map(member => (
+                                <div key={member.account_id} className="member-card">
+                                    <p>{member.account_id}</p>
+                                    <p>{member.username}</p>
+                                    {selectedGroup.is_admin && (
+                                        <>  
+                                            <button onClick={() => handleRemoveMember(member.account_id)}>
+                                                Remove Member
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
+                            ))
+                        ) : (
+                            <p>No members available.</p>
+                        )}
+                    </div>
+                    <div className="member-actions">
+                        {selectedGroup.is_admin && (
+                            <>  
+                                <button onClick={() => setAddMemberModal(true)}>Add Member</button>
+                            </>
+                        )}
+                        <button className='close-members-button' onClick={handleCloseMembers}>
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {addMemberModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>Add Member</h2>
+                        <form onSubmit={handleAddMember}>
+                            <label>
+                                Member Name:
+                                <input 
+                                    type="text" 
+                                    name="member_name" 
+                                    value={newMembership.member_name} 
+                                    onChange={handleMemberInputChange} 
+                                    required 
+                                />
+                            </label>
+                            <div className="modal-actions">
+                                <button type="submit">Add Member</button>
+                                <button type="button" onClick={() => setAddMemberModal(false)}>
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {sentRequestModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>Request to Join Group</h2>
+                        <form onSubmit={handleSentRequest}>
+                            <label>
+                                Request Message:
+                                <input 
+                                    type="text" 
+                                    name="message" 
+                                    value={newRequest.message} 
+                                    onChange={handleRequestInputChange} 
+                                    required 
+                                />
+                            </label>
+                            <div className="modal-actions">
+                                <button type="submit">Send</button>
+                                <button type="button" onClick={() => setSentRequestModal(false)}>
+                                    Cancel
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
+            {myRequestsModal && (
+                <div className="my-requests">
+                    <div className="title">
+                        <h2> My Pending Requests </h2>
+                    </div>
+                    <div className="request-list">
+                        {myRequests && myRequests.length > 0 ? (
+                            myRequests.map(request => (
+                                <div key={request.request_id} className="request-card">
+                                    <p>Group ID: {request.group_id}</p>
+                                    <p>Message: {request.message}</p>
+                                    <p>Created at: {request.created_at}</p>
+                                </div>
+                            ))
+                        ) : (
+                            <p>No requests available.</p>
+                        )}
+                    </div>
+                    <div className="request-actions">
+                        <button className='close-my-requests-button' onClick={() => setMyRequestsModal(false)}>
+                            Close
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {memberRequestsModal && (
+                <div className="member-requests">
+                    <div className="title">
+                        <h2> Member Pending Requests </h2>
+                    </div>
+                    <div className="request-list">
+                        {memberRequests && memberRequests.length > 0 ? (
+                            memberRequests.map(request => (
+                                <div key={request.request_id} className="request-card">
+                                    <p>Group ID: {request.group_id}</p>
+                                    <p>Account ID: {request.account_id}</p>
+                                    <p>Message: {request.message}</p>
+                                    <p>Created at: {request.created_at}</p>
+                                    <button className='accept-request-button' onClick={() => handleAcceptRequest(request.request_id)}>
+                                        Accept
+                                    </button>
+                                </div>
+                            ))
+                        ) : (
+                            <p>No requests available.</p>
+                        )}
+                    </div>
+                    <div className="request-actions">
+                        <button className='close-member-requests-button' onClick={() => setMemberRequestsModal(false)}>
+                            Close
+                        </button>
                     </div>
                 </div>
             )}

@@ -47,3 +47,33 @@ DETAIL:  Key (account_id_from)=(0) is not present in table "accounts".
 [SQL: INSERT INTO notifications (account_id_from, account_id_to, notification_type, message, is_pending, created_at, event_id, task_id) VALUES (%(account_id_from)s, %(account_id_to)s, %(notification_type)s, %(message)s, %(is_pending)s, %(created_at)s, %(event_id)s, %(task_id)s) RETURNING notifications.notification_id]
 [parameters: {'account_id_from': 0, 'account_id_to': 6, 'notification_type': 'Event Today', 'message': "Your event 'Test Event' is happening today at 15:33.", 'is_pending': True, 'created_at': datetime.datetime(2024, 11, 24, 20, 33, 55, 145001), 'event_id': None, 'task_id': None}]
 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-11-24 22:20:00,286 ERROR Error in create_event: (psycopg2.errors.ForeignKeyViolation) insert or update on table "notifications" violates foreign key constraint "notifications_account_id_from_fkey"
+DETAIL:  Key (account_id_from)=(0) is not present in table "accounts".
+
+[SQL: INSERT INTO notifications (account_id_from, account_id_to, group_id, notification_type, message, is_pending, created_at, event_id, task_id) VALUES (%(account_id_from)s, %(account_id_to)s, %(group_id)s, %(notification_type)s, %(message)s, %(is_pending)s, %(created_at)s, %(event_id)s, %(task_id)s) RETURNING notifications.notification_id]
+[parameters: {'account_id_from': 0, 'account_id_to': 1, 'group_id': None, 'notification_type': 'Event Today', 'message': "Your event 'hihi' is happening today at 17:21.", 'is_pending': True, 'created_at': datetime.datetime(2024, 11, 24, 22, 20, 0, 278294), 'event_id': None, 'task_id': None}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-11-24 22:21:43,519 ERROR Error in create_event: (psycopg2.errors.ForeignKeyViolation) insert or update on table "notifications" violates foreign key constraint "notifications_account_id_from_fkey"
+DETAIL:  Key (account_id_from)=(0) is not present in table "accounts".
+
+[SQL: INSERT INTO notifications (account_id_from, account_id_to, group_id, notification_type, message, is_pending, created_at, event_id, task_id) VALUES (%(account_id_from)s, %(account_id_to)s, %(group_id)s, %(notification_type)s, %(message)s, %(is_pending)s, %(created_at)s, %(event_id)s, %(task_id)s) RETURNING notifications.notification_id]
+[parameters: {'account_id_from': 0, 'account_id_to': 1, 'group_id': None, 'notification_type': 'Event Today', 'message': "Your event 'Test Event' is happening today at 17:21.", 'is_pending': True, 'created_at': datetime.datetime(2024, 11, 24, 22, 21, 43, 513011), 'event_id': None, 'task_id': None}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-11-24 22:25:00,964 ERROR Error in create_event: (psycopg2.errors.ForeignKeyViolation) insert or update on table "notifications" violates foreign key constraint "notifications_account_id_from_fkey"
+DETAIL:  Key (account_id_from)=(0) is not present in table "accounts".
+
+[SQL: INSERT INTO notifications (account_id_from, account_id_to, group_id, notification_type, message, is_pending, created_at, event_id, task_id) VALUES (%(account_id_from)s, %(account_id_to)s, %(group_id)s, %(notification_type)s, %(message)s, %(is_pending)s, %(created_at)s, %(event_id)s, %(task_id)s) RETURNING notifications.notification_id]
+[parameters: {'account_id_from': 0, 'account_id_to': 1, 'group_id': None, 'notification_type': 'Event Today', 'message': "Your event 'asdf' is happening today at 17:24.", 'is_pending': True, 'created_at': datetime.datetime(2024, 11, 24, 22, 25, 0, 960693), 'event_id': None, 'task_id': None}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-11-24 22:29:14,432 ERROR Error in create_event: (psycopg2.errors.ForeignKeyViolation) insert or update on table "notifications" violates foreign key constraint "notifications_account_id_from_fkey"
+DETAIL:  Key (account_id_from)=(0) is not present in table "accounts".
+
+[SQL: INSERT INTO notifications (account_id_from, account_id_to, group_id, notification_type, message, is_pending, created_at, event_id, task_id) VALUES (%(account_id_from)s, %(account_id_to)s, %(group_id)s, %(notification_type)s, %(message)s, %(is_pending)s, %(created_at)s, %(event_id)s, %(task_id)s) RETURNING notifications.notification_id]
+[parameters: {'account_id_from': 0, 'account_id_to': 1, 'group_id': None, 'notification_type': 'Event Today', 'message': "Your event 'asdf' is happening today at 17:24.", 'is_pending': True, 'created_at': datetime.datetime(2024, 11, 24, 22, 29, 14, 427291), 'event_id': None, 'task_id': None}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-11-24 22:29:31,650 ERROR Error in create_event: (psycopg2.errors.ForeignKeyViolation) insert or update on table "notifications" violates foreign key constraint "notifications_account_id_from_fkey"
+DETAIL:  Key (account_id_from)=(0) is not present in table "accounts".
+
+[SQL: INSERT INTO notifications (account_id_from, account_id_to, group_id, notification_type, message, is_pending, created_at, event_id, task_id) VALUES (%(account_id_from)s, %(account_id_to)s, %(group_id)s, %(notification_type)s, %(message)s, %(is_pending)s, %(created_at)s, %(event_id)s, %(task_id)s) RETURNING notifications.notification_id]
+[parameters: {'account_id_from': 0, 'account_id_to': 1, 'group_id': None, 'notification_type': 'Event Today', 'message': "Your event 'asdf' is happening today at 17:24.", 'is_pending': True, 'created_at': datetime.datetime(2024, 11, 24, 22, 29, 31, 647672), 'event_id': None, 'task_id': None}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)

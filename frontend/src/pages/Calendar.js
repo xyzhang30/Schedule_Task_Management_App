@@ -108,6 +108,14 @@ const Calendar = () => {
   const schedulerRef = useRef(null);
   
 
+  // Public Events
+  const [pubEvents, setPubEvents] = useState([])
+  const [pubAppointments, setPubAppointments] = useState([])
+  const [loadingPub, setLoadingPub] = useState(true);
+
+  // All Events
+  const allAppointments = [...appointments, ...pubAppointments];
+
   // Fetch events from backend
   useEffect(() => {
     refreshEvents();
@@ -217,6 +225,7 @@ const Calendar = () => {
         repeat_until: event.repeat_until,
         originalEvent: event,
         rRule,
+        isPublic: false,
       });
     });
     return appointments;
@@ -291,6 +300,70 @@ const Calendar = () => {
     }
   };
 
+  // Fetch Public events
+
+  const refreshPubEvents = async () => {
+    try {
+      const response = await axios.get(`${baseUrl}/group/show-reg-events`);
+      const pubEventData = response.data || [];
+      setPubEvents(pubEventData);
+      console.log('_____REPONSE_PUB_EVENTS', pubEventData);
+    } catch (error) {
+      console.error('Error fetching public events!', error);
+      if (error.response && error.response.status === 401) {
+        window.location.href = '/login';
+      }
+    } finally {
+      setLoadingPub(false);
+    }
+  };
+
+
+  const generatePubAppointments = (pubEvents) => {
+    const pubAppointments = [];
+    pubEvents.forEach((pubEvent) => {
+      console.log('GENERATING THIS PUBEVENT: ', pubEvent)
+
+      const event_id = pubEvent.event_id;
+      const event_name = pubEvent.event_name;
+      const group_id = pubEvent.group_id;
+      const start_date_time = new Date(pubEvent.start_date_time);
+      const end_date_time = new Date(pubEvent.end_date_time);
+      const is_all_day = pubEvent.is_all_day;
+
+      pubAppointments.push({
+        title: event_name,
+        group_id: group_id,
+        startDate: start_date_time,
+        endDate: end_date_time,
+        is_all_day: is_all_day,
+        id: event_id,
+        originalEvent: pubEvent,
+        isPublic: true,
+      });
+
+    });
+    return pubAppointments;
+  };
+
+
+  useEffect(() => {
+    refreshPubEvents();
+  }, []);
+
+
+  useEffect(() => {
+    const pubAppointments = generatePubAppointments(pubEvents);
+    setAppointments(pubAppointments);
+    console.log('_____GENERATE_PUB_APPTS', pubAppointments);
+  }, [pubEvents]);
+
+
+  if (loadingPub) {
+    return <div>Loading public events...</div>;
+  }
+
+
   // Modified Appointment Component
   const Appointment = (props) => {
     const { data, style, ...restProps } = props;
@@ -305,8 +378,6 @@ const Calendar = () => {
       e.stopPropagation();
       handleDelete(event.event_id);
     };
-
-    
 
     return (
       <Appointments.Appointment
@@ -336,28 +407,32 @@ const Calendar = () => {
               zIndex: 1,
             }}
           >
-            {event.frequency && (
-              <RepeatIcon
-                style={{
-                  color: '#fff',
-                  backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                  padding: '2px',
-                  borderRadius: '4px',
-                }}
-                fontSize="small"
-              />
+            {!data.isPublic && (
+              <>
+                {event.frequency && (
+                  <RepeatIcon
+                    style={{
+                      color: '#fff',
+                      backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                      padding: '2px',
+                      borderRadius: '4px',
+                    }}
+                    fontSize="small"
+                  />
+                )}
+                <EditIcon
+                  style={{
+                    color: '#fff',
+                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+                    padding: '2px',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                  }}
+                  fontSize="small"
+                  onClick={onEditClick}
+                />
+              </>
             )}
-            <EditIcon
-              style={{
-                color: '#fff',
-                backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                padding: '2px',
-                borderRadius: '4px',
-                cursor: 'pointer',
-              }}
-              fontSize="small"
-              onClick={onEditClick}
-            />
             <DeleteIcon
               style={{
                 color: '#fff',
@@ -390,10 +465,22 @@ const Calendar = () => {
     />
   );
 
+  const CustomTooltipContent = ({ appointmentData, ...restProps }) => {
+    return (
+      <AppointmentTooltip.Content {...restProps}>
+        <div>
+          <p>{appointmentData.location || 'No location provided'}</p>
+          <p>{appointmentData.category || 'No category specified'}</p>
+          <p>{appointmentData.group_id ? `Group: ${appointmentData.group_id}` : 'Private Event'}</p>
+        </div>
+      </AppointmentTooltip.Content>
+    );
+  };
+
   return (
     <div className="scheduler-container">
       <Paper>
-        <Scheduler data={appointments} height={700} ref={schedulerRef}>
+        <Scheduler data={allAppointments} height={700} ref={schedulerRef}>
           <ViewState
             currentDate={currentDate}
             onCurrentDateChange={setCurrentDate}
@@ -414,6 +501,7 @@ const Calendar = () => {
             onVisibilityChange={setTooltipVisible}
             appointmentMeta={appointmentMeta}
             onAppointmentMetaChange={setAppointmentMeta}
+            contentComponent={CustomTooltipContent}
           />
           <CurrentTimeIndicator
             shadePreviousCells
