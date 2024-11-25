@@ -3,7 +3,7 @@ from sqlalchemy.orm import Mapped, mapped_column, registry, relationship
 from sqlalchemy.sql import func
 from .account import Account
 from .group import Group
-from .event import Event
+# from .event import Event
 from .task import Task
 from datetime import datetime
 
@@ -100,6 +100,7 @@ class Notifications(Base):
     
     @classmethod
     def get_notifications_for_events(cls, account_id, now):
+        from .event import Event
         return db_session.query(Notifications).join(Event, Notifications.event_id == Event.event_id).filter(
             Notifications.account_id_to == account_id,
             Notifications.notification_type == 'Event Today',

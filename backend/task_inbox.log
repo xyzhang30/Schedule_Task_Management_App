@@ -1780,3 +1780,147 @@ Traceback (most recent call last):
            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 TypeError: Query.filter_by() takes 1 positional argument but 2 were given
 
+2024-11-25 09:28:54,304 ERROR Error in get_task_notifications: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[Event(events)]'. Original exception was: Error creating backref 'event' on relationship 'Event.notifications': property of that name exists on mapper 'Mapper[Notifications(notifications)]'
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Task.all_tasks_by_due_date(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/task.py", line 82, in all_tasks_by_due_date
+    tasks = db_session.query(cls).filter(
+            ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/scoping.py", line 1683, in query
+    return self._proxied.query(*entities, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2896, in query
+    return self._query_cls(entities, self, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 275, in __init__
+    self._set_entities(entities)
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 287, in _set_entities
+    self._raw_columns = [
+                        ^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 288, in <listcomp>
+    coercions.expect(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/coercions.py", line 389, in expect
+    insp._post_inspect
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 1253, in __get__
+    obj.__dict__[self.__name__] = result = self.fget(obj)
+                                           ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 2711, in _post_inspect
+    self._check_configure()
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 2388, in _check_configure
+    _configure_registries({self.registry}, cascade=True)
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 4203, in _configure_registries
+    _do_configure_registries(registries, cascade)
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 4240, in _do_configure_registries
+    raise e
+sqlalchemy.exc.InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[Event(events)]'. Original exception was: Error creating backref 'event' on relationship 'Event.notifications': property of that name exists on mapper 'Mapper[Notifications(notifications)]'
+
+2024-11-25 09:28:54,362 ERROR Error in get_task_notifications: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[Event(events)]'. Original exception was: Error creating backref 'event' on relationship 'Event.notifications': property of that name exists on mapper 'Mapper[Notifications(notifications)]'
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Task.all_tasks_by_due_date(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/task.py", line 82, in all_tasks_by_due_date
+    tasks = db_session.query(cls).filter(
+            ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/scoping.py", line 1683, in query
+    return self._proxied.query(*entities, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2896, in query
+    return self._query_cls(entities, self, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 275, in __init__
+    self._set_entities(entities)
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 287, in _set_entities
+    self._raw_columns = [
+                        ^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 288, in <listcomp>
+    coercions.expect(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/coercions.py", line 389, in expect
+    insp._post_inspect
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 1253, in __get__
+    obj.__dict__[self.__name__] = result = self.fget(obj)
+                                           ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 2711, in _post_inspect
+    self._check_configure()
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 2388, in _check_configure
+    _configure_registries({self.registry}, cascade=True)
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 4203, in _configure_registries
+    _do_configure_registries(registries, cascade)
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 4240, in _do_configure_registries
+    raise e
+sqlalchemy.exc.InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[Event(events)]'. Original exception was: Error creating backref 'event' on relationship 'Event.notifications': property of that name exists on mapper 'Mapper[Notifications(notifications)]'
+
+2024-11-25 09:29:02,756 ERROR Error in get_task_notifications: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[Event(events)]'. Original exception was: Error creating backref 'event' on relationship 'Event.notifications': property of that name exists on mapper 'Mapper[Notifications(notifications)]'
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Task.all_tasks_by_due_date(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/task.py", line 82, in all_tasks_by_due_date
+    tasks = db_session.query(cls).filter(
+            ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/scoping.py", line 1683, in query
+    return self._proxied.query(*entities, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2896, in query
+    return self._query_cls(entities, self, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 275, in __init__
+    self._set_entities(entities)
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 287, in _set_entities
+    self._raw_columns = [
+                        ^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 288, in <listcomp>
+    coercions.expect(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/coercions.py", line 389, in expect
+    insp._post_inspect
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 1253, in __get__
+    obj.__dict__[self.__name__] = result = self.fget(obj)
+                                           ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 2711, in _post_inspect
+    self._check_configure()
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 2388, in _check_configure
+    _configure_registries({self.registry}, cascade=True)
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 4203, in _configure_registries
+    _do_configure_registries(registries, cascade)
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 4240, in _do_configure_registries
+    raise e
+sqlalchemy.exc.InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[Event(events)]'. Original exception was: Error creating backref 'event' on relationship 'Event.notifications': property of that name exists on mapper 'Mapper[Notifications(notifications)]'
+
+2024-11-25 09:29:02,772 ERROR Error in get_task_notifications: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[Event(events)]'. Original exception was: Error creating backref 'event' on relationship 'Event.notifications': property of that name exists on mapper 'Mapper[Notifications(notifications)]'
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Task.all_tasks_by_due_date(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/task.py", line 82, in all_tasks_by_due_date
+    tasks = db_session.query(cls).filter(
+            ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/scoping.py", line 1683, in query
+    return self._proxied.query(*entities, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2896, in query
+    return self._query_cls(entities, self, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 275, in __init__
+    self._set_entities(entities)
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 287, in _set_entities
+    self._raw_columns = [
+                        ^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 288, in <listcomp>
+    coercions.expect(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/coercions.py", line 389, in expect
+    insp._post_inspect
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/util/langhelpers.py", line 1253, in __get__
+    obj.__dict__[self.__name__] = result = self.fget(obj)
+                                           ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 2711, in _post_inspect
+    self._check_configure()
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 2388, in _check_configure
+    _configure_registries({self.registry}, cascade=True)
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 4203, in _configure_registries
+    _do_configure_registries(registries, cascade)
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/mapper.py", line 4240, in _do_configure_registries
+    raise e
+sqlalchemy.exc.InvalidRequestError: One or more mappers failed to initialize - can't proceed with initialization of other mappers. Triggering mapper: 'Mapper[Event(events)]'. Original exception was: Error creating backref 'event' on relationship 'Event.notifications': property of that name exists on mapper 'Mapper[Notifications(notifications)]'
+
