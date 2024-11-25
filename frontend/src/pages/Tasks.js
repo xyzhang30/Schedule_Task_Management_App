@@ -75,6 +75,8 @@ const Tasks = () => {
     const handleTaskClick = (task) => {
         console.log('Task clicked:', task);
         setSelectedTask(task);
+        console.log("try")
+        console.log(selectedTask)
     };
 
     const handleEditButtonClick = (task) => {
@@ -87,10 +89,11 @@ const Tasks = () => {
         setShowEditTaskModal(true);
     };
     
-
     const formatDueTime = (timestamp) => {
         const date = new Date(timestamp);
-        return `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
+        const formattedDate = `${date.getUTCFullYear()}-${(date.getUTCMonth() + 1).toString().padStart(2, '0')}-${date.getUTCDate().toString().padStart(2, '0')}`;
+        const formattedTime = `${date.getUTCHours().toString().padStart(2, '0')}:${date.getUTCMinutes().toString().padStart(2, '0')}:${date.getUTCSeconds().toString().padStart(2, '0')}`;
+        return `${formattedDate} ${formattedTime}`; 
     };
 
     const handleInputChange = (e) => {
