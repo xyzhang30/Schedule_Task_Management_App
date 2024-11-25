@@ -391,6 +391,7 @@ const Events = () => {
   return (
     <div className="events-page-container">
       <div className="events-content">
+        
         <div className="filter-container">
           <h2>Events</h2>
           <div className="filter-group">
@@ -445,7 +446,7 @@ const Events = () => {
             </button>
           </div>
         </div>
-
+        
         {loading ? (
           <p>Loading events...</p>
         ) : error ? (

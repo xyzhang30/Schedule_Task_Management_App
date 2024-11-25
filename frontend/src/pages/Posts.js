@@ -346,14 +346,12 @@ const Posts = () => {
   return (
     <div className="split-screen-container">
       <div className="split-screen-content">
-
       <div className="split-screen-filter-container">
         
           <h2>Posts</h2>
           <div className="button-group">
           <button className="button" onClick={openAddPostModal}>Add Post</button>
           </div>
-        
       
       </div>
 

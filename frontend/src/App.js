@@ -25,14 +25,38 @@ import FindSharedAvailability from './pages/Availability.js';
 import Groups from './pages/Groups.js';
 import Inbox from './pages/Inbox.js';
 import GroupIndex from './pages/GroupIndex.js';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 // import SpotifyLogin from './pages/SpotifyLogin.js';
 // import SpotifyCallback from './pages/SpotifyCallback.js';
 
+// Define your custom theme
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#a3b18a',
+    }
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: {
+          color: '#ffffff', // Button text color
+          '&:hover': {
+            backgroundColor: '#a3b18a', // Hover background color
+          },
+        },
+      },
+    },
+  },
+});
+
 function App() {
   return (
-    <Router>
-      <Main />
-    </Router>
+    <ThemeProvider theme={theme}>
+      <Router>
+        <Main />
+      </Router>
+    </ThemeProvider>
   );
 }
 

@@ -2,10 +2,9 @@
     display: flex;
     width: 100%;
     height: 100vh;
-    background: linear-gradient(to right, #f8f9fa, #e9ecef);
     font-family: 'Roboto', sans-serif;
     gap: 20px;
-}
+  }
 .split-screen-content {
     flex: 1;
     display: grid;
@@ -23,7 +22,12 @@
     align-items: center;
     justify-content: space-between;
     padding: 15px 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  }
+
+  .split-screen-filter-container button {
+    margin-right: 10px; /* Adds space to the right of each button */
+    border: none;
   }
 
   .split-screen-right{

@@ -3,16 +3,18 @@
   display: flex;
   gap: 1rem;
   padding: 1rem;
+  background-color: #e9ede6;
 }
 
 .split-screen-left,
 .split-screen-right {
   flex: 1; 
-  border: 1px solid #ddd;
+  border: 1px solid #e9ede6;
   border-radius: 8px;
   padding: 1rem;
   overflow-y: auto;
   box-sizing: border-box;
+  background-color: #e9ede6;
 }
 
 /* Left Section (Posts List) */
@@ -31,10 +33,10 @@
 
 .post-item {
   padding: 1rem;
-  border: 1px solid #ddd;
+  border: none;
   border-radius: 6px;
-  background-color: #fff;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background-color: #e9ede6(209, 220, 201);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -49,7 +51,19 @@
 }
 
 .post-item button {
+  background-color: #606c38;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 0.3rem 0.8rem;
   margin-right: 0.5rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.post-item button:hover {
+  background-color: #4b5a30;
 }
 
 /* Right Section (Post Details) */
@@ -68,6 +82,12 @@
   font-size: 1.2rem;
 }
 
+.post-actions {
+  display: flex;
+  gap: 10px;
+  border-radius: 4px;
+}
+
 .comment-item {
   display: flex;
   justify-content: space-between;
@@ -80,8 +100,8 @@
 }
 
 .comment-item button {
-  background-color: #ff4d4d;
-  color: white;
+  background-color: #606c38; /* New delete button color */
+  color: white; /* Text color */
   border: none;
   border-radius: 4px;
   padding: 0.3rem 0.5rem;
@@ -89,7 +109,7 @@
 }
 
 .comment-item button:hover {
-  background-color: #ff1a1a;
+  background-color: #9d0208;
 }
 
 /* Add Comment Section */
@@ -102,7 +122,7 @@
 .add-comment-section input {
   flex: 1;
   padding: 0.5rem;
-  border: 1px solid #ddd;
+  border: 1px solid #e9ede6;
   border-radius: 4px;
 }
 
@@ -110,8 +130,8 @@
   padding: 0.5rem 1rem;
   border: none;
   border-radius: 4px;
-  background-color: #4CAF50;
-  color: white;
+  background-color: #e9ede6;
+  color: #e9ede6;
   cursor: pointer;
 }
 

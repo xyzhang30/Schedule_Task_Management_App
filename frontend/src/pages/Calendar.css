@@ -10,8 +10,22 @@
 
 /* Customize the toolbar */
 .MuiToolbar-root {
-  background-color: #17a2b8;
-  color: white;
+  background-color: #a3b18a;
+  color: #ffffff;
+}
+
+.MuiToolbar-root button {
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.MuiToolbar-root .MuiTypography-root {
+  color: #ffffff;
+}
+
+.MuiButton-outlined:hover {
+  border-color: #e9ede6;
+  background-color: rgba(255, 255, 255, 0.1);
 }
 
 /* Customize appointment appearance */
@@ -21,15 +35,15 @@
 
 /* Fancy styling */
 .dx-scheduler-header-panel-cell {
-  background-color: #f0f8ff;
+  background-color: #cad2c5;
 }
 
 .dx-scheduler-date-table-cell {
-  background-color: #fafafa;
+  background-color: #cad2c5;
 }
 
 .dx-scheduler-time-panel-cell {
-  background-color: #e6f7ff;
+  background-color: #cad2c5;
 }
 
 /* Appointment icons */

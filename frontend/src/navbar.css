@@ -3,10 +3,10 @@
 /* Navbar Container */
 .navbar {
   width: 70px; /* Fixed width */
-  background: linear-gradient(to right, #f8f9fa, #e9ecef);
   font-family: 'Roboto', sans-serif;
   transition: width 0.3s ease;
   z-index: 1000;
+  background-color: #606c38;
 }
 
 /* Sidebar Container */
@@ -21,10 +21,10 @@
 
 /* Sidebar Buttons */
 .sidebar button {
-  position: relative; /* To anchor the tooltip */
-  background-color: #dcdcf7;
+  position: relative; /* For tooltip positioning */
+  background-color: #e9ede6;
   border: none;
-  padding: 10px 7px;
+  padding: 10px; /* Remove `padding-left` for consistent centering */
   width: 100%;
   margin-bottom: 10px;
   border-radius: 5px;
@@ -32,9 +32,9 @@
   cursor: pointer;
   color: #333;
   transition: background-color 0.3s ease, transform 0.2s ease;
-  display: flex;
-  align-items: center;
-  padding-left: 10px;
+  display: flex; /* Flexbox for centering */
+  justify-content: center; /* Horizontally center the icon */
+  align-items: center; /* Vertically center the icon */
   box-sizing: border-box;
 }
 
@@ -44,7 +44,7 @@
   left: 100%; /* Position tooltip to the right of the button */
   top: 50%;
   transform: translate(10px, -50%); /* Slight offset for better visibility */
-  background-color: #343a40;
+  background-color: #283618;
   color: #fff;
   padding: 5px 10px;
   border-radius: 4px;
@@ -82,7 +82,7 @@
 
 /* Button Hover Effects */
 .sidebar button:hover {
-  background-color: #c7c7e6;
+  background-color: #cad2c5;
   transform: scale(1.05);
 }
 

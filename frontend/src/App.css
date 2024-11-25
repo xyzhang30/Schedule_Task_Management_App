@@ -42,6 +42,7 @@
   grid-template-columns: 70px 1fr; 
   height: 100vh; 
   overflow: visible; 
+  background-color: #e9ede6;
 }
 
 
@@ -137,23 +138,23 @@
 }
 
 .modal-actions button[type="submit"] {
-  background-color: #17a2b8;
+  background-color: #606c38;
   color: #fff;
   transition: background-color 0.3s ease;
 }
 
 .modal-actions button[type="submit"]:hover {
-  background-color: #138496;
+  background-color: #606c38;
 }
 
 .modal-actions button[type="button"] {
-  background-color: #6c757d;
+  background-color: #606c38;
   color: #fff;
   transition: background-color 0.3s ease;
 }
 
 .modal-actions button[type="button"]:hover {
-  background-color: #5a6268;
+  background-color: #606c38;
 }
 
 /* Form - Modal */
@@ -178,7 +179,12 @@ h2 {
 }
 
 button {
-  background-color: #20a0b1;
+  background-color: #606c38;
   color: #FFF;
-  padding-top: 3px;
+  padding: 4px 10px; /* Adjust size */
+  border: none;
+  font-weight: bold;
+  border-radius: 4px; /* Optional: rounded corners */
+  margin-right: 10px; /* Adds space to the right */
+  gap: 10px;
 }

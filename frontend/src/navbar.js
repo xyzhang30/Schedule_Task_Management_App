@@ -4,7 +4,7 @@
 import React from 'react';
 import './navbar.css'; // Ensure this path is correct
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faCalendar, faCog, faUsers, faInfoCircle, faCalendarAlt, faPeopleGroup, faCalendarCheck, faComments, faClock, faGifts,faInbox } from '@fortawesome/free-solid-svg-icons';
+import { faFaceSmile, faHandshake, faTicket, faHome, faCalendar, faCog, faUsers, faInfoCircle, faCalendarAlt, faPeopleGroup, faCalendarCheck, faComments, faClock, faGifts,faInbox, faListCheck } from '@fortawesome/free-solid-svg-icons';
 
 const NavBar = () => {
   const navigateTo = (link) => {
@@ -23,15 +23,15 @@ const NavBar = () => {
           <span>Calendar</span>
         </button>
         <button onClick={() => navigateTo('/tasks')}>
-          <FontAwesomeIcon icon={faCalendarCheck} />
+          <FontAwesomeIcon icon={faListCheck} />
           <span>Tasks</span>
         </button>
         <button onClick={() => navigateTo('/event')}>
-          <FontAwesomeIcon icon={faGifts} />
-          <span>Events</span>
+          <FontAwesomeIcon icon={faTicket} />
+          <span>Event</span>
         </button>
         <button onClick={() => navigateTo('/friends')}>
-          <FontAwesomeIcon icon={faUsers} />
+          <FontAwesomeIcon icon={faFaceSmile} />
           <span>Friends</span>
         </button>
         <button onClick={() => navigateTo('/posts')}>
@@ -43,7 +43,7 @@ const NavBar = () => {
           <span>Groups</span>
         </button>
         <button onClick={() => navigateTo('/availability')}>
-          <FontAwesomeIcon icon={faCalendarAlt} />
+          <FontAwesomeIcon icon={faHandshake} />
           <span>Availability</span>
         </button>
         <button onClick={() => navigateTo('/studytime')}>

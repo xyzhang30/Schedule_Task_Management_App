@@ -29,7 +29,7 @@ axios.defaults.withCredentials = true;
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
 // Define the default color for appointments without a label
-const DEFAULT_APPOINTMENT_COLOR = '#2196F3';
+const DEFAULT_APPOINTMENT_COLOR = '#cad2c5';
 
 
 // Custom Appointment Content Component

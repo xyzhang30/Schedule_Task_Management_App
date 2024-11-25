@@ -28,7 +28,7 @@
     width: 100%;
     padding: 10px;
     border-radius: 5px;
-    border: 1px solid #ccc;
+    border: 1px solid #606c38;
   }
   
   .friends-list {
@@ -40,8 +40,9 @@
   
   .friend-item {
     padding: 15px;
-    background-color: #e0e0e0;
+    background-color: #e9ede6;
     border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   }
   
   .friends-profile-section {
@@ -54,13 +55,13 @@
   .profile-picture {
     max-width: 100px;
     max-height: 100px;
-    background-color: #d0d0d0;
+    background-color: #cad2c5;
     border-radius: 50%;
   }
   
   .profile-info {
     width: 300px;
     height: 30px;
-    background-color: #d0d0d0;
+    background-color: #cad2c5;
   }
   

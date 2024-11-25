@@ -77,3 +77,33 @@ DETAIL:  Key (account_id_from)=(0) is not present in table "accounts".
 [SQL: INSERT INTO notifications (account_id_from, account_id_to, group_id, notification_type, message, is_pending, created_at, event_id, task_id) VALUES (%(account_id_from)s, %(account_id_to)s, %(group_id)s, %(notification_type)s, %(message)s, %(is_pending)s, %(created_at)s, %(event_id)s, %(task_id)s) RETURNING notifications.notification_id]
 [parameters: {'account_id_from': 0, 'account_id_to': 1, 'group_id': None, 'notification_type': 'Event Today', 'message': "Your event 'asdf' is happening today at 17:24.", 'is_pending': True, 'created_at': datetime.datetime(2024, 11, 24, 22, 29, 31, 647672), 'event_id': None, 'task_id': None}]
 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-11-25 03:16:29,970 ERROR Error in create_event: (psycopg2.errors.ForeignKeyViolation) insert or update on table "events" violates foreign key constraint "events_account_id_fkey"
+DETAIL:  Key (account_id)=(10) is not present in table "accounts".
+
+[SQL: INSERT INTO events (account_id, name, location, start_date, end_date, category, label_text, label_color, frequency, repeat_until) VALUES (%(account_id)s, %(name)s, %(location)s, %(start_date)s, %(end_date)s, %(category)s, %(label_text)s, %(label_color)s, %(frequency)s, %(repeat_until)s) RETURNING events.event_id]
+[parameters: {'account_id': 10, 'name': '1', 'location': 'Durham', 'start_date': datetime.datetime(2024, 11, 29, 22, 16), 'end_date': datetime.datetime(2024, 11, 30, 22, 16), 'category': '11', 'label_text': '1', 'label_color': '#2196F3', 'frequency': 'Once a Week', 'repeat_until': datetime.datetime(2024, 12, 7, 22, 16)}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-11-25 03:16:33,431 ERROR Error in create_event: (psycopg2.errors.ForeignKeyViolation) insert or update on table "events" violates foreign key constraint "events_account_id_fkey"
+DETAIL:  Key (account_id)=(10) is not present in table "accounts".
+
+[SQL: INSERT INTO events (account_id, name, location, start_date, end_date, category, label_text, label_color, frequency, repeat_until) VALUES (%(account_id)s, %(name)s, %(location)s, %(start_date)s, %(end_date)s, %(category)s, %(label_text)s, %(label_color)s, %(frequency)s, %(repeat_until)s) RETURNING events.event_id]
+[parameters: {'account_id': 10, 'name': '1', 'location': 'Durham', 'start_date': datetime.datetime(2024, 11, 29, 22, 16), 'end_date': datetime.datetime(2024, 11, 30, 22, 16), 'category': '11', 'label_text': '1', 'label_color': '#4596d9', 'frequency': 'Once a Week', 'repeat_until': datetime.datetime(2024, 12, 7, 22, 16)}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-11-25 03:16:34,152 ERROR Error in create_event: (psycopg2.errors.ForeignKeyViolation) insert or update on table "events" violates foreign key constraint "events_account_id_fkey"
+DETAIL:  Key (account_id)=(10) is not present in table "accounts".
+
+[SQL: INSERT INTO events (account_id, name, location, start_date, end_date, category, label_text, label_color, frequency, repeat_until) VALUES (%(account_id)s, %(name)s, %(location)s, %(start_date)s, %(end_date)s, %(category)s, %(label_text)s, %(label_color)s, %(frequency)s, %(repeat_until)s) RETURNING events.event_id]
+[parameters: {'account_id': 10, 'name': '1', 'location': 'Durham', 'start_date': datetime.datetime(2024, 11, 29, 22, 16), 'end_date': datetime.datetime(2024, 11, 30, 22, 16), 'category': '11', 'label_text': '1', 'label_color': '#4596d9', 'frequency': 'Once a Week', 'repeat_until': datetime.datetime(2024, 12, 7, 22, 16)}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-11-25 03:16:36,904 ERROR Error in create_event: (psycopg2.errors.ForeignKeyViolation) insert or update on table "events" violates foreign key constraint "events_account_id_fkey"
+DETAIL:  Key (account_id)=(10) is not present in table "accounts".
+
+[SQL: INSERT INTO events (account_id, name, location, start_date, end_date, category, label_text, label_color, frequency, repeat_until) VALUES (%(account_id)s, %(name)s, %(location)s, %(start_date)s, %(end_date)s, %(category)s, %(label_text)s, %(label_color)s, %(frequency)s, %(repeat_until)s) RETURNING events.event_id]
+[parameters: {'account_id': 10, 'name': '1', 'location': 'Durham', 'start_date': datetime.datetime(2024, 11, 29, 22, 16), 'end_date': datetime.datetime(2024, 11, 30, 22, 16), 'category': '11', 'label_text': '1', 'label_color': '#4596d9', 'frequency': 'Once a Week', 'repeat_until': datetime.datetime(2024, 12, 7, 22, 16)}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-11-25 03:16:38,197 ERROR Error in create_event: (psycopg2.errors.ForeignKeyViolation) insert or update on table "events" violates foreign key constraint "events_account_id_fkey"
+DETAIL:  Key (account_id)=(10) is not present in table "accounts".
+
+[SQL: INSERT INTO events (account_id, name, location, start_date, end_date, category, label_text, label_color, frequency, repeat_until) VALUES (%(account_id)s, %(name)s, %(location)s, %(start_date)s, %(end_date)s, %(category)s, %(label_text)s, %(label_color)s, %(frequency)s, %(repeat_until)s) RETURNING events.event_id]
+[parameters: {'account_id': 10, 'name': '1', 'location': 'Durham', 'start_date': datetime.datetime(2024, 11, 29, 22, 16), 'end_date': datetime.datetime(2024, 11, 30, 22, 16), 'category': '11', 'label_text': '1', 'label_color': '#4596d9', 'frequency': 'Once a Week', 'repeat_until': datetime.datetime(2024, 12, 7, 22, 16)}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)

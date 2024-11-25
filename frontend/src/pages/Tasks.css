@@ -36,16 +36,17 @@
 }
 
 .task-item {
-    background-color: #e0e0e0;
+    background-color: #e9ede6;
     padding: 10px;
     margin-bottom: 10px;
     cursor: pointer;
     border-radius: 4px;
     transition: background-color 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 .task-item:hover {
-    background-color: #cfcfcf;
+    background-color: #cad2c5;
 }
 
 .task-details {
@@ -57,11 +58,11 @@
 }
 
 .task-details-content {
-    background-color: #f9f9f9;
+    background-color: #e9ede6;
     padding: 20px;
     border-radius: 10px;
     width: 80%;
-    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
 }
 
 .task-details h2 {
@@ -102,11 +103,11 @@
 }
 
 .edit-task-button {
-    color: #007bff;
+    color: #606c38;
 }
 
 .delete-task-button {
-    color: #dc3545;
+    color: #9d0208;
 }
 
 .task-actions button:hover {
@@ -127,7 +128,7 @@
 }
 
 .complete-task-button {
-    background-color: #4CAF50;
+    background-color: #a4ac86;
     color: white;
     border: none;
     padding: 5px; 
@@ -137,7 +138,7 @@
 }
 
 .complete-task-button:hover {
-    background-color: #45a049;
+    background-color: #606c38;
 }
 
 .category-controls {
@@ -193,7 +194,7 @@
 }
 
 .completed-task {
-    color: green;
+    color: #606c38;
     text-decoration: line-through;
 }
 
