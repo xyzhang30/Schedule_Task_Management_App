@@ -105,6 +105,9 @@ def createTask():
     account_id = session['user']
     event_id = request.form.get("event_id")
 
+    if event_id == 'undefined' or event_id == '':
+        event_id = None
+
     if not task_name or not due_time or not account_id:
         return jsonify({'error': 'Missing required fields'}), 400
 
