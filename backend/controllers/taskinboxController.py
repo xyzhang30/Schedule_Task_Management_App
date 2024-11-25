@@ -26,25 +26,15 @@ def get_task_notifications():
     try:
         account_id = session['user']
         today = datetime.now().date()
-        print("start")
 
         #Gets all tasks due today
-        tasks_due_today = db_session.query(Task).filter(
-            Task.account_id == account_id,
-            func.date(Task.due_time) == today,
-            Task.complete == False
-        ).all()
+        tasks_due_today = Task.all_tasks_by_due_date(account_id, today)
 
         #Creates notifications for tasks if not already exist
         for task in tasks_due_today:
-            existing_notification = db_session.query(Notifications).filter_by(
-                account_id_to=account_id,
-                notification_type='Task Due Today',
-                task_id=task.task_id 
-            ).first()
-
+            existing_notification = Notifications.get_existing_task_messages(account_id, task.task_id)
+            
             if not existing_notification:
-                print("not exist")
                 message = f"Your task '{task.task_name}' is due today at {task.due_time.strftime('%H:%M')}."
                 notification = Notifications(
                     account_id_from=account_id,
@@ -55,18 +45,11 @@ def get_task_notifications():
                     created_at=datetime.now(),
                     task_id=task.task_id
                 )
-                print("created")
                 notification.save_notification()
-                print("saved")
 
-        notifications = db_session.query(Notifications).filter_by(
-            account_id_to=account_id,
-            notification_type='Task Due Today',
-            is_pending=True
-        ).order_by(Notifications.created_at.desc()).all()
+        notifications = Notifications.retrieve_task_notifications(account_id)
 
         notifications_list = [n.to_dict() for n in notifications]
-        print("returned")
         return jsonify(notifications_list), 200
     except Exception as e:
         logger.error(f"Error in get_task_notifications: {e}\n{traceback.format_exc()}")
@@ -82,7 +65,7 @@ def delete_task_notification():
     try:
         data = request.get_json()
         notification_id = data.get('notification_id')
-        notification = db_session.query(Notifications).filter_by(notification_id=notification_id).first()
+        notification = Notifications.get_notification_by_notification_id(notification_id)
 
         if notification and notification.account_id_to == session['user']:
             notification.update_pending_status()

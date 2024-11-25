@@ -75,6 +75,14 @@ class Task(Base):
 
         return map
     
+    @classmethod
+    def all_tasks_by_due_date(cls, account_id, due_date):
+        return db_session.query(Task).filter(
+            Task.account_id == account_id,
+            func.date(Task.due_time) == due_date,
+            Task.complete == False
+            ).all()
+    
 
 class Category(Base):
     __tablename__ = 'task_category'
@@ -99,3 +107,4 @@ class Category(Base):
     @classmethod
     def all_per_user(cls, account_id):
         return db_session.query(cls).filter_by(account_id=account_id).all()
+    

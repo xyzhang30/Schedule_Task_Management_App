@@ -5,6 +5,7 @@ from ..models.event import Event
 from ..decorators import is_logged_in
 import logging
 import traceback
+from ..db import db_session
 
 bp = Blueprint('event_inbox', __name__, url_prefix='/event_inbox')
 
@@ -23,16 +24,14 @@ def get_event_notifications():
         account_id = session['user']
         now = datetime.now().date()
 
-        #get events happening today
-        events_today = Event.get_events_happening_today(account_id, now)
-        print("________events today: ", events_today)
+        events_today = Notifications.get_notifications_for_events(account_id, now)
 
         for event in events_today:
-            # check if notification already exists for this event
+            # Check if notification already exists for this event (regardless of is_pending status)
             existing_notification = Notifications.get_existing_messages(account_id, event.event_id)
 
-            message = f"Your event '{event.name}' is happening today at {event.start_date.strftime('%H:%M')}."
             if not existing_notification:
+                message = f"Your event '{event.name}' is happening today at {event.start_date.strftime('%H:%M')}."
                 # Create a new notification
                 notification = Notifications(
                     account_id_from=account_id,
@@ -44,23 +43,11 @@ def get_event_notifications():
                     event_id=event.event_id
                 )
                 notification.save_notification()
-            else:
-                # Update existing notification message if event has been updated
-                existing_notification.message = message
-                existing_notification.created_at = datetime.now()
-                existing_notification.is_pending = True
-                existing_notification.save_notification()
 
-        # Retrieve event notifications and join with Event to get start_date
-        notifications = Notifications.get_notifications_for_events(account_id, now)
+        # Retrieve event notifications
+        notifications = Notifications.retrieve_event_notifications(account_id)
 
-        # Prepare notifications list including event start_date
-        notifications_list = []
-        for n in notifications:
-            notification_dict = n.to_dict()
-            notification_dict['event_start_date'] = n.event.start_date.strftime('%Y-%m-%dT%H:%M')
-            notifications_list.append(notification_dict)
-
+        notifications_list = [n.to_dict() for n in notifications]
         return jsonify(notifications_list), 200
     except Exception as e:
         logger.error(f"Error in get_event_notifications: {e}\n{traceback.format_exc()}")

@@ -3,6 +3,7 @@ from sqlalchemy.orm import Mapped, mapped_column, registry, relationship
 from .account import Account
 from .group import Group
 from .event import Event
+from .task import Task
 from datetime import datetime
 
 from ..db import Base, db_session
@@ -89,6 +90,14 @@ class Notifications(Base):
             ).first()
     
     @classmethod
+    def get_existing_task_messages(cls, account_id, task_id):
+        return db_session.query(Notifications).filter_by(
+                account_id_to=account_id,
+                notification_type='Task Due Today',
+                task_id=task_id 
+            ).first()
+    
+    @classmethod
     def get_notifications_for_events(cls, account_id, now):
         return db_session.query(Notifications).join(Event, Notifications.event_id == Event.event_id).filter(
             Notifications.account_id_to == account_id,
@@ -97,3 +106,19 @@ class Notifications(Base):
             Event.start_date >= datetime.combine(now, datetime.min.time()),
             Event.start_date <= datetime.combine(now, datetime.max.time())
         ).order_by(Event.start_date.asc()).all()
+    
+    @classmethod
+    def retrieve_event_notifications(cls, account_id):
+        return db_session.query(Notifications).filter_by(
+            account_id_to=account_id,
+            notification_type='Event Today',
+            is_pending=True
+        ).order_by(Notifications.created_at.desc()).all()
+    
+    @classmethod
+    def retrieve_task_notifications(cls, account_id):
+        return db_session.query(Notifications).filter_by(
+            account_id_to=account_id,
+            notification_type='Task Due Today',
+            is_pending=True
+        ).order_by(Notifications.created_at.desc()).all()

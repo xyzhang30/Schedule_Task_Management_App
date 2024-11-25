@@ -5393,3 +5393,931 @@ Traceback (most recent call last):
                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 AttributeError: type object 'Notifications' has no attribute 'get_events_happening_today'
 
+2024-11-25 02:53:15,694 ERROR Error in get_event_notifications: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedColumn: column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/srv/app/controllers/eventinboxController.py", line 55, in get_event_notifications
+    notifications = Notifications.get_notifications_for_events(account_id, now)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 99, in get_notifications_for_events
+    ).order_by(Event.start_date.asc()).all()
+                                       ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2191, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1422, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 514, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1644, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1850, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1990, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2357, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+2024-11-25 02:53:15,754 ERROR Error in get_event_notifications: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedColumn: column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/srv/app/controllers/eventinboxController.py", line 55, in get_event_notifications
+    notifications = Notifications.get_notifications_for_events(account_id, now)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 99, in get_notifications_for_events
+    ).order_by(Event.start_date.asc()).all()
+                                       ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2191, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1422, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 514, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1644, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1850, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1990, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2357, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+2024-11-25 02:53:58,489 ERROR Error in get_event_notifications: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedColumn: column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/srv/app/controllers/eventinboxController.py", line 55, in get_event_notifications
+    notifications = Notifications.get_notifications_for_events(account_id, now)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 99, in get_notifications_for_events
+    ).order_by(Event.start_date.asc()).all()
+                                       ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2191, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1422, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 514, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1644, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1850, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1990, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2357, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+2024-11-25 02:53:58,547 ERROR Error in get_event_notifications: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedColumn: column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/srv/app/controllers/eventinboxController.py", line 55, in get_event_notifications
+    notifications = Notifications.get_notifications_for_events(account_id, now)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 99, in get_notifications_for_events
+    ).order_by(Event.start_date.asc()).all()
+                                       ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2191, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1422, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 514, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1644, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1850, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1990, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2357, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+2024-11-25 02:57:50,724 ERROR Error in get_event_notifications: QueuePool limit of size 30 overflow 10 reached, connection timed out, timeout 30.00 (Background on this error at: https://sqlalche.me/e/20/3o7r)
+Traceback (most recent call last):
+  File "/srv/app/controllers/eventinboxController.py", line 27, in get_event_notifications
+    events_today = Event.get_events_happening_today(account_id, now)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/event.py", line 41, in get_events_happening_today
+    ).all()
+      ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2181, in _execute_internal
+    conn = self._connection_for_bind(bind)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2050, in _connection_for_bind
+    return trans._connection_for_bind(engine, execution_options)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "<string>", line 2, in _connection_for_bind
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/state_changes.py", line 139, in _go
+    ret_value = fn(self, *arg, **kw)
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 1144, in _connection_for_bind
+    conn = bind.connect()
+           ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3280, in connect
+    return self._connection_cls(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 146, in __init__
+    self._dbapi_connection = engine.raw_connection()
+                             ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 3304, in raw_connection
+    return self.pool.connect()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 449, in connect
+    return _ConnectionFairy._checkout(self)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 1263, in _checkout
+    fairy = _ConnectionRecord.checkout(pool)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/base.py", line 712, in checkout
+    rec = pool._do_get()
+          ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/pool/impl.py", line 168, in _do_get
+    raise exc.TimeoutError(
+sqlalchemy.exc.TimeoutError: QueuePool limit of size 30 overflow 10 reached, connection timed out, timeout 30.00 (Background on this error at: https://sqlalche.me/e/20/3o7r)
+
+2024-11-25 02:58:48,982 ERROR Error in get_event_notifications: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedColumn: column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/srv/app/controllers/eventinboxController.py", line 55, in get_event_notifications
+    notifications = Notifications.get_notifications_for_events(account_id, now)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 99, in get_notifications_for_events
+    ).order_by(Event.start_date.asc()).all()
+                                       ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2191, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1422, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 514, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1644, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1850, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1990, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2357, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+2024-11-25 02:58:49,062 ERROR Error in get_event_notifications: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedColumn: column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/srv/app/controllers/eventinboxController.py", line 55, in get_event_notifications
+    notifications = Notifications.get_notifications_for_events(account_id, now)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 99, in get_notifications_for_events
+    ).order_by(Event.start_date.asc()).all()
+                                       ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2191, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1422, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 514, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1644, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1850, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1990, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2357, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+2024-11-25 02:59:17,413 ERROR Error in get_event_notifications: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedColumn: column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/srv/app/controllers/eventinboxController.py", line 55, in get_event_notifications
+    notifications = Notifications.get_notifications_for_events(account_id, now)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 99, in get_notifications_for_events
+    ).order_by(Event.start_date.asc()).all()
+                                       ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2191, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1422, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 514, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1644, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1850, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1990, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2357, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+2024-11-25 02:59:17,464 ERROR Error in get_event_notifications: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedColumn: column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/srv/app/controllers/eventinboxController.py", line 55, in get_event_notifications
+    notifications = Notifications.get_notifications_for_events(account_id, now)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 99, in get_notifications_for_events
+    ).order_by(Event.start_date.asc()).all()
+                                       ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2191, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1422, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 514, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1644, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1850, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1990, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2357, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+2024-11-25 02:59:18,971 ERROR Error in get_event_notifications: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedColumn: column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/srv/app/controllers/eventinboxController.py", line 55, in get_event_notifications
+    notifications = Notifications.get_notifications_for_events(account_id, now)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 99, in get_notifications_for_events
+    ).order_by(Event.start_date.asc()).all()
+                                       ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2191, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1422, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 514, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1644, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1850, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1990, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2357, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+2024-11-25 02:59:19,025 ERROR Error in get_event_notifications: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedColumn: column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/srv/app/controllers/eventinboxController.py", line 55, in get_event_notifications
+    notifications = Notifications.get_notifications_for_events(account_id, now)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 99, in get_notifications_for_events
+    ).order_by(Event.start_date.asc()).all()
+                                       ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2191, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1422, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 514, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1644, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1850, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1990, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2357, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+2024-11-25 02:59:20,792 ERROR Error in get_event_notifications: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedColumn: column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/srv/app/controllers/eventinboxController.py", line 55, in get_event_notifications
+    notifications = Notifications.get_notifications_for_events(account_id, now)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 99, in get_notifications_for_events
+    ).order_by(Event.start_date.asc()).all()
+                                       ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2191, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1422, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 514, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1644, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1850, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1990, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2357, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+2024-11-25 02:59:20,928 ERROR Error in get_event_notifications: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedColumn: column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/srv/app/controllers/eventinboxController.py", line 55, in get_event_notifications
+    notifications = Notifications.get_notifications_for_events(account_id, now)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 99, in get_notifications_for_events
+    ).order_by(Event.start_date.asc()).all()
+                                       ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2191, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1422, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 514, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1644, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1850, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1990, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2357, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column notifications.group_id does not exist
+LINE 1: ...ons.account_id_to AS notifications_account_id_to, notificati...
+                                                             ^
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN events ON notifications.event_id = events.event_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND events.start_date >= %(start_date_1)s AND events.start_date <= %(start_date_2)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Event Today', 'start_date_1': datetime.datetime(2024, 11, 25, 0, 0), 'start_date_2': datetime.datetime(2024, 11, 25, 23, 59, 59, 999999)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+

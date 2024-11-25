@@ -4,6 +4,7 @@ from ..models.task import Task, Category
 from ..models.event import Event
 from ..models.notifications import Notifications
 from ..decorators import is_logged_in
+from datetime import datetime, date
 
 bp = Blueprint('task', __name__, url_prefix='/task')
 
@@ -240,7 +241,7 @@ def get_all_events():
     account_id = session['user']
     events = Event.get_events_by_account(account_id)
     if not events:
-        return jsonify({'message': 'No available events'}), 404
+        return [], 200
     events_list = [event.to_dict() for event in events]
     return jsonify({'events': events_list}), 200
 
@@ -257,14 +258,17 @@ def update_task_notification(task_id):
             return jsonify({"error": "Task not found."}), 404
 
         notification = Notifications.get_notifications_by_task(task_id)
-
-        if not notification:
-            return jsonify({"error": "Notification not found."}), 404
-
-        notification.message = f"Your task '{task.task_name}' is due today at {task.due_time.strftime('%H:%M')}."
-        notification.save_notification()
-
-        return jsonify({"message": "Task notification updated", "notification": notification.to_dict()}), 200
+        current_date = date.today()
+        if task.due_time.date() != current_date:
+            if notification:
+                notification.delete_notification()
+                return jsonify({"message": "Task notification deleted as the due time is not within today."}), 200
+        else:
+            if notification:
+                notification.message = f"Your task '{task.task_name}' is due today at {task.due_time.strftime('%H:%M')}."
+                notification.save_notification()
+                return jsonify({"message": "Task notification updated", "notification": notification.to_dict()}), 200
+        return jsonify({"message": "No notification to update or delete."}), 200
 
     except Exception as e:
         return jsonify({"error": "Failed to update task notification."}), 500
