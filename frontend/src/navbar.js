@@ -18,37 +18,37 @@ const NavBar = () => {
           <FontAwesomeIcon icon={faHome} />
           <span>Home</span>
         </button>
-        <button onClick={() => navigateTo('/tasks')}>
-          <FontAwesomeIcon icon={faCalendarCheck} />
-          <span>Tasks</span>
-        </button>
         <button onClick={() => navigateTo('/calendar')}>
           <FontAwesomeIcon icon={faCalendar} />
           <span>Calendar</span>
         </button>
-        <button onClick={() => navigateTo('/posts')}>
-          <FontAwesomeIcon icon={faComments} />
-          <span>Posts</span>
-        </button>
-        <button onClick={() => navigateTo('/friends')}>
-          <FontAwesomeIcon icon={faUsers} />
-          <span>Friends</span>
+        <button onClick={() => navigateTo('/tasks')}>
+          <FontAwesomeIcon icon={faCalendarCheck} />
+          <span>Tasks</span>
         </button>
         <button onClick={() => navigateTo('/event')}>
           <FontAwesomeIcon icon={faGifts} />
           <span>Events</span>
         </button>
+        <button onClick={() => navigateTo('/friends')}>
+          <FontAwesomeIcon icon={faUsers} />
+          <span>Friends</span>
+        </button>
+        <button onClick={() => navigateTo('/posts')}>
+          <FontAwesomeIcon icon={faComments} />
+          <span>Posts</span>
+        </button>
         <button onClick={() => navigateTo('/groups')}>
           <FontAwesomeIcon icon={faPeopleGroup} />
           <span>Groups</span>
         </button>
-        <button onClick={() => navigateTo('/studytime')}>
-          <FontAwesomeIcon icon={faClock} />
-          <span>Study Time</span>
-        </button>
         <button onClick={() => navigateTo('/availability')}>
           <FontAwesomeIcon icon={faCalendarAlt} />
           <span>Availability</span>
+        </button>
+        <button onClick={() => navigateTo('/studytime')}>
+          <FontAwesomeIcon icon={faClock} />
+          <span>Study Time</span>
         </button>
         <button onClick={() => navigateTo('/inbox')}>
           <FontAwesomeIcon icon={faInbox} />
