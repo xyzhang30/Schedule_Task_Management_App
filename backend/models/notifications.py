@@ -3,6 +3,7 @@ from sqlalchemy.orm import Mapped, mapped_column, registry, relationship
 from .account import Account
 from .group import Group
 from .event import Event
+from datetime import datetime
 
 from ..db import Base, db_session
 
@@ -78,3 +79,21 @@ class Notifications(Base):
     @classmethod
     def get_notifications_by_task(cls, task_id):
         return db_session.query(Notifications).filter_by(task_id=task_id, notification_type='Task Due Today', is_pending=True).first()
+    
+    @classmethod
+    def get_existing_messages(cls, account_id, event_id):
+        return db_session.query(Notifications).filter_by(
+                account_id_to=account_id,
+                notification_type='Event Today',
+                event_id=event_id
+            ).first()
+    
+    @classmethod
+    def get_notifications_for_events(cls, account_id, now):
+        return db_session.query(Notifications).join(Event, Notifications.event_id == Event.event_id).filter(
+            Notifications.account_id_to == account_id,
+            Notifications.notification_type == 'Event Today',
+            Notifications.is_pending == True,
+            Event.start_date >= datetime.combine(now, datetime.min.time()),
+            Event.start_date <= datetime.combine(now, datetime.max.time())
+        ).order_by(Event.start_date.asc()).all()

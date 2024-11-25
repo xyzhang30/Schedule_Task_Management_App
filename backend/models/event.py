@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from ..db import Base, db_session
+from datetime import datetime
 
 class Event(Base):
     __tablename__ = 'events'
@@ -29,6 +30,15 @@ class Event(Base):
     @classmethod
     def get_events_by_account(cls, account_id):
         return db_session.query(cls).filter_by(account_id=account_id).all()
+    
+    @classmethod
+    def get_events_happening_today(cls, account_id, now):
+        print("_____ TODAY: ", datetime.now().date())
+        return db_session.query(cls).filter(
+            Event.account_id == account_id,
+            Event.start_date >= datetime.combine(now, datetime.min.time()),
+            Event.start_date <= datetime.combine(now, datetime.max.time())
+        ).all()
     
     def to_dict(self):
         return {

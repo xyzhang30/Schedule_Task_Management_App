@@ -5379,3 +5379,17 @@ Traceback (most recent call last):
     raise exc.TimeoutError(
 sqlalchemy.exc.TimeoutError: QueuePool limit of size 20 overflow 10 reached, connection timed out, timeout 30.00 (Background on this error at: https://sqlalche.me/e/20/3o7r)
 
+2024-11-25 00:11:32,965 ERROR Error in get_event_notifications: type object 'Notifications' has no attribute 'get_events_happening_today'
+Traceback (most recent call last):
+  File "/srv/app/controllers/eventinboxController.py", line 33, in get_event_notifications
+    events_today = Notifications.get_events_happening_today(account_id)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'Notifications' has no attribute 'get_events_happening_today'
+
+2024-11-25 00:11:33,019 ERROR Error in get_event_notifications: type object 'Notifications' has no attribute 'get_events_happening_today'
+Traceback (most recent call last):
+  File "/srv/app/controllers/eventinboxController.py", line 33, in get_event_notifications
+    events_today = Notifications.get_events_happening_today(account_id)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'Notifications' has no attribute 'get_events_happening_today'
+

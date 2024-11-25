@@ -3,7 +3,6 @@ from datetime import datetime
 from ..models.notifications import Notifications
 from ..models.event import Event
 from ..decorators import is_logged_in
-from ..db import db_session
 import logging
 import traceback
 
@@ -24,20 +23,13 @@ def get_event_notifications():
         account_id = session['user']
         now = datetime.now().date()
 
-        # Get events happening today
-        events_today = db_session.query(Event).filter(
-            Event.account_id == account_id,
-            Event.start_date >= datetime.combine(now, datetime.min.time()),
-            Event.start_date <= datetime.combine(now, datetime.max.time())
-        ).all()
+        #get events happening today
+        events_today = Event.get_events_happening_today(account_id, now)
+        print("________events today: ", events_today)
 
         for event in events_today:
-            # Check if notification already exists for this event
-            existing_notification = db_session.query(Notifications).filter_by(
-                account_id_to=account_id,
-                notification_type='Event Today',
-                event_id=event.event_id
-            ).first()
+            # check if notification already exists for this event
+            existing_notification = Notifications.get_existing_messages(account_id, event.event_id)
 
             message = f"Your event '{event.name}' is happening today at {event.start_date.strftime('%H:%M')}."
             if not existing_notification:
@@ -60,13 +52,7 @@ def get_event_notifications():
                 existing_notification.save_notification()
 
         # Retrieve event notifications and join with Event to get start_date
-        notifications = db_session.query(Notifications).join(Event, Notifications.event_id == Event.event_id).filter(
-            Notifications.account_id_to == account_id,
-            Notifications.notification_type == 'Event Today',
-            Notifications.is_pending == True,
-            Event.start_date >= datetime.combine(now, datetime.min.time()),
-            Event.start_date <= datetime.combine(now, datetime.max.time())
-        ).order_by(Event.start_date.asc()).all()
+        notifications = Notifications.get_notifications_for_events(account_id, now)
 
         # Prepare notifications list including event start_date
         notifications_list = []
@@ -86,7 +72,7 @@ def delete_event_notification():
     try:
         data = request.get_json()
         notification_id = data.get('notification_id')
-        notification = db_session.query(Notifications).filter_by(notification_id=notification_id).first()
+        notification = Notifications.get_notification_by_notification_id(notification_id)
         if notification and notification.account_id_to == session['user']:
             notification.update_pending_status()
             return jsonify({'message': 'Notification deleted successfully'}), 200
