@@ -6,7 +6,7 @@ Run Docker:
 - `docker compose build`
 - `docker compose up`
 - do the following when database is updated, or if you are running this for the first time.
-    - go into the terminal in the backend container in docker
+    - go into the terminal in the backend container in docker OR run `docker compose exec backend bash` in terminal
     - `python seed.py` (creates tables and test data)
 
 Database GUI (adminer): 
