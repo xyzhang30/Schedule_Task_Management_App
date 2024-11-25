@@ -77,12 +77,16 @@ class Task(Base):
     
     @classmethod
     def all_tasks_by_due_date(cls, account_id, due_date):
-        return db_session.query(Task).filter(
-            Task.account_id == account_id,
-            func.date(Task.due_time) == due_date,
-            Task.complete == False
-            ).all()
-    
+        print("test")
+        print(func.date(cls.due_time))
+        tasks = db_session.query(cls).filter(
+            cls.account_id == account_id,
+            func.date(cls.due_time) == due_date
+        ).order_by(cls.due_time.asc()).all()
+        for task in tasks:
+            print(f"Task: {task.task_name}, Due Time: {task.due_time}")
+        return tasks
+
 
 class Category(Base):
     __tablename__ = 'task_category'

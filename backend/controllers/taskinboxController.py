@@ -46,6 +46,8 @@ def get_task_notifications():
                     task_id=task.task_id
                 )
                 notification.save_notification()
+                print("3 point")
+                print(notification)
 
         notifications = Notifications.retrieve_task_notifications(account_id)
 

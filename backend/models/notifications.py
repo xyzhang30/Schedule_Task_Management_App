@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, Boolean, TIMESTAMP, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, registry, relationship
+from sqlalchemy.sql import func
 from .account import Account
 from .group import Group
 from .event import Event
@@ -117,8 +118,8 @@ class Notifications(Base):
     
     @classmethod
     def retrieve_task_notifications(cls, account_id):
-        return db_session.query(Notifications).filter_by(
-            account_id_to=account_id,
-            notification_type='Task Due Today',
-            is_pending=True
-        ).order_by(Notifications.created_at.desc()).all()
+        return db_session.query(cls).join(Task, cls.task_id == Task.task_id).filter(
+            cls.account_id_to == account_id,
+            cls.notification_type == 'Task Due Today',
+            cls.is_pending == True
+        ).order_by(Task.due_time.asc()).all()

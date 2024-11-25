@@ -1356,3 +1356,427 @@ WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notifi
 [parameters: {'account_id_to_1': 3, 'notification_type_1': 'Task Due Today'}]
 (Background on this error at: https://sqlalche.me/e/20/f405)
 
+2024-11-25 04:54:18,430 ERROR Error in get_task_notifications: type object 'Notifications' has no attribute 'due_time'
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Notifications.get_notifications_for_tasks(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 117, in get_notifications_for_tasks
+    func.date(cls.due_time) == today
+              ^^^^^^^^^^^^
+AttributeError: type object 'Notifications' has no attribute 'due_time'
+
+2024-11-25 04:54:18,462 ERROR Error in get_task_notifications: type object 'Notifications' has no attribute 'due_time'
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Notifications.get_notifications_for_tasks(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 117, in get_notifications_for_tasks
+    func.date(cls.due_time) == today
+              ^^^^^^^^^^^^
+AttributeError: type object 'Notifications' has no attribute 'due_time'
+
+2024-11-25 04:54:25,779 ERROR Error in get_task_notifications: type object 'Notifications' has no attribute 'due_time'
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Notifications.get_notifications_for_tasks(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 117, in get_notifications_for_tasks
+    func.date(cls.due_time) == today
+              ^^^^^^^^^^^^
+AttributeError: type object 'Notifications' has no attribute 'due_time'
+
+2024-11-25 04:54:25,797 ERROR Error in get_task_notifications: type object 'Notifications' has no attribute 'due_time'
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Notifications.get_notifications_for_tasks(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 117, in get_notifications_for_tasks
+    func.date(cls.due_time) == today
+              ^^^^^^^^^^^^
+AttributeError: type object 'Notifications' has no attribute 'due_time'
+
+2024-11-25 04:54:56,073 ERROR Error in get_task_notifications: (psycopg2.errors.UndefinedTable) invalid reference to FROM-clause entry for table "events"
+LINE 3: ...date(task.due_time) = '2024-11-25'::date ORDER BY events.sta...
+                                                             ^
+HINT:  Perhaps you meant to reference the table alias "events_1".
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN task ON notifications.task_id = task.task_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND date(task.due_time) = %(date_1)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Task Due Today', 'date_1': datetime.date(2024, 11, 25)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedTable: invalid reference to FROM-clause entry for table "events"
+LINE 3: ...date(task.due_time) = '2024-11-25'::date ORDER BY events.sta...
+                                                             ^
+HINT:  Perhaps you meant to reference the table alias "events_1".
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Notifications.get_notifications_for_tasks(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 118, in get_notifications_for_tasks
+    ).order_by(Event.start_date.asc()).all()
+                                       ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2191, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1422, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 514, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1644, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1850, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1990, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2357, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) invalid reference to FROM-clause entry for table "events"
+LINE 3: ...date(task.due_time) = '2024-11-25'::date ORDER BY events.sta...
+                                                             ^
+HINT:  Perhaps you meant to reference the table alias "events_1".
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN task ON notifications.task_id = task.task_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND date(task.due_time) = %(date_1)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Task Due Today', 'date_1': datetime.date(2024, 11, 25)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+2024-11-25 04:54:56,106 ERROR Error in get_task_notifications: (psycopg2.errors.UndefinedTable) invalid reference to FROM-clause entry for table "events"
+LINE 3: ...date(task.due_time) = '2024-11-25'::date ORDER BY events.sta...
+                                                             ^
+HINT:  Perhaps you meant to reference the table alias "events_1".
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN task ON notifications.task_id = task.task_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND date(task.due_time) = %(date_1)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Task Due Today', 'date_1': datetime.date(2024, 11, 25)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedTable: invalid reference to FROM-clause entry for table "events"
+LINE 3: ...date(task.due_time) = '2024-11-25'::date ORDER BY events.sta...
+                                                             ^
+HINT:  Perhaps you meant to reference the table alias "events_1".
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Notifications.get_notifications_for_tasks(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 118, in get_notifications_for_tasks
+    ).order_by(Event.start_date.asc()).all()
+                                       ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2191, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1422, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 514, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1644, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1850, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1990, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2357, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) invalid reference to FROM-clause entry for table "events"
+LINE 3: ...date(task.due_time) = '2024-11-25'::date ORDER BY events.sta...
+                                                             ^
+HINT:  Perhaps you meant to reference the table alias "events_1".
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN task ON notifications.task_id = task.task_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND date(task.due_time) = %(date_1)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Task Due Today', 'date_1': datetime.date(2024, 11, 25)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+2024-11-25 04:54:57,047 ERROR Error in get_task_notifications: (psycopg2.errors.UndefinedTable) invalid reference to FROM-clause entry for table "events"
+LINE 3: ...date(task.due_time) = '2024-11-25'::date ORDER BY events.sta...
+                                                             ^
+HINT:  Perhaps you meant to reference the table alias "events_1".
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN task ON notifications.task_id = task.task_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND date(task.due_time) = %(date_1)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Task Due Today', 'date_1': datetime.date(2024, 11, 25)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedTable: invalid reference to FROM-clause entry for table "events"
+LINE 3: ...date(task.due_time) = '2024-11-25'::date ORDER BY events.sta...
+                                                             ^
+HINT:  Perhaps you meant to reference the table alias "events_1".
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Notifications.get_notifications_for_tasks(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 118, in get_notifications_for_tasks
+    ).order_by(Event.start_date.asc()).all()
+                                       ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2191, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1422, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 514, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1644, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1850, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1990, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2357, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) invalid reference to FROM-clause entry for table "events"
+LINE 3: ...date(task.due_time) = '2024-11-25'::date ORDER BY events.sta...
+                                                             ^
+HINT:  Perhaps you meant to reference the table alias "events_1".
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN task ON notifications.task_id = task.task_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND date(task.due_time) = %(date_1)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Task Due Today', 'date_1': datetime.date(2024, 11, 25)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+2024-11-25 04:54:57,096 ERROR Error in get_task_notifications: (psycopg2.errors.UndefinedTable) invalid reference to FROM-clause entry for table "events"
+LINE 3: ...date(task.due_time) = '2024-11-25'::date ORDER BY events.sta...
+                                                             ^
+HINT:  Perhaps you meant to reference the table alias "events_1".
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN task ON notifications.task_id = task.task_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND date(task.due_time) = %(date_1)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Task Due Today', 'date_1': datetime.date(2024, 11, 25)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedTable: invalid reference to FROM-clause entry for table "events"
+LINE 3: ...date(task.due_time) = '2024-11-25'::date ORDER BY events.sta...
+                                                             ^
+HINT:  Perhaps you meant to reference the table alias "events_1".
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Notifications.get_notifications_for_tasks(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 118, in get_notifications_for_tasks
+    ).order_by(Event.start_date.asc()).all()
+                                       ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2191, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1422, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 514, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1644, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1850, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1990, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2357, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) invalid reference to FROM-clause entry for table "events"
+LINE 3: ...date(task.due_time) = '2024-11-25'::date ORDER BY events.sta...
+                                                             ^
+HINT:  Perhaps you meant to reference the table alias "events_1".
+
+[SQL: SELECT notifications.notification_id AS notifications_notification_id, notifications.account_id_from AS notifications_account_id_from, notifications.account_id_to AS notifications_account_id_to, notifications.group_id AS notifications_group_id, notifications.notification_type AS notifications_notification_type, notifications.message AS notifications_message, notifications.is_pending AS notifications_is_pending, notifications.created_at AS notifications_created_at, notifications.event_id AS notifications_event_id, notifications.task_id AS notifications_task_id, events_1.event_id AS events_1_event_id, events_1.account_id AS events_1_account_id, events_1.name AS events_1_name, events_1.location AS events_1_location, events_1.start_date AS events_1_start_date, events_1.end_date AS events_1_end_date, events_1.category AS events_1_category, events_1.label_text AS events_1_label_text, events_1.label_color AS events_1_label_color, events_1.frequency AS events_1_frequency, events_1.repeat_until AS events_1_repeat_until 
+FROM notifications JOIN task ON notifications.task_id = task.task_id LEFT OUTER JOIN events AS events_1 ON events_1.event_id = notifications.event_id 
+WHERE notifications.account_id_to = %(account_id_to_1)s AND notifications.notification_type = %(notification_type_1)s AND notifications.is_pending = true AND date(task.due_time) = %(date_1)s ORDER BY events.start_date ASC]
+[parameters: {'account_id_to_1': 3, 'notification_type_1': 'Task Due Today', 'date_1': datetime.date(2024, 11, 25)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+2024-11-25 05:02:21,425 ERROR Error in get_task_notifications: all() takes exactly one argument (0 given)
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Notifications.get_notifications_for_tasks(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 119, in get_notifications_for_tasks
+    ),all())
+      ^^^^^
+TypeError: all() takes exactly one argument (0 given)
+
+2024-11-25 05:02:21,450 ERROR Error in get_task_notifications: all() takes exactly one argument (0 given)
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Notifications.get_notifications_for_tasks(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 119, in get_notifications_for_tasks
+    ),all())
+      ^^^^^
+TypeError: all() takes exactly one argument (0 given)
+
+2024-11-25 05:02:30,102 ERROR Error in get_task_notifications: all() takes exactly one argument (0 given)
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Notifications.get_notifications_for_tasks(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 119, in get_notifications_for_tasks
+    ),all())
+      ^^^^^
+TypeError: all() takes exactly one argument (0 given)
+
+2024-11-25 05:02:30,124 ERROR Error in get_task_notifications: all() takes exactly one argument (0 given)
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Notifications.get_notifications_for_tasks(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/notifications.py", line 119, in get_notifications_for_tasks
+    ),all())
+      ^^^^^
+TypeError: all() takes exactly one argument (0 given)
+
+2024-11-25 05:15:37,478 ERROR Error in get_task_notifications: Query.filter_by() takes 1 positional argument but 2 were given
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Task.all_tasks_by_due_date(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/task.py", line 80, in all_tasks_by_due_date
+    return db_session.query(cls).filter_by(account_id = account_id).filter_by(func.date(cls.due_time) == due_date).order_by(cls.due_time.asc()).all()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: Query.filter_by() takes 1 positional argument but 2 were given
+
+2024-11-25 05:15:37,509 ERROR Error in get_task_notifications: Query.filter_by() takes 1 positional argument but 2 were given
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Task.all_tasks_by_due_date(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/task.py", line 80, in all_tasks_by_due_date
+    return db_session.query(cls).filter_by(account_id = account_id).filter_by(func.date(cls.due_time) == due_date).order_by(cls.due_time.asc()).all()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: Query.filter_by() takes 1 positional argument but 2 were given
+
+2024-11-25 05:16:46,666 ERROR Error in get_task_notifications: Query.filter_by() takes 1 positional argument but 2 were given
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Task.all_tasks_by_due_date(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/task.py", line 82, in all_tasks_by_due_date
+    return db_session.query(cls).filter_by(account_id=account_id).filter_by(func.date(cls.due_time) == due_date).order_by(cls.due_time.asc()).all()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: Query.filter_by() takes 1 positional argument but 2 were given
+
+2024-11-25 05:16:46,690 ERROR Error in get_task_notifications: Query.filter_by() takes 1 positional argument but 2 were given
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Task.all_tasks_by_due_date(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/task.py", line 82, in all_tasks_by_due_date
+    return db_session.query(cls).filter_by(account_id=account_id).filter_by(func.date(cls.due_time) == due_date).order_by(cls.due_time.asc()).all()
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: Query.filter_by() takes 1 positional argument but 2 were given
+
