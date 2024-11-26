@@ -192,7 +192,7 @@ for n in range(6):
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
     email = faker.email()
     phone = faker.phone_number()[:12]
-    avatar = None
+    avatar = '/srv/app/avatars/default.jpg'
     year_created = random.randint(2010, 2024)
     
     cursor.execute('''
