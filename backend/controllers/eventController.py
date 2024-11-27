@@ -1,9 +1,10 @@
 from flask import Blueprint, request, jsonify, session
 from ..models.event import Event, EventCategory
 from ..models.notifications import Notifications
-from datetime import datetime, timedelta
+from datetime import datetime
 import logging
 from ..decorators import is_logged_in
+from ..db import db_session
 
 logger = logging.getLogger(__name__)
 handler = logging.FileHandler('event_controller.log')
@@ -12,7 +13,10 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.setLevel(logging.INFO)
 
+logging.basicConfig(level=logging.DEBUG)
+
 bp = Blueprint('event', __name__, url_prefix='/event')
+
 
 # Create Event
 @bp.route('/createEvent', methods=['POST'])
@@ -35,28 +39,28 @@ def create_event():
         )
         new_event.save()
 
-        # Create notification if the event is happening today
-        new_event.create_notification_if_today(account_id)
+        if new_event.start_date.date() == datetime.now().date():
+            new_event.create_or_update_notification(account_id)
 
         return jsonify({'message': 'Event created successfully', 'event': new_event.to_dict()}), 201
     except Exception as e:
         logger.error(f"Error in create_event: {e}")
         return jsonify({'error': 'Failed to create event.'}), 500
 
-# Delete Event
+
+
 @bp.route('/deleteEvent/<int:event_id>', methods=['DELETE'])
 @is_logged_in
 def delete_event(event_id):
+    """Delete an event by event ID."""
     account_id = session.get('user')
     if not account_id:
         return jsonify({'message': 'User not logged in'}), 401
     event = Event.get_event(event_id)
     if not event or event.account_id != account_id:
         return jsonify({'message': 'Event not found'}), 404
-
-    # Delete any notifications for this event
+    
     event.delete_notifications(account_id)
-
     event.delete()
     return jsonify({'message': 'Event deleted successfully'}), 200
 
@@ -64,6 +68,10 @@ def delete_event(event_id):
 @bp.route('/getEvent/<int:event_id>', methods=['GET'])
 @is_logged_in
 def get_event(event_id):
+    """Retrieve an event by its ID.
+    :param event_id: ID of the event to retrieve
+    :return: JSON response with event data
+    """
     event = Event.get_event(event_id)
     if not event:
         return jsonify({'message': 'Event not found'}), 404
@@ -74,6 +82,9 @@ def get_event(event_id):
 @bp.route('/getEventsByAccount', methods=['GET'])
 @is_logged_in
 def get_events_by_account():
+    """Retrieve all events for the logged-in user.
+    :return: JSON response with list of events
+    """
     account_id = session.get('user')
     if not account_id:
         return jsonify({'message': 'User not logged in'}), 401
@@ -85,6 +96,9 @@ def get_events_by_account():
 @bp.route('/category/all', methods=['GET'])
 @is_logged_in
 def getAllCategory():
+    """Retrieve all event categories.
+    :return: JSON response with list of categories
+    """
     categories = EventCategory.all()
     categories_list = [a.to_dict() for a in categories]
     return jsonify(categories_list)
@@ -93,6 +107,9 @@ def getAllCategory():
 @bp.route('/category/create', methods=['POST'])
 @is_logged_in
 def createCategory():
+    """Create a new event category.
+    :return: JSON response with success message
+    """
     data = request.json
     category_name = data.get("category_name")
     if not category_name:
@@ -111,19 +128,23 @@ def createCategory():
 @bp.route('/category/clean', methods=['DELETE'])
 @is_logged_in
 def clean_unused_categories():
+    """Delete all unused event categories.
+    :return: JSON response with success message
+    """
     try:
-        EventCategory.clean_unused()
+        # Get all categories
+        categories = EventCategory.all()
+        # Get all categories used in events
+        used_categories = set(event.category for event in Event.all() if event.category)
+        # Find unused categories
+        unused_categories = [category for category in categories if category.category_name not in used_categories]
+        # Delete unused categories
+        for category in unused_categories:
+            category.delete()
         return jsonify({'message': 'Unused categories deleted successfully'}), 200
     except Exception as e:
         return jsonify({'message': 'Failed to clean categories', 'error': str(e)}), 500
 
-def create_event_notifications():
-    """Create notifications for events starting soon."""
-    upcoming_events = Event.get_upcoming_events()
-    for event in upcoming_events:
-        event.create_notification_if_starting_soon()
-
-# Update Event
 @bp.route('/updateEvent/<int:event_id>', methods=['PUT'])
 @is_logged_in
 def update_event(event_id):
@@ -149,8 +170,13 @@ def update_event(event_id):
                 data['repeat_until'], '%Y-%m-%dT%H:%M') if data.get('repeat_until') else None
         event.update()
 
-        # Handle notifications
-        event.create_or_update_notification(account_id)
+        now = datetime.now().date()
+        # If the updated event is happening today
+        if event.start_date.date() == now:
+            event.create_or_update_notification(account_id)
+        else:
+            # If the event is not happening today, delete any existing notifications for this event
+            event.delete_notifications(account_id)
 
         return jsonify({'message': 'Event updated successfully', 'event': event.to_dict()}), 200
     except Exception as e:
