@@ -18,6 +18,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import '../App.css';
 import './SplitScreen.css';
 import EventCreate from './EventCreate';
+import './Availability.css';
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
@@ -279,7 +280,7 @@ const FindSharedAvailability = () => {
             <label>Participants:</label>
             <div className="participants">
               {participants.map((participant) => (
-                <div key={participant.account_id} className="participant-item">
+                <div key={participant.account_id} className="friend-item">
                   <p>{participant.username}</p>
                 </div>
               ))}
