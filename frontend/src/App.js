@@ -12,6 +12,8 @@ import ChangeUsername from './pages/ChangeUsername.js';
 import ChangePassword from './pages/ChangePassword.js';
 import ChangeEmail from './pages/ChangeEmail.js';
 import ChangePhoneNumber from './pages/ChangePhoneNumber.js';
+import ChangeMajor from './pages/ChangeMajor.js';
+import ChangeAvatar from './pages/ChangeAvatar.js'
 import ResetPassword from './pages/ResetPassword.js';
 import Tasks from './pages/Tasks.js';
 import NavBar from './navbar.js';
@@ -83,6 +85,9 @@ const Main = () => {
         <Route path="/change-username" element={<ChangeUsername />} />
         <Route path="/change-password" element={<ChangePassword />} />
         <Route path="/change-phone-number" element={<ChangePhoneNumber />} />
+        <Route path="/change-email" element={<ChangeEmail />} />
+        <Route path="/change-major" element={<ChangeMajor />} />
+        <Route path="/change-avatar" element={<ChangeAvatar />} />
         <Route path="/inbox" element={<Inbox />} />
 
         {/* Feature Routes */}

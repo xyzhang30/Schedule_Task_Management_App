@@ -1,7 +1,9 @@
 import os
 from flask import Blueprint, jsonify, session, request, send_file
 from ..models.account import Account
+from app import uploadParameters
 from ..decorators import is_logged_in
+from ..utils.fileuploads import create_file_name, upload_file, delete_file
 
 bp = Blueprint('account', __name__, url_prefix='/account')
 
@@ -68,6 +70,49 @@ def change_number():
     
     return jsonify(response_message), status_code
 
+@bp.route('/change_major', methods = ['POST'])
+@is_logged_in
+def change_major():
+    '''
+    Changes a user's phone number
+    '''
+    account = Account.get_acc_by_id(session['user'])
+    new_major = request.form['new_major']
+
+    account.major = new_major
+    account.save()
+    response_message = {'msg': 'Succesfully changed major'}
+    status_code = 201
+
+    return jsonify(response_message), status_code
+
+@bp.route('change_avatar', methods = ['POST'])
+@is_logged_in
+def change_avatar():
+    file = request.files.get('new_avatar')
+    account = Account.get_acc_by_id(session['user'])
+    username = account.username
+    prev_avatar = os.path.basename(account.avatar)
+    filename = create_file_name(username, file)
+    if not filename:
+        response_message = {'msg': f'Please upload a file with one of the following extensions: {uploadParameters["ALLOWED_EXTENSIONS"]}'}
+        status_code = 401
+    elif prev_avatar != 'default.jpg':
+        delete_file(prev_avatar)
+        upload_file(file, filename)
+        account.avatar = "/srv/app/avatars/" + filename
+        account.save()
+        response_message = {'msg': 'Avatar successfuly changed'}
+        status_code = 201
+    else: 
+        upload_file(file, filename)
+        account.avatar = "/srv/app/" + filename
+        account.save()
+        response_message = {'msg': 'Avatar successfuly changed'}
+        status_code = 201
+    return jsonify(response_message), status_code
+    
+
 @bp.route('/get_username', methods = ['GET'])
 @is_logged_in
 def get_username():
@@ -123,10 +168,12 @@ def createAccount():
     return index()
 
 @bp.route('/current-user', methods=['GET'])
+@is_logged_in
 def get_current_user():
     return session['user']
 
 @bp.route('/name-by-id/<id>', methods=['POST'])
+@is_logged_in
 def get_username_by_id(id):
     acc = Account.get_acc_by_id(id)
     username = acc.username

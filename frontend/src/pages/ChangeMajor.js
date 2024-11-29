@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const ChangeEmail = () => {
-  const [newEmail, setNewEmail] = useState('');
+const ChangeMajor = () => {
+  const [newMajor, setNewMajor] = useState('');
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
@@ -11,9 +11,9 @@ const ChangeEmail = () => {
 
     try {
       const formData = new URLSearchParams();
-      formData.append('new_email', newEmail);
+      formData.append('new_major', newMajor);
 
-      const response = await axios.post('http://localhost:8080/account/change_email', formData, {
+      const response = await axios.post('http://localhost:8080/account/change_major', formData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
@@ -21,32 +21,29 @@ const ChangeEmail = () => {
       });
 
       if (response.status === 201) {
-        setSuccess(response.data.msg);
-        setError('')
+        setSuccess('Major successfully changed!');
       } else {
-        setError(response.data.msg);
-        setSuccess('')
+        setError('Failed to change major. Please try again.');
       }
     } catch (error) {
-      setError('Failed to change email. Please try again.');
-      setSuccess('')
+      setError('Failed to change major. Please try again.');
     }
   };
 
   return (
     <div>
-      <h2>Change Email</h2>
+      <h2>Change Major</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>New Email:</label>
+          <label>New Major:</label>
           <input
             type="text"
-            value={newEmail}
-            onChange={(e) => setNewEmail(e.target.value)}
+            value={newMajor}
+            onChange={(e) => setNewMajor(e.target.value)}
             required
           />
         </div>
-        <button type="submit">Change Email</button>
+        <button type="submit">Change Major</button>
       </form>
       {error && <p style={{ color: 'red' }}>{error}</p>}
       {success && <p style={{ color: 'green' }}>{success}</p>}
@@ -54,4 +51,4 @@ const ChangeEmail = () => {
   );
 };
 
-export default ChangeEmail;
+export default ChangeMajor;

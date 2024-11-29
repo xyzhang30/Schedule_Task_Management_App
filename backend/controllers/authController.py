@@ -2,11 +2,10 @@ from flask import Blueprint, session, request, jsonify, redirect
 from flask_mail import Message
 from ..models.account import Account
 from ..models.resetKeys import ResetKeys
-from ..__init__ import mail
+from app import mail, uploadParameters
 from ..decorators import is_logged_in
-from ..__init__ import uploadParameters
-from werkzeug.utils import secure_filename
-import secrets, time, bcrypt, os
+from ..utils.fileuploads import create_file_name, upload_file
+import secrets, time, bcrypt
 bp = Blueprint('auth', __name__, url_prefix = '/auth')
 
 @bp.route('/session_status', methods=['GET'])
@@ -88,7 +87,7 @@ def register():
         
         try:
             if(filename != 'default.jpg'):
-                user_inputted_avatar.save(os.path.join(uploadParameters['UPLOAD_FOLDER'], filename))
+                upload_file(user_inputted_avatar, filename)
             new_account.save()
             response_message = {'msg': 'Successfully Registered'}
             status_code = 200
@@ -206,15 +205,6 @@ def reset_password():
     return jsonify(response_message), status_code
     
 #Helper functions
-def create_file_name(file, username):
-    if allowed_file(file.filename): #Check the original file they uploaded
-        filename = "avatar" + username + '.' + secure_filename(file.filename).rsplit('.', 1)[1].lower() #Create a unique filename with username + extension of original file
-        return filename
-    else: 
-        return None
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in uploadParameters['ALLOWED_EXTENSIONS']
 def new_password(account_id, new_pass):
     account = Account.get_acc_by_id(account_id)
     account.password = salt_and_hash_password(new_pass)

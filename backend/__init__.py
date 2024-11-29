@@ -2,7 +2,6 @@ import os
 from flask import Flask
 from flask_cors import CORS
 from flask_mail import Mail
-from app.controllers import accountController, availabilityController, friendController, groupController, taskController, postController, authController, friendRequestController, eventController, studyTimeController, groupRequestController, eventinboxController, taskinboxController
 from .db import init_db
 
 mail = Mail() #create mail instance for importing
@@ -47,6 +46,7 @@ def create_app(test_config=None):
     @app.route('/')
     def hello():
         return 'backend server running'
+    from app.controllers import eventinboxController, taskinboxController, groupRequestController, accountController, availabilityController, friendController, groupController, taskController, postController, authController, friendRequestController, eventController, studyTimeController
 
     app.register_blueprint(accountController.bp)
     app.register_blueprint(availabilityController.bp)
