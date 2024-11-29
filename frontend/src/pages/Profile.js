@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import PostList from './PostList';
+import './Profile.css';
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
@@ -75,37 +76,60 @@ function Profile() {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
+  // return (
+  //   <div className="profile-container">
+  //     <h1>Profile</h1>
+  //     <div className="profile-card">
+  //       <div className="profile-attribute">
+  //         <strong>Username:</strong> {profile.username}
+  //       </div>
+  //       <div className="profile-attribute">
+  //         <strong>Phone Number:</strong> {profile.phoneNumber}
+  //       </div>
+  //       <div className="profile-attribute">
+  //         <strong>Major:</strong> {profile.major}
+  //       </div>
+  //       <div className="profile-attribute">
+  //         <strong>Year Created:</strong> {profile.yearCreated}
+  //       </div>
+  //       <div className="profile-attribute avatar-section">
+  //         <strong>Avatar:</strong>
+  //         <img src={profile.avatar} alt="User Avatar" className="avatar-image" />
+  //       </div>
+  //     </div>
+
+    //   {/* User's Posts */}
+    //   <h2>Your Posts</h2>
+    //   <PostList posts={userPosts} />
+
+    //   {/* Saved Posts */}
+    //   <h2>Saved Posts</h2>
+    //   <PostList posts={savedPosts} />
+    // </div>  
+  // );
   return (
     <div className="profile-container">
-      <h1>Profile</h1>
-      <div className="profile-card">
-        <div className="profile-attribute">
-          <strong>Username:</strong> {profile.username}
-        </div>
-        <div className="profile-attribute">
-          <strong>Phone Number:</strong> {profile.phoneNumber}
-        </div>
-        <div className="profile-attribute">
-          <strong>Major:</strong> {profile.major}
-        </div>
-        <div className="profile-attribute">
-          <strong>Year Created:</strong> {profile.yearCreated}
-        </div>
-        <div className="profile-attribute avatar-section">
-          <strong>Avatar:</strong>
-          <img src={profile.avatar} alt="User Avatar" className="avatar-image" />
+      <h2>My Profile</h2>
+      <div className="profile-header">
+        <img src={profile.avatar} alt="User Avatar" className="profile-avatar" />
+        <div className="profile-details">
+          <h1>{profile.username}</h1>
+          <p><strong>Phone Number:</strong> {profile.phoneNumber}</p>
+          <p><strong>Major:</strong> {profile.major}</p>
+          <p><strong>Year Created:</strong> {profile.yearCreated}</p>
         </div>
       </div>
 
-      {/* User's Posts */}
-      <h2>Your Posts</h2>
-      <PostList posts={userPosts} />
+      <div className="profile-posts">
+        <h2>My Posts</h2>
+        <PostList posts={userPosts} />
 
-      {/* Saved Posts */}
-      <h2>Saved Posts</h2>
-      <PostList posts={savedPosts} />
-    </div>  
+        <h2>Saved Posts</h2>
+        <PostList posts={savedPosts} />
+      </div>
+    </div>
   );
 }
+
 
 export default Profile;
