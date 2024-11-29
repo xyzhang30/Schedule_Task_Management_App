@@ -24,8 +24,7 @@ conn_details = psycopg2.connect(
 # create tables 
 cursor = conn_details.cursor()
 Table_creation = '''
-    DROP TABLE IF EXISTS assignment, task, student, friend, friendrequests, availability, likes, shares, saves, comments, events, post, accounts, notifications, groups, public_events, memberships, registrations, group_requests, category, event_category, task_category, studytime CASCADE;    
-   
+    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, notifications, groups, public_events, memberships, registrations, group_requests, category, event_category, task_category, studytime CASCADE;    
     
     CREATE TABLE accounts (
         account_id SERIAL PRIMARY KEY,
@@ -192,13 +191,14 @@ for n in range(6):
     hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
     email = faker.email()
     phone = faker.phone_number()[:12]
-    avatar = None
+    avatar = "/backend/avatars/default.jpg"
     year_created = random.randint(2010, 2024)
+    major = "computer science"
     
     cursor.execute('''
-        INSERT INTO accounts (username, password, email, phone, avatar, year_created)
-        VALUES (%s, %s, %s, %s, %s, %s)
-    ''', (username, hashed_password, email, phone, avatar, year_created))
+        INSERT INTO accounts (username, password, email, phone, avatar, year_created, major)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+    ''', (username, hashed_password, email, phone, avatar, year_created, major))
 print("Account test data generated")
 
 

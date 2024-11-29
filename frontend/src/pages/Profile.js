@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import PostList from './PostList';
 
+const baseUrl = process.env.REACT_APP_BASE_URL;
+
 function Profile() {
   const [profile, setProfile] = useState({
     username: '',
@@ -18,12 +20,12 @@ function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const usernameRes = await axios.get('http://localhost:8080/account/get_username', { withCredentials: true });
-        const phoneNumberRes = await axios.get('http://localhost:8080/account/get_phone_number', { withCredentials: true });
-        const majorRes = await axios.get('http://localhost:8080/account/get_major')
-        const yearCreatedRes = await axios.get('http://localhost:8080/account/get_year', { withCredentials: true });
+        const usernameRes = await axios.get(`${baseUrl}/account/get_username`, { withCredentials: true });
+        const phoneNumberRes = await axios.get(`${baseUrl}/account/get_phone_number`, { withCredentials: true });
+        const majorRes = await axios.get(`${baseUrl}/account/get_major`, { withCredentials: true });
+        const yearCreatedRes = await axios.get(`${baseUrl}/account/get_year`, { withCredentials: true });
 
-        const avatarRes = await axios.get('http://localhost:8080/account/get_avatar', { 
+        const avatarRes = await axios.get(`${baseUrl}/account/get_avatar`, { 
           withCredentials: true,
           responseType: 'blob' // Receive as Blob
         });
@@ -50,10 +52,10 @@ function Profile() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const postsRes = await axios.get('http://localhost:8080/post/get-posts', { withCredentials: true });
+        const postsRes = await axios.get(`${baseUrl}/post/get-posts`, { withCredentials: true });
         setUserPosts(postsRes.data);
 
-        const savesRes = await axios.get('http://localhost:8080/post/account/saves', { withCredentials: true });
+        const savesRes = await axios.get(`${baseUrl}/post/account/saves`, { withCredentials: true });
         const savedPostDetails = await Promise.all(
           savesRes.data.map(async (save) => {
             const postRes = await axios.get(`http://localhost:8080/post/get-post/${save.post_id}`, { withCredentials: true });

@@ -3,3 +3,7 @@ venv/
 .DS_Store
 .log
 **/*.log
+backend/event_inbox.log
+backend/event_controller.log
+backend/task_inbox.log
+backend/*.log

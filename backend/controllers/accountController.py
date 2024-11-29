@@ -131,12 +131,15 @@ def get_username_by_id(id):
     acc = Account.get_acc_by_id(id)
     username = acc.username
     return username
+
 @bp.route('/get_avatar', methods = ['GET'])
 @is_logged_in
 def get_avatar():
     account = Account.get_acc_by_id(session['user'])
     file_path = account.avatar
+    print("___________-file path: ", file_path)
     file_name = get_file_name(file_path)
+    print("___________-file name: ", file_name)
     return send_file(file_path, file_name)
 
 @bp.route('/get_major', methods = ['GET'])
