@@ -62,7 +62,7 @@ function App() {
 
 const Main = () => {
   const location = useLocation();
-  const hideNavBar = location.pathname === '/';
+  const hideNavBar = location.pathname === '/' || location.pathname === '/login';
 
   return (
     <div className={`main-container ${hideNavBar ? 'no-navbar' : ''}`}>

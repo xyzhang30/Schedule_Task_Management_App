@@ -1,6 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from ..db import Base, db_session
 from datetime import datetime
+from ..models.notifications import Notifications
 
 class Event(Base):
     __tablename__ = 'events'
@@ -62,13 +63,51 @@ class Event(Base):
         except Exception as e:
             db_session.rollback()
             raise e  
-    
+        
     def delete(self):
         db_session.delete(self)
         db_session.commit()
 
     def update(self):
         db_session.commit()
+
+    # New functions moved from eventcontroller.py
+    def get_notification(self, account_id):
+        return db_session.query(Notifications).filter_by(
+            account_id_to=account_id,
+            notification_type='Event Today',
+            event_id=self.event_id
+        ).first()
+
+    def delete_notifications(self, account_id):
+        existing_notifications = db_session.query(Notifications).filter_by(
+            account_id_to=account_id,
+            notification_type='Event Today',
+            event_id=self.event_id
+        ).all()
+        for notification in existing_notifications:
+            db_session.delete(notification)
+        db_session.commit()
+
+    def create_or_update_notification(self, account_id):
+        message = f"Your event '{self.name}' is happening today at {self.start_date.strftime('%H:%M')}."
+        existing_notification = self.get_notification(account_id)
+        if existing_notification:
+            existing_notification.message = message
+            existing_notification.created_at = datetime.now()
+            existing_notification.is_pending = True
+            existing_notification.save_notification()
+        else:
+            notification = Notifications(
+                account_id_from=account_id,
+                account_id_to=account_id,
+                notification_type='Event Today',
+                message=message,
+                is_pending=True,
+                created_at=datetime.now(),
+                event_id=self.event_id
+            )
+            notification.save_notification()
 
 # Category model
 class EventCategory(Base):
