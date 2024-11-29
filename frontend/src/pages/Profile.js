@@ -20,7 +20,7 @@ function Profile() {
       try {
         const usernameRes = await axios.get('http://localhost:8080/account/get_username', { withCredentials: true });
         const phoneNumberRes = await axios.get('http://localhost:8080/account/get_phone_number', { withCredentials: true });
-        const majorRes = await axios.get('http://localhost:8080/account/get_major')
+        const majorRes = await axios.get('http://localhost:8080/account/get_major');
         const yearCreatedRes = await axios.get('http://localhost:8080/account/get_year', { withCredentials: true });
 
         const avatarRes = await axios.get('http://localhost:8080/account/get_avatar', { 
@@ -74,23 +74,25 @@ function Profile() {
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="profile">
-      <h1>User Profile</h1>
-      <div className="profile-attribute">
-        <strong>Username:</strong> {profile.username}
-      </div>
-      <div className="profile-attribute">
-        <strong>Phone Number:</strong> {profile.phoneNumber}
-      </div>
-            <div className="profile-attribute">
-        <strong>Major:</strong> {profile.major}
-      </div>
-      <div className="profile-attribute">
-        <strong>Year Created:</strong> {profile.yearCreated}
-      </div>
-      <div className="profile-attribute">
-        <strong>Avatar:</strong>
-        <img src={profile.avatar} alt="User Avatar" className="avatar-image" height = "230" width = "300" />
+    <div className="profile-container">
+      <h1>Profile</h1>
+      <div className="profile-card">
+        <div className="profile-attribute">
+          <strong>Username:</strong> {profile.username}
+        </div>
+        <div className="profile-attribute">
+          <strong>Phone Number:</strong> {profile.phoneNumber}
+        </div>
+        <div className="profile-attribute">
+          <strong>Major:</strong> {profile.major}
+        </div>
+        <div className="profile-attribute">
+          <strong>Year Created:</strong> {profile.yearCreated}
+        </div>
+        <div className="profile-attribute avatar-section">
+          <strong>Avatar:</strong>
+          <img src={profile.avatar} alt="User Avatar" className="avatar-image" />
+        </div>
       </div>
 
       {/* User's Posts */}
