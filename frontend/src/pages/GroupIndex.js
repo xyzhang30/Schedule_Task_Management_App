@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-
-// list all groups
-// for the groups of which the user is a guest, has request to join button
-
-// TODO: ADD to sidebar
+import './SplitScreen.css';
+import './Groups.css';
+import { useNavigate } from 'react-router-dom';
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
@@ -23,6 +21,10 @@ const GroupIndex = () => {
 
     const [viewPendingRequest, setViewPendingRequest] = useState(false);
     const [pendingRequest, setPendingRequest] = useState(null);
+
+    const [selectedAdmin, setSelectedAdmin] = useState(null);
+
+    const navigate = useNavigate();
 
     // Fetch Groups - Runs once when the component mounts
     useEffect(() => {
@@ -86,6 +88,10 @@ const GroupIndex = () => {
             console.log('Group clicked:', groupData);
             setSelectedGroup(groupData);
 
+            const admin_response = await axios.get(`${baseUrl}/account/name-by-id/${groupData.admin_id}`);
+            console.log('Admin: ', admin_response.data);
+            setSelectedAdmin(admin_response.data);
+
         } catch (err) {
             console.error('Failed to fetch group data and/or pending request:', err);
         }
@@ -95,6 +101,7 @@ const GroupIndex = () => {
     const handleCloseGroup = async () => {
         if (!selectedGroup) return;
         setSelectedGroup(null);
+        setSelectedAdmin(null);
     };
 
     // Handle Request Input Change
@@ -126,117 +133,119 @@ const GroupIndex = () => {
     };
 
     return(
-        <div className="group-index-page-container">
-            <div className="group-index-header">
-                <h2>All Groups</h2>
-                <input 
-                    type="text" 
-                    placeholder="Search by group ID or name..." 
-                    value={searchTerm} 
-                    onChange={(e) => handleSearch(e)} 
-                />
-            </div>
-
-            <div className="left-section">
-                <div className="group-list">
-                    {filteredGroups.map(group => (
-                        <div key={group.group_id} className="group-section">
-                            <div className="group-card">
-                                <div className="profile-picture">
-                                    <img src={group.avatar} alt="Group's Avatar" />
-                                </div>
-                                <div className="profile-info">
-                                    <h2 onClick={(e) => handleGroupClick(e, group.group_id)}> {group.group_name} </h2>
-                                    <p>ID: {group.group_id}</p>
-                                    <p>Administrator: {group.admin_id}</p>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+        <div className="split-screen-container">
+            <div className="split-screen-content">
+                
+                <div className="split-screen-filter-container">
+                    <h2>All Groups</h2>
+                    <button className="view-my-groups-button" onClick={() => window.location.href = 'http://localhost:3000/groups'}>
+                        View My Groups
+                    </button>
                 </div>
-            </div>
 
-            <div className="right-section">
-                <div className="group-details">
-                    {selectedGroup ? (
-                        <div className="group-details-content">
-                            <div className="group-avatar">
-                                <img src={selectedGroup.avatar} alt="Group's Avatar" />
+                <div className="split-screen-left">
+                    <div className="search-bar">
+                        <input 
+                            type="text" 
+                            placeholder="Search by group ID or name..." 
+                            value={searchTerm} 
+                            onChange={(e) => handleSearch(e)} 
+                        />
+                    </div>
+                    <div className="group-list">
+                        {filteredGroups.map(group => (
+                            <div key={group.group_id} className="group-section">
+                                <div className="group-card">
+                                    <div className="profile-info">
+                                        <p onClick={(e) => handleGroupClick(e, group.group_id)}> {group.group_name} </p>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="group-profile">
-                                <h2> {selectedGroup.group_name} </h2>
-                                <p>ID: {selectedGroup.group_id}</p>
-                                <p>Administrator: {selectedGroup.admin_id}</p>
+                        ))}
+                    </div>
+                </div>
+
+                <div className="split-screen-right">
+                    <div className="group-details">
+                        {selectedGroup ? (
+                            <div className="group-details-content">
+                                {/* <div className="group-avatar">
+                                    <img src={selectedGroup.avatar} alt="Group's Avatar" />
+                                </div> */}
+                                <div className="group-profile">
+                                    <h2> {selectedGroup.group_name} </h2>
+                                    <p>Administrator: {selectedAdmin || "Loading..."}</p>
+                                </div>
+                                <div className="group-actions">
+                                    {selectedGroup.is_guest && !pendingRequest && (
+                                        <>
+                                            <button onClick={() => setSentRequestModal(true)}>Request to Join</button>
+                                        </>
+                                    )}
+                                    {pendingRequest && (
+                                        <>
+                                            <button onClick={() => setViewPendingRequest(true)}>Request Pending</button>
+                                        </>
+                                    )}
+                                    <button className="close-group-button" onClick={handleCloseGroup}>
+                                        Close
+                                    </button>
+                                </div>
+
                             </div>
-                            <div className="group-actions">
-                                {selectedGroup.is_guest && !pendingRequest && (
-                                    <>
-                                        <button onClick={() => setSentRequestModal(true)}>Request to Join</button>
-                                    </>
-                                )}
-                                {pendingRequest && (
-                                    <>
-                                        <button onClick={() => setViewPendingRequest(true)}>Request Pending</button>
-                                    </>
-                                )}
-                                <button className="close-group-button" onClick={handleCloseGroup}>
+                        ) : (
+                            <p>Select a group to view details</p>
+                        )}
+                    </div>
+                </div>
+
+                {sentRequestModal && (
+                    <div className="modal-overlay">
+                        <div className="modal-content">
+                            <h2>Request to Join Group</h2>
+                            <form onSubmit={handleSentRequest}>
+                                <label>
+                                    Request Message:
+                                    <input 
+                                        type="text" 
+                                        name="message" 
+                                        value={newRequest.message} 
+                                        onChange={handleRequestInputChange} 
+                                        required 
+                                    />
+                                </label>
+                                <div className="modal-actions">
+                                    <button type="submit">Send</button>
+                                    <button type="button" onClick={() => setSentRequestModal(false)}>
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {viewPendingRequest && (
+                    <div className="modal-overlay">
+                        <div className="modal-content">
+                            <h2>Pending Request</h2>
+                            <div key={pendingRequest.request_id} className="request-card">
+                                <p>Group ID: {pendingRequest.group_id}</p>
+                                <p>Admin ID: {pendingRequest.account_id_to}</p>
+                                <p>Message: {pendingRequest.message}</p>
+                                <p>Created at: {pendingRequest.created_at}</p>
+                            </div>
+
+                            <div className="modal-actions">
+                                <button type="button" onClick={() => setViewPendingRequest(false)}>
                                     Close
                                 </button>
                             </div>
-
                         </div>
-                    ) : (
-                        <p>Select a group to view details</p>
-                    )}
-                </div>
+                    </div>
+                )}
+
             </div>
-
-            {sentRequestModal && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <h2>Request to Join Group</h2>
-                        <form onSubmit={handleSentRequest}>
-                            <label>
-                                Request Message:
-                                <input 
-                                    type="text" 
-                                    name="message" 
-                                    value={newRequest.message} 
-                                    onChange={handleRequestInputChange} 
-                                    required 
-                                />
-                            </label>
-                            <div className="modal-actions">
-                                <button type="submit">Send</button>
-                                <button type="button" onClick={() => setSentRequestModal(false)}>
-                                    Cancel
-                                </button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            )}
-
-            {viewPendingRequest && (
-                <div className="modal-overlay">
-                    <div className="modal-content">
-                        <h2>Pending Request</h2>
-                        <div key={pendingRequest.request_id} className="request-card">
-                            <p>Group ID: {pendingRequest.group_id}</p>
-                            <p>Admin ID: {pendingRequest.account_id_to}</p>
-                            <p>Message: {pendingRequest.message}</p>
-                            <p>Created at: {pendingRequest.created_at}</p>
-                        </div>
-
-                        <div className="modal-actions">
-                            <button type="button" onClick={() => setViewPendingRequest(false)}>
-                                Close
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
-
         </div>
     );
 };

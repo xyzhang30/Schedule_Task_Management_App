@@ -4,6 +4,7 @@ import './SplitScreen.css'
 import './Groups.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
+import { useNavigate } from 'react-router-dom';
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
@@ -47,6 +48,8 @@ const Groups = () => {
     // const [memberRequests, setMemberRequests] = useState([]);
 
     const [selectedAdmin, setSelectedAdmin] = useState(null);
+
+    const navigate = useNavigate();
 
     
     // Fetch Groups - Runs once when the component mounts
@@ -589,6 +592,9 @@ const Groups = () => {
                     {/* <button className="view-member-requests-button" onClick={() => setMemberRequestsModal(true)}>
                         View Member Pending Requests
                     </button> */}
+                    <button className="view-all-groups-button" onClick={() => window.location.href = 'http://localhost:3000/groupindex'}>
+                        View All Groups
+                    </button>
                 </div>
 
                 <div className="split-screen-left">
