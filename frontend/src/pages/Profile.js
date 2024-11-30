@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import PostList from './PostList';
+import './Profile.css';
+
+const baseUrl = process.env.REACT_APP_BASE_URL;
 
 function Profile() {
   const [profile, setProfile] = useState({
@@ -18,12 +21,12 @@ function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const usernameRes = await axios.get('http://localhost:8080/account/get_username', { withCredentials: true });
-        const phoneNumberRes = await axios.get('http://localhost:8080/account/get_phone_number', { withCredentials: true });
-        const majorRes = await axios.get('http://localhost:8080/account/get_major');
-        const yearCreatedRes = await axios.get('http://localhost:8080/account/get_year', { withCredentials: true });
+        const usernameRes = await axios.get(`${baseUrl}/account/get_username`, { withCredentials: true });
+        const phoneNumberRes = await axios.get(`${baseUrl}/account/get_phone_number`, { withCredentials: true });
+        const majorRes = await axios.get(`${baseUrl}/account/get_major`, { withCredentials: true });
+        const yearCreatedRes = await axios.get(`${baseUrl}/account/get_year`, { withCredentials: true });
 
-        const avatarRes = await axios.get('http://localhost:8080/account/get_avatar', { 
+        const avatarRes = await axios.get(`${baseUrl}/account/get_avatar`, { 
           withCredentials: true,
           responseType: 'blob' // Receive as Blob
         });
@@ -50,10 +53,10 @@ function Profile() {
   useEffect(() => {
     const fetchPosts = async () => {
       try {
-        const postsRes = await axios.get('http://localhost:8080/post/get-posts', { withCredentials: true });
+        const postsRes = await axios.get(`${baseUrl}/post/get-posts`, { withCredentials: true });
         setUserPosts(postsRes.data);
 
-        const savesRes = await axios.get('http://localhost:8080/post/account/saves', { withCredentials: true });
+        const savesRes = await axios.get(`${baseUrl}/post/account/saves`, { withCredentials: true });
         const savedPostDetails = await Promise.all(
           savesRes.data.map(async (save) => {
             const postRes = await axios.get(`http://localhost:8080/post/get-post/${save.post_id}`, { withCredentials: true });
@@ -73,37 +76,60 @@ function Profile() {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
+  // return (
+  //   <div className="profile-container">
+  //     <h1>Profile</h1>
+  //     <div className="profile-card">
+  //       <div className="profile-attribute">
+  //         <strong>Username:</strong> {profile.username}
+  //       </div>
+  //       <div className="profile-attribute">
+  //         <strong>Phone Number:</strong> {profile.phoneNumber}
+  //       </div>
+  //       <div className="profile-attribute">
+  //         <strong>Major:</strong> {profile.major}
+  //       </div>
+  //       <div className="profile-attribute">
+  //         <strong>Year Created:</strong> {profile.yearCreated}
+  //       </div>
+  //       <div className="profile-attribute avatar-section">
+  //         <strong>Avatar:</strong>
+  //         <img src={profile.avatar} alt="User Avatar" className="avatar-image" />
+  //       </div>
+  //     </div>
+
+    //   {/* User's Posts */}
+    //   <h2>Your Posts</h2>
+    //   <PostList posts={userPosts} />
+
+    //   {/* Saved Posts */}
+    //   <h2>Saved Posts</h2>
+    //   <PostList posts={savedPosts} />
+    // </div>  
+  // );
   return (
     <div className="profile-container">
-      <h1>Profile</h1>
-      <div className="profile-card">
-        <div className="profile-attribute">
-          <strong>Username:</strong> {profile.username}
-        </div>
-        <div className="profile-attribute">
-          <strong>Phone Number:</strong> {profile.phoneNumber}
-        </div>
-        <div className="profile-attribute">
-          <strong>Major:</strong> {profile.major}
-        </div>
-        <div className="profile-attribute">
-          <strong>Year Created:</strong> {profile.yearCreated}
-        </div>
-        <div className="profile-attribute avatar-section">
-          <strong>Avatar:</strong>
-          <img src={profile.avatar} alt="User Avatar" className="avatar-image" />
+      <h2>My Profile</h2>
+      <div className="profile-header">
+        <img src={profile.avatar} alt="User Avatar" className="profile-avatar" />
+        <div className="profile-details">
+          <h1>{profile.username}</h1>
+          <p><strong>Phone Number:</strong> {profile.phoneNumber}</p>
+          <p><strong>Major:</strong> {profile.major}</p>
+          <p><strong>Year Created:</strong> {profile.yearCreated}</p>
         </div>
       </div>
 
-      {/* User's Posts */}
-      <h2>Your Posts</h2>
-      <PostList posts={userPosts} />
+      <div className="profile-posts">
+        <h2>My Posts</h2>
+        <PostList posts={userPosts} />
 
-      {/* Saved Posts */}
-      <h2>Saved Posts</h2>
-      <PostList posts={savedPosts} />
-    </div>  
+        <h2>Saved Posts</h2>
+        <PostList posts={savedPosts} />
+      </div>
+    </div>
   );
 }
+
 
 export default Profile;

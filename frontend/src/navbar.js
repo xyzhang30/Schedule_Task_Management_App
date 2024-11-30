@@ -14,7 +14,7 @@ const NavBar = () => {
   return (
     <div className="navbar">
       <div className="sidebar">
-        <button onClick={() => navigateTo('/')}>
+        <button onClick={() => navigateTo('/profile')}>
           <FontAwesomeIcon icon={faHome} />
           <span>Home</span>
         </button>

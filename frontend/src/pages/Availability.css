@@ -1,0 +1,117 @@
+  .input-group {
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .input-group label {
+    color: #333;
+    font-weight: 500;
+    text-align: left; /* Changed from text-align: right to left */
+    min-width: 120px; /* Increased width to accommodate left alignment */
+  }
+  
+  .input-group input[type="date"],
+  .input-group input[type="time"] {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+  }
+  
+  .input-group input[type="date"]:focus,
+  .input-group input[type="time"]:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+  }
+  
+  .participants-section {
+    margin-bottom: 15px;
+  }
+  
+  .participants-section label {
+    display: block;
+    margin-bottom: 10px;
+    color: #333;
+    font-weight: 500;
+    text-align: left; /* Ensure left alignment for section label */
+  }
+  
+  /* .participants {
+    /* display: flex; */
+    /* flex-wrap: wrap; */
+    /* gap: 10px; */
+    /* align-items: flex-start;  */
+/* } */
+  /* .participant-item {
+    background-color: #e6f2ff;
+    border-radius: 4px;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+  } */
+
+  .friend-item p {
+    margin-bottom: 0;
+  }
+  
+  .add-participant-button {
+    background-color:#a3b18a;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+    margin-top: 16px;
+  }
+  
+  .add-participant-button:hover {
+    background-color: #cad2c5;
+  }
+  
+  .generate-button {
+    width: 100%;
+    background-color: #606c38;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .generate-button:hover {
+    background-color: #4b5a30;
+  }
+  
+  .availability-display {
+    margin-top: 15px;
+    text-align: left; /* Changed from center to left */
+    color: #666;
+    font-style: italic;
+  }
+  
+  @media (max-width: 768px) {
+    .input-group {
+      flex-direction: column;
+      align-items: flex-start; /* Align to start for mobile */
+    }
+  
+    .input-group label {
+      text-align: left;
+      margin-bottom: 5px;
+    }
+  
+    .participants {
+      flex-direction: column;
+      align-items: flex-start; /* Align to start for mobile */
+    }
+}
