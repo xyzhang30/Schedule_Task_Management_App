@@ -22,13 +22,8 @@ def create_app(test_config=None):
     app.config['POST_IMAGE_PARAMETERS'] = postImageParameters
 
     mail.init_app(app)
-    CORS(app, supports_credentials=True, resources={
-        r"/*": {
-            "origins": ["http://localhost:3000", "http://127.0.0.1:3000"],
-            "methods": ["GET", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization"]
-        }
-    })
+    CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000"]}})
+
     # app.config.from_mapping(
     #     SECRET_KEY='not-really-that-secret-huh',
     #     DATABASE=os.path.join(app.instance_path, 'mvc.sqlite'),
