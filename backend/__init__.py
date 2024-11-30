@@ -46,7 +46,7 @@ def create_app(test_config=None):
     @app.route('/')
     def hello():
         return 'backend server running'
-    from app.controllers import accountController, availabilityController, friendController, groupController, taskController, postController, authController, friendRequestController, eventController, studyTimeController
+    from app.controllers import accountController, availabilityController, friendController, groupController, taskController, postController, authController, friendRequestController, eventController, studyTimeController,groupRequestController,eventinboxController,taskinboxController
 
     app.register_blueprint(accountController.bp)
     app.register_blueprint(availabilityController.bp)
