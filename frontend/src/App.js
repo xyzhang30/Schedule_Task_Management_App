@@ -28,8 +28,8 @@ import Groups from './pages/Groups.js';
 import Inbox from './pages/Inbox.js';
 import GroupIndex from './pages/GroupIndex.js';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-// import SpotifyLogin from './pages/SpotifyLogin.js';
-// import SpotifyCallback from './pages/SpotifyCallback.js';
+import SpotifyLogin from './pages/SpotifyLogin.js';
+import SpotifyCallback from './pages/SpotifyCallback.js';
 
 // Define your custom theme
 const theme = createTheme({
@@ -101,8 +101,8 @@ const Main = () => {
         <Route path="/availability" element={<FindSharedAvailability />} />
         <Route path="/groups" element={<Groups />} />
         <Route path="/groupindex" element={<GroupIndex />} />
-        {/* <Route path="/spotify-login" element={<SpotifyLogin />} />
-        <Route path="/spotify-callback" element={<SpotifyCallback />} /> */}
+        <Route path="/spotify-login" element={<SpotifyLogin />} />
+        <Route path="/spotify-callback" element={<SpotifyCallback />} />
       </Routes>
     </div>
   );

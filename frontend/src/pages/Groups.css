@@ -1,182 +1,24 @@
-/* General layout */
-.group-index-page-container {
-    display: flex;
+.search-bar {
+    grid-column: 1 / span 2;
+  }
+  
+.search-bar input {
     width: 100%;
-    height: 100vh;
-}
-
-.left-section {
-    width: 50%;
-    background-color: #f9f9f9;
-    padding: 10px;
-    overflow-y: auto;
-}
-
-.right-section {
-    display: flex;
-    flex-direction: column;
-    width: 50%;
-    height: 100%;
-}
-
-.group-details {
-    height: 50%;
-    background-color: #f9f9f9;
-    padding: 10px;
-    overflow-y: auto;
-}
-
-.event-details {
-    height: 50%;
-    background-color: #e0e0e0;
-    padding: 10px;
-    overflow-y: auto;
-}
-
-/* Header styling */
-.group-index-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.create-group-button {
-    padding: 8px 12px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.create-group-button:hover {
-    background-color: #45a049;
-}
-
-/* Group list styling */
-.group-section {
-    margin-bottom: 15px;
-    border: 1px solid #ddd;
     padding: 10px;
     border-radius: 5px;
-    background-color: #e0e0e0;
+    border: 1px solid #606c38;
 }
 
 .group-card {
-    display: flex;
-    align-items: center;
-}
-
-.profile-picture img {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    margin-right: 10px;
-}
-
-.profile-info h2 {
-    font-size: 1.1em;
-    margin: 0;
+    background-color: #e9ede6;
+    padding: 10px;
+    margin-bottom: 10px;
     cursor: pointer;
-}
-
-.profile-info p {
-    margin: 2px 0;
-}
-
-/* Event list styling */
-.group-events .event-card {
-    margin-top: 10px;
-    padding: 8px;
-    background-color: #e0e0e0;
     border-radius: 4px;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
-.event-card h3 {
-    margin: 0;
-    cursor: pointer;
-}
-
-.event-card p {
-    font-size: 0.9em;
-}
-
-/* Group details and actions */
-.group-details-content,
-.event-details-content {
-    display: flex;
-    flex-direction: column;
-}
-
-.group-avatar img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    margin-bottom: 15px;
-}
-
-.group-actions, .event-actions {
-    margin-top: 10px;
-}
-
-.group-actions button,
-.event-actions button {
-    margin-right: 5px;
-    padding: 8px 12px;
-    background-color: #2196F3;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.group-actions button:hover,
-.event-actions button:hover {
-    background-color: #0b7dda;
-}
-
-/* Modal styling */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
-
-.modal-content {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    width: 400px;
-    max-width: 90%;
-}
-
-.modal-content h2 {
-    margin-top: 0;
-}
-
-.modal-actions {
-    margin-top: 15px;
-    display: flex;
-    justify-content: space-between;
-}
-
-.modal-actions button {
-    padding: 8px 12px;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.modal-actions button:hover {
-    background-color: #45a049;
+.group-card:hover {
+    background-color: #cad2c5;
 }
