@@ -56,7 +56,7 @@ const NavBar = () => {
         </button>
         <button onClick={() => navigateTo('/spotify-login')}>
           <FontAwesomeIcon icon={faMusic} />
-          <span>Inbox</span>
+          <span>Spotify</span>
         </button>
       </div>
     </div>
