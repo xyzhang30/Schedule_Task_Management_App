@@ -22,7 +22,13 @@ def create_app(test_config=None):
     app.config['POST_IMAGE_PARAMETERS'] = postImageParameters
 
     mail.init_app(app)
-    CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000"]}})
+    CORS(app, supports_credentials=True, resources={
+        r"/*": {
+            "origins": ["http://localhost:3000", "http://127.0.0.1:3000"],
+            "methods": ["GET", "OPTIONS"],
+            "allow_headers": ["Content-Type", "Authorization"]
+        }
+    })
     # app.config.from_mapping(
     #     SECRET_KEY='not-really-that-secret-huh',
     #     DATABASE=os.path.join(app.instance_path, 'mvc.sqlite'),
@@ -46,7 +52,7 @@ def create_app(test_config=None):
     @app.route('/')
     def hello():
         return 'backend server running'
-    from app.controllers import eventinboxController, taskinboxController, groupRequestController, accountController, availabilityController, friendController, groupController, taskController, postController, authController, friendRequestController, eventController, studyTimeController
+    from app.controllers import accountController, availabilityController, friendController, groupController, taskController, postController, authController, friendRequestController, eventController, studyTimeController, spotifyController, groupRequestController, eventinboxController, taskinboxController
 
     app.register_blueprint(accountController.bp)
     app.register_blueprint(availabilityController.bp)
@@ -61,7 +67,7 @@ def create_app(test_config=None):
     app.register_blueprint(groupRequestController.bp)
     app.register_blueprint(eventinboxController.bp)
     app.register_blueprint(taskinboxController.bp)
-    # app.register_blueprint(spotifyController.bp)
+    app.register_blueprint(spotifyController.bp)
 
     init_db()
     return app

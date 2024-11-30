@@ -4,7 +4,7 @@
 import React from 'react';
 import './navbar.css'; // Ensure this path is correct
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faFaceSmile, faHandshake, faTicket, faHome, faCalendar, faCog, faUsers, faInfoCircle, faCalendarAlt, faPeopleGroup, faCalendarCheck, faComments, faClock, faGifts,faInbox, faListCheck } from '@fortawesome/free-solid-svg-icons';
+import { faFaceSmile, faHandshake, faTicket, faHome, faCalendar, faCog, faUsers, faInfoCircle, faCalendarAlt, faPeopleGroup, faCalendarCheck, faComments, faClock, faGifts,faInbox, faListCheck, faMusic } from '@fortawesome/free-solid-svg-icons';
 
 const NavBar = () => {
   const navigateTo = (link) => {
@@ -52,6 +52,10 @@ const NavBar = () => {
         </button>
         <button onClick={() => navigateTo('/inbox')}>
           <FontAwesomeIcon icon={faInbox} />
+          <span>Inbox</span>
+        </button>
+        <button onClick={() => navigateTo('/spotify-login')}>
+          <FontAwesomeIcon icon={faMusic} />
           <span>Inbox</span>
         </button>
       </div>

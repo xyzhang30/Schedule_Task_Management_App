@@ -172,8 +172,7 @@ def createAccount():
 def get_current_user():
     return session['user']
 
-@bp.route('/name-by-id/<id>', methods=['POST'])
-@is_logged_in
+@bp.route('/name-by-id/<id>', methods=['GET'])
 def get_username_by_id(id):
     acc = Account.get_acc_by_id(id)
     username = acc.username
