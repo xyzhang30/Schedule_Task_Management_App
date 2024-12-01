@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, session, request
-from datetime import datetime
+from datetime import datetime,timedelta
 from ..models.notifications import Notifications
 from ..models.event import Event
 from ..decorators import is_logged_in
@@ -22,9 +22,9 @@ logger.setLevel(logging.INFO)
 def get_event_notifications():
     try:
         account_id = session['user']
-        now = datetime.now().date()
+        now = datetime.now().date() - timedelta(days=1)
 
-        events_today = Notifications.get_notifications_for_events(account_id, now)
+        events_today = Event.get_events_happening_today(account_id, now)
 
         for event in events_today:
             # Check if notification already exists for this event (regardless of is_pending status)

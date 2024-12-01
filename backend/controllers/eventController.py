@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify, session
 from ..models.event import Event, EventCategory
 from ..models.notifications import Notifications
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 from ..decorators import is_logged_in
 from ..db import db_session
@@ -25,22 +25,68 @@ def create_event():
     try:
         data = request.json
         account_id = session.get('user')
+        frequency = data.get('frequency')
+        repeat_until_str = data.get('repeat_until')
+        start_date = datetime.strptime(data['start_date'], '%Y-%m-%dT%H:%M')
+        end_date = datetime.strptime(data['end_date'], '%Y-%m-%dT%H:%M')
+        repeat_until = datetime.strptime(repeat_until_str, '%Y-%m-%dT%H:%M') if repeat_until_str else None
         new_event = Event(
             account_id=account_id,
             name=data['name'],
             location=data.get('location'),
-            start_date=datetime.strptime(data['start_date'], '%Y-%m-%dT%H:%M'),
-            end_date=datetime.strptime(data['end_date'], '%Y-%m-%dT%H:%M'),
+            start_date=start_date,
+            end_date=end_date,
             category=data.get('category'),
             label_text=data.get('label_text'),
             label_color=data.get('label_color'),
-            frequency=data.get('frequency'),
-            repeat_until=datetime.strptime(data['repeat_until'], '%Y-%m-%dT%H:%M') if data.get('repeat_until') else None
+            frequency=frequency,
+            repeat_until=repeat_until
         )
         new_event.save()
 
         if new_event.start_date.date() == datetime.now().date():
             new_event.create_or_update_notification(account_id)
+
+        if frequency and repeat_until:
+            current_start = start_date
+            current_end = end_date
+
+            while True:
+                # Generate next occurrence based on frequency
+                if frequency == 'Every Day':
+                    current_start += timedelta(days=1)
+                    current_end += timedelta(days=1)
+                elif frequency == 'Once a Week':
+                    current_start += timedelta(weeks=1)
+                    current_end += timedelta(weeks=1)
+                elif frequency == 'Twice a Week':
+                    # Schedule events every 3 days
+                    current_start += timedelta(days=3)
+                    current_end += timedelta(days=3)
+                else:
+                    # Unsupported frequency
+                    break
+
+                if current_start > repeat_until:
+                    break
+
+                # Create new event occurrence
+                occurrence = Event(
+                    account_id=account_id,
+                    name=data['name'],
+                    location=data.get('location'),
+                    start_date=current_start,
+                    end_date=current_end,
+                    category=data.get('category'),
+                    label_text=data.get('label_text'),
+                    label_color=data.get('label_color'),
+                    frequency=frequency,
+                    repeat_until=repeat_until
+                )
+                occurrence.save()
+
+                if occurrence.start_date.date() == datetime.now().date():
+                    occurrence.create_or_update_notification(account_id)
 
         return jsonify({'message': 'Event created successfully', 'event': new_event.to_dict()}), 201
     except Exception as e:
@@ -86,11 +132,22 @@ def get_events_by_account():
     :return: JSON response with list of events
     """
     account_id = session.get('user')
+
     if not account_id:
         return jsonify({'message': 'User not logged in'}), 401
-    events = Event.get_events_by_account(account_id)
+    include_past = request.args.get('include_past', 'false').lower() == 'true'
+
+    if include_past:
+        # Include all events
+        events = Event.get_events_by_account(account_id)
+    else:
+        # Only events from today onwards
+        today = datetime.now().date() - timedelta(days=1)
+        events = Event.get_future_events_by_account(account_id, today)
+
     events_list = [event.to_dict() for event in events]
     return jsonify({'events': events_list}), 200
+
 
 # Get all categories
 @bp.route('/category/all', methods=['GET'])

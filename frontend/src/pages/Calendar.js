@@ -29,7 +29,7 @@ axios.defaults.withCredentials = true;
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
 // Define the default color for appointments without a label
-const DEFAULT_APPOINTMENT_COLOR = '#cad2c5';
+const DEFAULT_APPOINTMENT_COLOR = '#2196F3';
 
 
 // Custom Appointment Content Component
@@ -399,9 +399,8 @@ const Calendar = () => {
             onCurrentDateChange={setCurrentDate}
           />
           <EditingState onCommitChanges={handleCommitChanges} />
-          
-          <WeekView startDayHour={0} endDayHour={24} />
           <DayView startDayHour={8} endDayHour={24} />
+          <WeekView startDayHour={0} endDayHour={24} />
           <MonthView />
           <AllDayPanel />
           <Appointments appointmentComponent={Appointment} />
