@@ -142,7 +142,8 @@ def get_year_created():
 
 @bp.route('/', methods = ['GET'])
 def index():
-    account = Account.query.all()
+    logged_in_user = session['user']
+    account = Account.all_except_self(logged_in_user)
     accounts_list = [a.to_dict() for a in account]
     return jsonify(accounts_list)
 
