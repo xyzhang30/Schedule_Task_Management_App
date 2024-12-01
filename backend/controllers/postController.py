@@ -79,7 +79,14 @@ def get_friends_posts_by_poster():
     if not posts:
         return jsonify([]), 200
 
-    post_list = [post.to_dict() for post in posts]
+    post_list = []
+    for post in posts:
+        post_data = post.to_dict()
+        poster_account = Account.get_acc_by_id(post.poster_id)
+        poster_name = poster_account.username if poster_account else "Unknown"
+        post_data['poster_name'] = poster_name
+        post_list.append(post_data)
+    
     return jsonify(post_list), 200
 
 

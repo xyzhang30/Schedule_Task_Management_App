@@ -91,7 +91,7 @@ Table_creation = '''
 
     CREATE TABLE post ( 
         post_id SERIAL PRIMARY KEY,
-        title VARCHAR(20),
+        title VARCHAR(200),
         date_posted TIMESTAMP NOT NULL, 
         poster_id INTEGER REFERENCES accounts(account_id),
         content TEXT NOT NULL,
@@ -261,6 +261,67 @@ for i in range (1, 6):
         VALUES (%s, %s, %s)
     ''', (account_id, date, study_time))
 print("Studytime test data generated")
+
+# Post test data
+titles = [
+    "10 Tips for Better Study Habits",
+    "Exploring the Future of Artificial Intelligence",
+    "My Journey in Learning Python",
+    "The Benefits of Daily Meditation",
+    "A Guide to Budget-Friendly Travel",
+    "Why I Love Hiking",
+    "How I Improved My Sleep Schedule",
+    "Top 5 Books That Changed My Life",
+    "The Rise of Electric Vehicles",
+    "The Importance of Mental Health Awareness",
+    "5 Easy Recipes for Busy Weeknights",
+    "My Experience with Remote Work",
+    "How I Learned to Play Guitar",
+    "The Best Apps for Staying Organized",
+    "The Impact of Social Media on Society",
+    "Why I Started a Bullet Journal",
+    "The Art of Minimalist Living",
+    "Top Travel Destinations for 2024",
+    "How to Build a Morning Routine",
+    "The Joy of Baking at Home"
+]
+
+contents = [
+    "Effective study habits can make a huge difference in your academic performance. Start by setting clear goals and creating a study schedule. Taking regular breaks, staying organized, and practicing active recall are just some of the techniques that can help you retain more information.",
+    "Artificial Intelligence is revolutionizing industries from healthcare to transportation. With advancements in machine learning and robotics, the potential for AI to transform our daily lives is enormous. However, ethical considerations remain at the forefront of the discussion.",
+    "Python has become one of the most versatile programming languages. I started with the basics like loops and conditionals, and soon I was building small projects like a to-do list app. The journey has been both challenging and rewarding.",
+    "Meditation is more than just sitting in silence. It's about connecting with your mind and body. Studies show that daily meditation can reduce stress, improve focus, and increase emotional resilience.",
+    "Traveling doesn't have to break the bank. With careful planning, you can explore new destinations without overspending. Use budget airlines, stay in hostels, and eat like the locals to save money while experiencing the culture.",
+    "Hiking offers a unique escape from the hustle of daily life. The fresh air, the sounds of nature, and the sense of accomplishment when you reach the summit make it a truly enriching experience.",
+    "Fixing my sleep schedule transformed my energy levels and productivity. I started by setting a consistent bedtime, reducing screen time before bed, and creating a relaxing pre-sleep routine.",
+    "Books have the power to shape our perspectives and inspire us. From self-help classics to thrilling novels, these are the five books that had the most profound impact on my outlook.",
+    "Electric vehicles are no longer a thing of the future. With advancements in battery technology and an increasing focus on sustainability, EVs are set to become the norm in the coming decade.",
+    "Mental health is just as important as physical health. Recognizing the signs of mental illness and seeking help when needed can make a significant difference in a person’s quality of life.",
+    "Cooking on a tight schedule doesn't have to be stressful. These five quick and easy recipes are perfect for busy weeknights, allowing you to enjoy delicious meals without spending hours in the kitchen.",
+    "Remote work has its perks and challenges. While it offers flexibility and comfort, staying productive requires discipline. Setting up a dedicated workspace and sticking to a routine were game-changers for me.",
+    "Learning to play the guitar was a dream come true. It started with simple chords and grew into the ability to play my favorite songs. It’s a skill that has brought endless joy and creativity into my life.",
+    "From task managers to calendar apps, technology can help you stay on top of your schedule. These are my top picks for apps that make organization easier and more efficient.",
+    "Social media has revolutionized the way we connect and share information. While it has brought people closer, it also raises concerns about privacy, misinformation, and mental health.",
+    "Bullet journaling is more than just a trend—it's a productivity system that works. By tracking tasks, goals, and habits in one place, I’ve found it easier to stay focused and organized.",
+    "Minimalism isn't just about having fewer things; it's about focusing on what truly matters. Letting go of excess possessions and simplifying my life has brought me more peace and clarity.",
+    "Looking for your next adventure? These destinations offer unique experiences, stunning landscapes, and vibrant cultures. Whether you’re a foodie, an adventurer, or a history buff, there’s something for everyone.",
+    "A good morning routine sets the tone for the rest of the day. By incorporating habits like stretching, journaling, and planning, I’ve been able to start my days with more focus and energy.",
+    "Baking has become my favorite pastime. There's something therapeutic about measuring ingredients, kneading dough, and smelling fresh bread right out of the oven."
+]
+
+# Generate post data
+for i in range(20):
+    title = titles[i]
+    content = contents[i]
+    date_posted = Faker().date_time_this_year()
+    poster_id = random.randint(1, 6)
+
+    cursor.execute('''
+        INSERT INTO post (title, date_posted, poster_id, content)
+        VALUES (%s, %s, %s, %s)
+    ''', (title, date_posted, poster_id, content))
+
+print("Post test data generated")
 
 
 # commit changes to save
