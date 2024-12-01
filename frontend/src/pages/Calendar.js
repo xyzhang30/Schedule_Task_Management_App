@@ -123,9 +123,14 @@ const Calendar = () => {
 
   const refreshEvents = async () => {
     try {
-      const response = await axios.get(`${baseUrl}/event/getEventsByAccount`);
+      const response = await axios.get(`${baseUrl}/event/getEventsByAccount`, {
+        params: {
+          include_past: true, 
+        },
+
+    });
       const eventData = response.data.events || [];
-      // Ensure label_color is set for all events
+      
       eventData.forEach((event) => {
         if (!event.label_color || event.label_color.trim() === '') {
           event.label_color = DEFAULT_APPOINTMENT_COLOR;
