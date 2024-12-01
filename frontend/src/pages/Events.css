@@ -87,6 +87,7 @@
   overflow-y: auto;
   max-height: 600px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
 }
 
 .events-date {
@@ -275,8 +276,7 @@
 
 .modal-content input[type="text"],
 .modal-content input[type="datetime-local"],
-.modal-content select,
-.modal-content input[type="color"] {
+.modal-content select{
   width: 100%;
   padding: 10px;
   margin-bottom: 15px;
@@ -284,6 +284,10 @@
   border: 1px solid #ced4da;
   font-size: 1rem;
   color: #495057;
+
+}
+.modal-content input[type="color"] {
+  width: 100%;
 }
 
 .modal-actions {
@@ -382,4 +386,25 @@
   .event-details {
     margin-top: 20px;
   }
+}
+
+.toggle-button {
+  background-color: #606c38;;
+  color: white;
+  padding: 12px 12px;
+  font-size: 12px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-bottom: 20px;
+
+  display: block;
+  margin-left: auto;
+  margin-right: 0;
+
+}
+
+.toggle-button:hover {
+  background-color: #a3b18a;
 }
