@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, session
 from flask import request
 from ..models.availability import Availability
 from ..models.event import Event
@@ -20,6 +20,8 @@ def generate_availability():
     start_time = datetime.strptime(start_time_input, '%H:%M').time()
     end_time = datetime.strptime(end_time_input, '%H:%M').time()
     participants = [int(id.strip()) for id in participant_ids.split(',')]
+    
+    participants.append(session['user'])
 
     start = datetime.combine(date, start_time)
     end = datetime.combine(date, end_time)

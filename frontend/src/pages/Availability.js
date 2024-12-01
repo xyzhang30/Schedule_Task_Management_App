@@ -38,6 +38,7 @@ const FindSharedAvailability = () => {
   const [categories, setCategories] = useState([]);
   const [initialEventData, setInitialEventData] = useState({});
   const [timeRange, setTimeRange] = useState({});
+  const [currUserName, setCurrUserName] = useState([""]);
 
   const handleDateChange = (e) => {
     setDate(e.target.value);
@@ -57,7 +58,13 @@ const FindSharedAvailability = () => {
   useEffect(() => {
     fetchFriends();
     fetchCategories();
+    setCurrUserInfo();
   }, []);
+
+  const setCurrUserInfo = async () => {
+    const usernameRes = await axios.get(`${baseUrl}/account/get_username`, { withCredentials: true });
+    setCurrUserName(usernameRes.data.username);
+  }
 
   useEffect(() => {
     const appointmentsData = generateAppointments();
@@ -279,6 +286,9 @@ const FindSharedAvailability = () => {
           <div className="participants-section">
             <label>Participants:</label>
             <div className="participants">
+              <div className="friend-item">
+                  <p>{currUserName}</p>
+                </div>
               {participants.map((participant) => (
                 <div key={participant.account_id} className="friend-item">
                   <p>{participant.username}</p>
@@ -301,7 +311,7 @@ const FindSharedAvailability = () => {
             ) : error ? (
               <p>{error}</p>
             ) : availability ? (
-              <p>Available times are displayed below. Click on a time slot to create an event.</p>
+              <p>Available times are displayed on the right. Click on a time slot to create an event.</p>
             ) : (
               <p></p>
             )}
@@ -334,12 +344,12 @@ const FindSharedAvailability = () => {
         <div className="modal-overlay">
           <div className="modal-content">
             <h3>Select Participants</h3>
-            <button className="close-popup" onClick={toggleAddParticipantsPopup}>
+            <button className='button' id="close-popup" onClick={toggleAddParticipantsPopup}>
               Close
             </button>
             <div className="friends-list">
               {friends.map((friend) => (
-                <div key={friend.account_id} className="friend-item">
+                <div key={friend.account_id} className="friend-item" id='friends-list-item' >
                   <p>{friend.username}</p>
                   <button
                     onClick={() => handleSelectFriend(friend)}
@@ -350,7 +360,7 @@ const FindSharedAvailability = () => {
                     }
                   >
                     {participants.some((p) => p.account_id === friend.account_id)
-                      ? 'Selected'
+                      ? 'Remove'
                       : 'Select'}
                   </button>
                 </div>

@@ -59,6 +59,12 @@
     margin-bottom: 0;
   }
   
+  #friends-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
   .add-participant-button {
     background-color:#a3b18a;
     color: white;
