@@ -208,13 +208,13 @@ const Friends = () => {
           <h2>Friends</h2>
           <div className="button-group">
           <button
-            className='friend-request-button'
+            className='button'
             onClick={toggleFrendRequestPopup}
             >
             Requests
           </button>
           <button 
-            className="add-friends-button"
+            className='button'
             onClick={toggleAddFriendsPopup}
             >
             Add Friends
@@ -262,7 +262,8 @@ const Friends = () => {
               <p>Phone: {selectedFriend.phone}</p>
             </div> */}
             <button 
-              className="remove-friend-button" 
+              className='button'
+              id='remove-friend-button'
               onClick={() => removeFriend(selectedFriend.account_id)}
             >
               Remove Friend
@@ -276,9 +277,9 @@ const Friends = () => {
 
       {showFriendRequestPopup && (
         <div className="modal-overlay">
-          <div className="modal-content">
+          <div className="modal-content" id='friend-popup'>
             <h3>Friend Requests</h3>
-            <button className="close-popup" onClick={toggleFrendRequestPopup}>Close</button>
+            <button className="button" id='close-popup' onClick={toggleFrendRequestPopup}>Close</button>
             <div className="friend-requests-list">
               {requests.length > 0 ? (
                 requests.map((request) => (
@@ -301,10 +302,9 @@ const Friends = () => {
 
       {showAddFriendsPopup && (
         <div className="modal-overlay">
-          <div className="modal-content">
+          <div className="modal-content" id='friends-popup'>
             <h3>Add Friends</h3>
-            <button className="close-popup" onClick={toggleAddFriendsPopup}>Close</button>
-            
+            <button className='button' id="close-popup" onClick={toggleAddFriendsPopup}>Close</button>
             <div>
               <input
                 type='text'
