@@ -36,9 +36,14 @@
   padding: 1rem;
   border: none;
   border-radius: 6px;
-  background-color: #e9ede6(209, 220, 201);
+  background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.post-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
 }
 
 .post-item h3 {

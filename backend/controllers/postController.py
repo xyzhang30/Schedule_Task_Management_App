@@ -37,6 +37,28 @@ def get_post(post_id):
     return jsonify(post_data), 200
 
 
+@bp.route('<int:poster_id>/get-posts', methods=['GET'])
+@is_logged_in
+def get_posts_by_poster_not_self(poster_id):
+    '''
+    Get all posts posted by the specified user
+    '''
+    posts = Post.get_posts_by_poster_id(poster_id)
+
+    if not posts:
+        return jsonify([]), 200
+
+    post_list = []
+    for post in posts:
+        post_data = post.to_dict()
+        poster_account = Account.get_acc_by_id(post.poster_id)
+        poster_name = poster_account.username if poster_account else "Unknown"
+        post_data['poster_name'] = poster_name
+        post_list.append(post_data)
+
+    return jsonify(post_list), 200
+
+
 @bp.route('/get-posts', methods=['GET'])
 @is_logged_in
 def get_posts_by_poster():
