@@ -73,7 +73,6 @@ function Profile({ self = true, accountId = null}) {
         
         const postsRes = await axios.get(postsBaseUrl, { withCredentials: true });
         setUserPosts(postsRes.data);
-        console.log("___ profile, ", profile)
 
         if (self) {
           const savesRes = await axios.get(`${baseUrl}/post/account/saves`, { withCredentials: true });
