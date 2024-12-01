@@ -42,7 +42,7 @@ class Notifications(Base):
     @classmethod
     def get_notifications_by_acc_send(cls, id, type):
         return db_session.query(cls).filter_by(
-            account_id_to=id,
+            account_id_from=id,
             is_pending=True,
             notification_type=type
         ).all()

@@ -80,6 +80,8 @@ def getTopTracks():
 
     response = requests.get(url, headers=headers)
 
+    print("_______________spotify response: ", response)
+
     if response.status_code != 200:
         return jsonify({'error': response.json()}), response.status_code
 

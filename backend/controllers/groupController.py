@@ -84,6 +84,18 @@ def showAdminGroups():
     return jsonify(group_list), 200
 
 
+@bp.route('/get-group-name-by-id/<int:group_id>', methods=['GET'])
+@is_logged_in
+def getGroupNameByID(group_id):
+
+    group = Group.get_grp_by_id(group_id)
+
+    if group is None:
+        return jsonify({"message": "No group found."}), 404
+
+    return group.group_name, 200
+
+
 @bp.route('/create-group', methods = ['POST'])
 @is_logged_in
 def createGroup():

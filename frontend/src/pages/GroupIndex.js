@@ -3,6 +3,8 @@ import axios from 'axios';
 import './SplitScreen.css';
 import './Groups.css';
 import { useNavigate } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faPaperPlane, faRotateRight } from '@fortawesome/free-solid-svg-icons';
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
@@ -21,6 +23,7 @@ const GroupIndex = () => {
 
     const [viewPendingRequest, setViewPendingRequest] = useState(false);
     const [pendingRequest, setPendingRequest] = useState(null);
+    const [pendingGroup, setPendingGroup] = useState(null);
 
     const [selectedAdmin, setSelectedAdmin] = useState(null);
 
@@ -73,6 +76,9 @@ const GroupIndex = () => {
         console.log("_________E", e);
         console.log("_________GROUPID", group_id);
         try {
+            setSelectedGroup(null);
+            setSelectedAdmin(null);
+            setPendingRequest(null);
             const request_response = await axios.get(`${baseUrl}/group-request/get-grp-request/${group_id}`);
             if (request_response.data) {
                 const requestData = request_response.data;
@@ -132,14 +138,25 @@ const GroupIndex = () => {
         }
     };
 
+    // Handle Sent Request
+    const handleViewRequest = async () => {
+        try {
+            const group = groups.find(g => g.group_id === pendingRequest.group_id);
+            setPendingGroup(group);
+            setViewPendingRequest(true);
+        } catch (err) {
+            console.error('Failed to find group:', err);
+        }
+    };
+
     return(
         <div className="split-screen-container">
             <div className="split-screen-content">
                 
                 <div className="split-screen-filter-container">
                     <h2>All Groups</h2>
-                    <button className="view-my-groups-button" onClick={() => window.location.href = 'http://localhost:3000/groups'}>
-                        View My Groups
+                    <button className="button view-button" onClick={() => window.location.href = 'http://localhost:3000/groups'}>
+                        <FontAwesomeIcon icon={faEye} /> View My Groups
                     </button>
                 </div>
 
@@ -179,19 +196,19 @@ const GroupIndex = () => {
                                 <div className="group-actions">
                                     {selectedGroup.is_guest && !pendingRequest && (
                                         <>
-                                            <button onClick={() => setSentRequestModal(true)}>Request to Join</button>
+                                            <button className="button add-button" onClick={() => setSentRequestModal(true)}>
+                                                <FontAwesomeIcon icon={faPaperPlane} /> Request to Join
+                                            </button>
                                         </>
                                     )}
                                     {pendingRequest && (
                                         <>
-                                            <button onClick={() => setViewPendingRequest(true)}>Request Pending</button>
+                                            <button className="button view-button" onClick={handleViewRequest}>
+                                                <FontAwesomeIcon icon={faRotateRight} /> Request Pending
+                                            </button>
                                         </>
                                     )}
-                                    <button className="close-group-button" onClick={handleCloseGroup}>
-                                        Close
-                                    </button>
                                 </div>
-
                             </div>
                         ) : (
                             <p>Select a group to view details</p>
@@ -230,8 +247,7 @@ const GroupIndex = () => {
                         <div className="modal-content">
                             <h2>Pending Request</h2>
                             <div key={pendingRequest.request_id} className="request-card">
-                                <p>Group ID: {pendingRequest.group_id}</p>
-                                <p>Admin ID: {pendingRequest.account_id_to}</p>
+                                <p>To group: {pendingGroup.group_name}</p>
                                 <p>Message: {pendingRequest.message}</p>
                                 <p>Created at: {pendingRequest.created_at}</p>
                             </div>

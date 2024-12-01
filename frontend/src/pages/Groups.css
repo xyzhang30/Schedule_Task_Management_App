@@ -1,5 +1,6 @@
 .search-bar {
     grid-column: 1 / span 2;
+    margin-bottom: 20px;
   }
   
 .search-bar input {
@@ -9,6 +10,95 @@
     border: 1px solid #606c38;
 }
 
+/* Buttons */
+button.button {
+    border: none;
+    border-radius: 5px;
+    padding: 10px 15px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    outline: none;
+}
+
+/* Add, Edit, and View Buttons */
+button.add-button,
+button.edit-button,
+button.view-button {
+    background-color: #606c38; /* Green */
+    color: #fff;
+}
+
+button.add-button:hover,
+button.edit-button:hover,
+button.view-button:hover {
+    background-color: #7a874f; /* Lighter Green */
+}
+
+/* Delete Button */
+button.delete-button {
+    background-color: #cc0000; /* Dark Red */
+    color: #fff;
+}
+
+button.delete-button:hover {
+    background-color: #e60000; /* Lighter Red */
+}
+
+/* Close Button */
+button.close-button {
+    background-color: #cad2c5; /* Light Grayish Color */
+    color: #333;
+}
+
+button.close-button:hover {
+    background-color: #a1b2a1; /* Darker Shade of Grayish Green */
+}
+
+/* Dots Button */
+button.dots {
+    align-self: flex-end;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: #333;
+}
+
+/* Radio Button & Modal Content for create + edit event */
+.modal-content input[type="text"], 
+.modal-content input[type="datetime-local"], 
+.modal-content input[type="date"],
+.modal-content select, 
+.modal-content input[type="color"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    font-size: 1rem;
+    color: #495057;
+}
+
+.modal-content .radio-group {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.modal-content .radio-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.modal-content .radio-group input[type="radio"] {
+    margin: 0;
+}
+
+.modal-content .radio-group label {
+    margin: 0;
+}
+
+/* Group List */
 .group-card {
     background-color: #e9ede6;
     padding: 10px;
@@ -21,4 +111,148 @@
 
 .group-card:hover {
     background-color: #cad2c5;
+}
+
+/* Group Modal */
+.group-details-content {
+    background-color: #e9ede6;
+    padding: 25px;
+    border-radius: 10px;
+    width: 650px; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    margin: 20px auto;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.group-details-content h2 {
+    font-size: 2rem;
+    color: #333;
+    margin: 0 0 15px;
+}
+
+.group-details-content p {
+    font-size: 1.1rem;
+    color: #555;
+    margin: 0;
+}
+
+.group-profile {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.group-profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative; /* Allows relative positioning for buttons */
+}
+
+.group-profile-header h2 {
+    margin: 0;
+    font-size: 2rem;
+    color: #333;
+}
+
+.group-profile-header .add-button {
+    background-color: #606c38; /* Green */
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px; /* Reduced size */
+    font-size: 0.9rem; /* Smaller text */
+    cursor: pointer;
+    transition: background-color 0.3s;
+    position: relative; /* Position adjustment */
+    left: -10px; /* Move slightly to the left */
+}
+
+.group-profile-header .add-button:hover {
+    background-color: #7a874f; /* Lighter green */
+}
+
+.group-profile-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    position: relative; /* Allows relative positioning for dots button */
+}
+
+.group-profile-footer p {
+    margin: 0;
+    font-size: 1rem;
+    color: #555;
+}
+
+.group-profile-footer .dots {
+    align-self: flex-end;
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: #333;
+    position: relative; /* Position adjustment */
+    left: -10px; /* Move slightly to the left */
+}
+
+/* Event List */
+.event-card {
+    background-color: #d4d9cf;
+    padding: 15px; 
+    width: 90%; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    margin: 10px auto; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: flex-start; 
+}
+
+.event-card h3 {
+    margin: 0 0 5px; 
+    font-size: 1.2rem; 
+    color: #333; 
+}
+
+.event-card p {
+    margin: 0 0 10px; 
+    font-size: 1rem; 
+    color: #555; 
+}
+
+/* Group & Event Actions */
+.event-actions,
+.group-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+}
+
+/* Manage Members Modal */
+.member-list {
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 10px;
+    margin: 0;
+}
+
+.member-card {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #ddd;
+}
+
+.member-card p {
+    margin: 0;
+    font-size: 1rem;
+    color: #555;
+}
+
+.member-actions {
+    display: flex;
+    justify-content: space-between;
+    padding-top: 20px;
 }

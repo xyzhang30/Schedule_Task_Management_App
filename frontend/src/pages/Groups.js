@@ -3,7 +3,7 @@ import axios from 'axios';
 import './SplitScreen.css'
 import './Groups.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
+import { faEllipsis, faTrash, faPencilAlt, faCheck, faCircleXmark, faUser, faUserPlus, faUserLargeSlash, faCirclePlus, faEye, faStar, faUsersLine } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
@@ -21,6 +21,8 @@ const Groups = () => {
     const [newGroup, setNewGroup] = useState({ group_name: '' });
 
     const [selectedGroup, setSelectedGroup] = useState(null);
+
+    const [groupActionsModal, setGroupActionsModal] = useState(false);
 
     const [editGroupModal, setEditGroupModal] = useState(false);
     const [editedGroup, setEditedGroup] = useState({ group_name: '' });
@@ -183,6 +185,10 @@ const Groups = () => {
 
     // Show Group Detail Info & Buttons for edit, delete, leave, request_join
     const handleGroupClick = async (e, group_id) => {
+        setSelectedGroup(null);
+        setSelectedEvent(null);
+        setSelectedMembers([]);
+        setSelectedAdmin(null);
         console.log("_________E", e);
         console.log("_________GROUPID", group_id);
         try {
@@ -583,18 +589,20 @@ const Groups = () => {
 
                 <div className="split-screen-filter-container">
                     <h2>My Groups</h2>
-                    <button className="create-group-button" onClick={() => setCreateGroupModal(true)}>
-                        Create Group
-                    </button>
-                    <button className="view-my-requests-button" onClick={() => setMyRequestsModal(true)}>
-                        View My Pending Requests
-                    </button>
-                    {/* <button className="view-member-requests-button" onClick={() => setMemberRequestsModal(true)}>
-                        View Member Pending Requests
-                    </button> */}
-                    <button className="view-all-groups-button" onClick={() => window.location.href = 'http://localhost:3000/groupindex'}>
-                        View All Groups
-                    </button>
+                    <div className="main-actions">
+                        <button className="button add-button" onClick={() => setCreateGroupModal(true)}>
+                            <FontAwesomeIcon icon={faCirclePlus} /> Create Group
+                        </button>
+                        <button className="button view-button" onClick={() => setMyRequestsModal(true)}>
+                            <FontAwesomeIcon icon={faStar} /> View My Pending Requests
+                        </button>
+                        {/* <button className="button view-button" onClick={() => setMemberRequestsModal(true)}>
+                            <FontAwesomeIcon icon={faUsersLine} /> View Member Requests
+                        </button> */}
+                        <button className="button view-button" onClick={() => window.location.href = 'http://localhost:3000/groupindex'}>
+                            <FontAwesomeIcon icon={faEye} /> View All Groups
+                        </button>
+                    </div>
                 </div>
 
                 <div className="split-screen-left">
@@ -626,9 +634,17 @@ const Groups = () => {
                                 {/* <div className="group-avatar">
                                     <img src={selectedGroup.avatar} alt="Group's Avatar" />
                                 </div> */}
-                                <div className="group-profile">
-                                    <h2> {selectedGroup.group_name} </h2>
+                                <div className="group-profile-header">
+                                    <h2>{selectedGroup.group_name}</h2>
+                                    <button className="button add-button" onClick={() => setCreateEventModal(true)}>
+                                        <FontAwesomeIcon icon={faCirclePlus} />Event
+                                    </button>
+                                </div>
+                                <div className="group-profile-footer">
                                     <p>Administrator: {selectedAdmin || "Loading..."}</p>
+                                    <button className="dots" onClick={() => setGroupActionsModal(true)}>
+                                        <FontAwesomeIcon icon={faEllipsis} />
+                                    </button>
                                 </div>
                                 <div className="group-events">
                                     {groupEvents[selectedGroup.group_id] && groupEvents[selectedGroup.group_id].length > 0 ? (
@@ -636,7 +652,7 @@ const Groups = () => {
                                             <div key={event.event_id} className="event-card">
                                                 <h3>{event.event_name}</h3>
                                                 <p>{formatDateTime(event.start_date_time)} - {formatDateTime(event.end_date_time)}</p>
-                                                <button onClick={(e) => handleEventClick(e, event.event_id)}>
+                                                <button className="dots" onClick={(e) => handleEventClick(e, event.event_id)}>
                                                     <FontAwesomeIcon icon={faEllipsis} />
                                                 </button>
                                             </div>
@@ -645,19 +661,39 @@ const Groups = () => {
                                         <p>No events available.</p>
                                     )}
                                 </div>
+
+                            </div>
+                        ) : (
+                            <p>Select a group to view details</p>
+                        )}
+                    </div>
+
+                    {groupActionsModal && selectedGroup && (
+                        <div className="modal-overlay">
+                            <div className="modal-content">
+                                <h2> {selectedGroup.group_name} </h2>
                                 <div className="group-actions">
                                     {selectedGroup.is_admin && (
                                         <>  
-                                            <button onClick={() => setCreateEventModal(true)}>Create Event</button>
-                                            <button onClick={() => handleEditGroupClick()}>Edit Group</button>
-                                            <button onClick={() => handleDeleteGroup()}>Delete Group</button>
-                                            <button onClick={() => handleViewMembersClick()}>Manage Members</button>
+                                            <button className="button edit-button" onClick={() => handleEditGroupClick()}>
+                                                <FontAwesomeIcon icon={faPencilAlt} />Edit
+                                            </button>
+                                            <button className="button view-button" onClick={() => handleViewMembersClick()}>
+                                                <FontAwesomeIcon icon={faUser} />Manage
+                                            </button>
+                                            <button className="button delete-button" onClick={() => handleDeleteGroup()}>
+                                                <FontAwesomeIcon icon={faTrash} />Delete
+                                            </button>
                                         </>
                                     )}
                                     {selectedGroup.is_member && (
                                         <>
-                                            <button onClick={() => handleLeaveGroup()}>Leave Group</button>
-                                            <button onClick={() => handleViewMembersClick()}>View Members</button>
+                                            <button onClick={() => handleLeaveGroup()}>
+                                                <FontAwesomeIcon icon={faUserLargeSlash} />Leave Group
+                                            </button>
+                                            <button onClick={() => handleViewMembersClick()}>
+                                                <FontAwesomeIcon icon={faUser} />View Members
+                                            </button>
                                         </>
                                     )}
                                     {/* {selectedGroup.is_guest && (
@@ -665,16 +701,13 @@ const Groups = () => {
                                             <button onClick={() => setSentRequestModal(true)}>Request to Join</button>
                                         </>
                                     )} */}
-                                    <button className='close-group-button' onClick={handleCloseGroup}>
+                                    <button className='button close-button' onClick={() => setGroupActionsModal(false)}>
                                         Close
                                     </button>
                                 </div>
-
                             </div>
-                        ) : (
-                            <p>Select a group to view details</p>
-                        )}
-                    </div>
+                        </div>
+                    )}
                     
                     {selectedEvent && (
                         <div className="modal-overlay">
@@ -685,111 +718,49 @@ const Groups = () => {
                                         <>
                                             {selectedEvent.registered ? (
                                                 <>
-                                                    <button onClick={() => handleDropEvent()}>Drop Registration</button>
+                                                    <button className="button edit-button" onClick={() => handleDropEvent()}>
+                                                        <FontAwesomeIcon icon={faCircleXmark} /> Drop
+                                                    </button>
                                                 </>
                                             ) : (
                                                 <>
-                                                    <button onClick={() => handleRegisterEvent()}>Register</button>
+                                                    <button className="button add-button" onClick={() => handleRegisterEvent()}>
+                                                        <FontAwesomeIcon icon={faCheck} /> Register
+                                                    </button>
                                                 </>
                                             )}
-                                            <button onClick={() => handleEditEventClick()}>Edit Event</button>
-                                            <button onClick={() => handleCancelEvent()}>Cancel Event</button>
+                                            <button className="button edit-button" onClick={() => handleEditEventClick()}>
+                                                <FontAwesomeIcon icon={faPencilAlt} /> Edit
+                                            </button>
+                                            <button className="button delete-button" onClick={() => handleCancelEvent()}>
+                                                <FontAwesomeIcon icon={faTrash} /> Cancel
+                                            </button>
                                         </>
                                     )}
                                     {selectedEvent.is_member && (
                                         <>
                                             {selectedEvent.registered ? (
                                                 <>
-                                                    <button onClick={() => handleDropEvent()}>Drop Registration</button>
+                                                    <button className="button edit-button" onClick={() => handleDropEvent()}>
+                                                        <FontAwesomeIcon icon={faCircleXmark} /> Drop
+                                                    </button>
                                                 </>
                                             ) : (
                                                 <>
-                                                    <button onClick={() => handleRegisterEvent()}>Register</button>
+                                                    <button className="button add-button" onClick={() => handleRegisterEvent()}>
+                                                        <FontAwesomeIcon icon={faCheck} /> Register
+                                                    </button>
                                                 </>
                                             )}
                                         </>
                                     )}
-                                    {/* {selectedEvent.is_guest && (
-                                        <>
-                                            {selectedEvent.registered ? (
-                                                <>
-                                                    <button onClick={() => handleDropEvent()}>Drop Registration</button>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <button onClick={() => setSentRequestModal(true)}>Request to Join Group</button>
-                                                </>
-                                            )}
-                                        </>
-                                    )} */}
-                                    <button className='close-event-button' onClick={handleCloseEvent}>
+                                    <button className='button close-button' onClick={handleCloseEvent}>
                                         Close
                                     </button>
                                 </div>
                             </div>
                         </div>
                     )}
-
-                    {/* <div className="event-details">
-                        {selectedEvent ? (
-                            <div className="event-details-content">
-                                <div className="event-profile">
-                                    <h2> {selectedEvent.event_name} </h2>
-                                    <p>ID: {selectedEvent.event_id}</p>
-                                    <p>{formatDateTime(selectedEvent.start_date_time)} - {formatDateTime(selectedEvent.end_date_time)}</p>
-                                </div>
-                                <div className="event-actions">
-                                    {selectedEvent.is_admin && (
-                                        <>
-                                            {selectedEvent.registered ? (
-                                                <>
-                                                    <button onClick={() => handleDropEvent()}>Drop Registration</button>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <button onClick={() => handleRegisterEvent()}>Register</button>
-                                                </>
-                                            )}
-                                            <button onClick={() => handleEditEventClick()}>Edit Event</button>
-                                            <button onClick={() => handleCancelEvent()}>Cancel Event</button>
-                                        </>
-                                    )}
-                                    {selectedEvent.is_member && (
-                                        <>
-                                            {selectedEvent.registered ? (
-                                                <>
-                                                    <button onClick={() => handleDropEvent()}>Drop Registration</button>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <button onClick={() => handleRegisterEvent()}>Register</button>
-                                                </>
-                                            )}
-                                        </>
-                                    )}
-                                    {selectedEvent.is_guest && (
-                                        <>
-                                            {selectedEvent.registered ? (
-                                                <>
-                                                    <button onClick={() => handleDropEvent()}>Drop Registration</button>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <button onClick={() => setSentRequestModal(true)}>Request to Join Group</button>
-                                                </>
-                                            )}
-                                        </>
-                                    )}
-                                    <button className='close-event-button' onClick={handleCloseEvent}>
-                                        Close
-                                    </button>
-                                </div>
-
-                            </div>
-                        ) : (
-                            <p>Select an event to view details</p>
-                        )}
-                    </div> */}
                     
                 </div>
             </div>
@@ -881,6 +852,33 @@ const Groups = () => {
                                     required 
                                 />
                             </label>
+                            <label>
+                                Is All Day:
+                                <div className="radio-group">
+                                    <div className="radio-item">
+                                        <input
+                                            type="radio"
+                                            id="all_day_yes"
+                                            name="is_all_day"
+                                            value="true"
+                                            checked={newEvent.is_all_day === true}
+                                            onChange={handleEventInputChange}
+                                        />
+                                        <label htmlFor="all_day_yes">Yes</label>
+                                    </div>
+                                    <div className="radio-item">
+                                        <input
+                                            type="radio"
+                                            id="all_day_no"
+                                            name="is_all_day"
+                                            value="false"
+                                            checked={newEvent.is_all_day === false}
+                                            onChange={handleEventInputChange}
+                                        />
+                                        <label htmlFor="all_day_no">No</label>
+                                    </div>
+                                </div>
+                            </label>
                             {newEvent.is_all_day ? (
                                 <>
                                     <label>
@@ -928,27 +926,6 @@ const Groups = () => {
                                     </label>
                                 </>
                             )}
-                            <label>
-                                Is All Day:
-                                <div>
-                                    <input
-                                        type="radio"
-                                        name="is_all_day"
-                                        value="true"
-                                        checked={newEvent.is_all_day === true}
-                                        onChange={handleEventInputChange}
-                                    />
-                                    <label>Yes</label>
-                                    <input
-                                        type="radio"
-                                        name="is_all_day"
-                                        value="false"
-                                        checked={newEvent.is_all_day === false}
-                                        onChange={handleEventInputChange}
-                                    />
-                                    <label>No</label>
-                                </div>
-                            </label>
                             <div className="modal-actions">
                                 <button type="submit">Create Event</button>
                                 <button type="button" onClick={() => setCreateEventModal(false)}>
@@ -974,6 +951,32 @@ const Groups = () => {
                                     onChange={(e) => setEditedEvent({ ...editedEvent, event_name: e.target.value })} 
                                     required 
                                 />
+                            </label>
+
+                            <label>
+                                Is All Day:
+                                <div className="radio-group">
+                                    <div className="radio-item">
+                                        <input
+                                            type="radio"
+                                            name="is_all_day"
+                                            value="true"
+                                            checked={editedEvent.is_all_day === true}
+                                            onChange={() => setEditedEvent({ ...editedEvent, is_all_day: true })}
+                                        />
+                                        <label htmlFor="all_day_yes">Yes</label>
+                                    </div>
+                                    <div className="radio-item">
+                                        <input
+                                            type="radio"
+                                            name="is_all_day"
+                                            value="false"
+                                            checked={editedEvent.is_all_day === false}
+                                            onChange={() => setEditedEvent({ ...editedEvent, is_all_day: false })}
+                                        />
+                                        <label htmlFor="all_day_yes">No</label>
+                                    </div>
+                                </div>
                             </label>
 
                             {editedEvent.is_all_day ? (
@@ -1024,28 +1027,6 @@ const Groups = () => {
                                 </>
                             )}
 
-                            <label>
-                                Is All Day:
-                                <div>
-                                    <input
-                                        type="radio"
-                                        name="is_all_day"
-                                        value="true"
-                                        checked={editedEvent.is_all_day === true}
-                                        onChange={() => setEditedEvent({ ...editedEvent, is_all_day: true })}
-                                    />
-                                    <label>Yes</label>
-                                    <input
-                                        type="radio"
-                                        name="is_all_day"
-                                        value="false"
-                                        checked={editedEvent.is_all_day === false}
-                                        onChange={() => setEditedEvent({ ...editedEvent, is_all_day: false })}
-                                    />
-                                    <label>No</label>
-                                </div>
-                            </label>
-
                             <div className="modal-actions">
                                 <button type="submit">Update Event</button>
                                 <button type="button" onClick={() => setEditEventModal(false)}>
@@ -1058,38 +1039,39 @@ const Groups = () => {
             )}
 
             {selectedMembers.members && selectedGroup && (
-                <div className="group-members">
-                    <div className="group-profile">
+                <div className="modal-overlay">
+                    <div className="modal-content">
                         <h2> {selectedGroup.group_name} </h2>
-                    </div>
-                    <div className="member-list">
-                        {selectedMembers.members && selectedMembers.members.length > 0 ? (
-                            selectedMembers.members.map(member => (
-                                <div key={member.account_id} className="member-card">
-                                    <p>{member.account_id}</p>
-                                    <p>{member.username}</p>
-                                    {selectedGroup.is_admin && (
-                                        <>  
-                                            <button onClick={() => handleRemoveMember(member.account_id)}>
-                                                Remove Member
-                                            </button>
-                                        </>
-                                    )}
-                                </div>
-                            ))
-                        ) : (
-                            <p>No members available.</p>
-                        )}
-                    </div>
-                    <div className="member-actions">
-                        {selectedGroup.is_admin && (
-                            <>  
-                                <button onClick={() => setAddMemberModal(true)}>Add Member</button>
-                            </>
-                        )}
-                        <button className='close-members-button' onClick={handleCloseMembers}>
-                            Close
-                        </button>
+                        <div className="member-list">
+                            {selectedMembers.members && selectedMembers.members.length > 0 ? (
+                                selectedMembers.members.map(member => (
+                                    <div key={member.account_id} className="member-card">
+                                        <p>{member.username}</p>
+                                        {selectedGroup.is_admin && (
+                                            <>  
+                                                <button className="button delete-button" onClick={() => handleRemoveMember(member.account_id)}>
+                                                    <FontAwesomeIcon icon={faUserLargeSlash} />
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                ))
+                            ) : (
+                                <p>No members available.</p>
+                            )}
+                        </div>
+                        <div className="member-actions">
+                            {selectedGroup.is_admin && (
+                                <>  
+                                    <button className="button add-button" onClick={() => setAddMemberModal(true)}>
+                                        <FontAwesomeIcon icon={faUserPlus} />
+                                    </button>
+                                </>
+                            )}
+                            <button className='button close-button' onClick={handleCloseMembers}>
+                                Close
+                            </button>
+                        </div>
                     </div>
                 </div>
             )}
@@ -1164,7 +1146,7 @@ const Groups = () => {
                             )}
                         </div>
                         <div className="request-actions">
-                            <button className='close-my-requests-button' onClick={() => setMyRequestsModal(false)}>
+                            <button className='button close-button' onClick={() => setMyRequestsModal(false)}>
                                 Close
                             </button>
                         </div>

@@ -91,8 +91,32 @@ const Inbox = () => {
   const fetchGroupRequestNotifications = async () => {
     try {
       const requestsResponse = await axios.get(`${baseUrl}/group-request/show-in-request`, { withCredentials: true });
-      console.log("Group Requests: ", requestsResponse.data);
-      setGroupRequests(requestsResponse.data);
+      const requestsData = requestsResponse.data;
+      console.log("Group Requests: ", requestsData);
+
+      const updatedRequests = [];
+
+      for (const request of requestsData) {
+          if (request.group_id) {
+              const groupName = await axios.get(`${baseUrl}/group/get-group-name-by-id/${request.group_id}`, { withCredentials: true });
+              const accountName = await axios.get(`${baseUrl}/account/name-by-id/${request.account_id_from}`, { withCredentials: true });
+
+              if (groupName.status === 200) {
+                  request.group_name = groupName.data;
+                  request.account_name_from = accountName.data;
+              } else {
+                  console.log(`Group not found for group_id ${request.group_id}`);
+                  request.group = null;
+              }
+          }
+
+          updatedRequests.push(request);
+      }
+
+      console.log("Updated Group Requests: ", updatedRequests);
+
+      setGroupRequests(updatedRequests);
+
     } catch (err) {
       console.error("Error fetching group request notifications:", err);
       setError('Failed to fetch group request notifications.');
@@ -220,11 +244,10 @@ const Inbox = () => {
         {groupRequests.length > 0 ? (
           groupRequests.map((request) => (
             <div key={groupRequests.notification_id} className="request-item">
-              <p>
-                User {groupRequests.account_id_from} {request.message}
-              </p>
+              <p>From user: {request.account_name_from}</p>
+              <p>{request.message}</p>
               <p>Received at: {new Date(request.created_at).toLocaleString()}</p>
-              <p>For Group ID: {request.group_id}</p>
+              <p>For group: {request.group_name}</p>
               <div className="request-actions">
                 <button
                   className="accept-button"
