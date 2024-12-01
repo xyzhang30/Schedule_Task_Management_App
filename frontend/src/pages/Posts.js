@@ -8,7 +8,7 @@ const baseUrl = process.env.REACT_APP_BASE_URL;
 
 const Posts = () => {
   const [posts, setPosts] = useState([]);
-  const [selectedPost, setSelectedPost] = useState(null); // hold the currently selected post's data
+  const [selectedPost, setSelectedPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -56,7 +56,7 @@ const Posts = () => {
       return response.data.is_self; // Return ownership status
     } catch (error) {
       console.error("Error checking comment ownership:", error);
-      return false; // Default to not owner if error occurs
+      return false; // Default to not owner
     }
   };
 
@@ -87,15 +87,14 @@ const Posts = () => {
     fetchPosts();
   }, []);
 
-  // posts
+  // Post details
   const handlePostClick = async (post_id) => {
     try {
       // Fetch the specific post and its comments with ownership
       const response = await axios.get(`${baseUrl}/post/get-post/${post_id}`, { withCredentials: true });
       setSelectedPost(response.data);
       
-      // Fetch comments with ownership checks for this post
-      fetchCommentsForPost(post_id); // **Ensure ownership status is set for all comments**
+      fetchCommentsForPost(post_id);
     } catch (err) {
       console.error("Error fetching post details:", err);
       setError('Failed to fetch post details.');
@@ -119,7 +118,7 @@ const Posts = () => {
       fetchPosts();
       
       setShowModal(false);
-      setNewPost({ title: '', content: '', image_url: '' });  // clear the form
+      setNewPost({ title: '', content: '', image_url: '' });  // Clear the form
 
     } catch (err) {
       console.error("Error adding new post:", err);
@@ -127,7 +126,7 @@ const Posts = () => {
     }
   };
 
-  // comments
+  // Comments
   const handleCommentSubmit = async (e) => {
   e.preventDefault();
   if (!newComment) return;
@@ -152,7 +151,6 @@ const Posts = () => {
 
   const handleDeleteComment = async (comment) => {
     const comment_id = comment.comment_id ;
-    // console.log("Deleting comment with ID:", comment_id); // Log the comment ID
 
     try {
       await axios.delete(`${baseUrl}/post/delete-comment/${comment_id}`, { withCredentials: true });
@@ -164,7 +162,7 @@ const Posts = () => {
     }
   };
 
-  // likes and saves
+  // Likes and saves
   const handleLike = async (post_id) => {
     try {
       const formData = new FormData();
@@ -263,7 +261,7 @@ const Posts = () => {
     }
   };
 
-  // update post
+  // Update post
   const handleUpdatePost = async () => {
     const formData = new FormData();
     if (newPost.title) {
@@ -310,7 +308,7 @@ const Posts = () => {
     setShowModal(true);
   };
   
-  // delete post
+  // Delete post
   const handleDeletePost = async (post_id) => {
     try {
       await axios.delete(`${baseUrl}/post/remove-post/${post_id}`, { withCredentials: true });
@@ -325,7 +323,7 @@ const Posts = () => {
     }
   }; 
 
-  // check ID
+  // Check ID
   const checkIfSelf = async (post_id) => {
     try {
       const response = await axios.get(`${baseUrl}/post/checkid/${post_id}`, { withCredentials: true });

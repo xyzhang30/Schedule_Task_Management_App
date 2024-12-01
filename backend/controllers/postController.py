@@ -37,28 +37,6 @@ def get_post(post_id):
     return jsonify(post_data), 200
 
 
-@bp.route('<int:poster_id>/get-posts', methods=['GET'])
-@is_logged_in
-def get_posts_by_poster_not_self(poster_id):
-    '''
-    Get all posts posted by the specified user
-    '''
-    posts = Post.get_posts_by_poster_id(poster_id)
-
-    if not posts:
-        return jsonify([]), 200
-
-    post_list = []
-    for post in posts:
-        post_data = post.to_dict()
-        poster_account = Account.get_acc_by_id(post.poster_id)
-        poster_name = poster_account.username if poster_account else "Unknown"
-        post_data['poster_name'] = poster_name
-        post_list.append(post_data)
-
-    return jsonify(post_list), 200
-
-
 @bp.route('/get-posts', methods=['GET'])
 @is_logged_in
 def get_posts_by_poster():
@@ -81,6 +59,7 @@ def get_posts_by_poster():
 
     return jsonify(post_list), 200
 
+
 @bp.route('/get-friends-posts', methods=['GET'])
 @is_logged_in
 def get_friends_posts_by_poster():
@@ -92,7 +71,6 @@ def get_friends_posts_by_poster():
 
     if not friends_accounts:
         return jsonify([]), 200
-        # return jsonify({"error": "No friends found or no posts by friends."}), 404
 
     friend_ids = [friend.account_id for friend in friends_accounts]
     
@@ -100,23 +78,24 @@ def get_friends_posts_by_poster():
 
     if not posts:
         return jsonify([]), 200
-        # return jsonify({"error": "No posts found for friends."}), 404
 
     post_list = [post.to_dict() for post in posts]
     return jsonify(post_list), 200
 
+
 def allowed_file(filename):
     """
-    Checks if a file has a valid extension for post images.
+    Checks if a file has a valid extension for post images
     """
     allowed_extensions = current_app.config['POST_IMAGE_PARAMETERS']['ALLOWED_EXTENSIONS']
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
+
 
 @bp.route('/add-post', methods=['POST'])
 @is_logged_in
 def add_post():
     """
-    Adds a new post with an optional image upload.
+    Adds a new post with an optional image upload
     """
     title = request.form.get('title')
     content = request.form.get('content')
@@ -153,13 +132,18 @@ def add_post():
 
     return jsonify(new_post.to_dict()), 201
 
+
 @bp.route('/get_image/<int:post_id>', methods = ['GET'])
 @is_logged_in
 def get_image(post_id):
+    """
+    Get the image of a specific post
+    """
     post = Post.get_post_by_id(post_id)
     file_path = post.image_url
     file_name = os.path.basename(file_path)
     return send_file(file_path, file_name)
+
 
 @bp.route('/update-post/<int:post_id>', methods=['PUT'])
 @is_logged_in
@@ -167,8 +151,7 @@ def update_post(post_id):
     '''
     Updates a specific post by post_id
     '''
-
-    account_id = session['user']  # Get the account ID from the session
+    account_id = session['user']
     post = Post.get_post_by_id(post_id)
     
     if not post:
@@ -258,6 +241,9 @@ def remove_post(post_id):
 @bp.route('/like', methods=['POST'])
 @is_logged_in
 def like_post():
+    """
+    Like a post
+    """
     post_id = request.form.get('post_id')
     liker_id = session['user']
     
@@ -271,6 +257,9 @@ def like_post():
 @bp.route('/unlike', methods=['DELETE'])
 @is_logged_in
 def unlike_post():
+    """
+    Unlike a post
+    """
     post_id = request.form.get('post_id')
     liker_id = session['user']
 
@@ -285,7 +274,7 @@ def unlike_post():
 @is_logged_in
 def get_likes(post_id):
     '''
-    Retrieves all likes for a specific post.
+    Retrieves all likes for a specific post
     '''
     likes = Like.get_likes_by_post_id(post_id)
     if not likes:
@@ -299,6 +288,9 @@ def get_likes(post_id):
 @bp.route('/save', methods=['POST'])
 @is_logged_in
 def save_post():
+    """
+    Save a post
+    """
     post_id = request.form.get('post_id')
     saver_id = session['user']
     
@@ -312,6 +304,9 @@ def save_post():
 @bp.route('/unsave', methods=['DELETE'])
 @is_logged_in
 def unsave_post():
+    """
+    Unsave a post
+    """
     post_id = request.form.get('post_id')
     saver_id = session['user']
 
@@ -326,7 +321,7 @@ def unsave_post():
 @is_logged_in
 def get_saves(post_id):
     '''
-    Retrieves all saves for a specific post.
+    Retrieves all saves for a specific post
     '''
     saves = Save.get_saves_by_post_id(post_id)
     if not saves:
@@ -340,7 +335,7 @@ def get_saves(post_id):
 @is_logged_in
 def get_account_saves():
     '''
-    Retrieves all posts saved by a specific account.
+    Retrieves all posts saved by a specific account
     '''
     account_id = session['user']
     saves = Save.get_saves_by_saver_id(account_id)
@@ -354,6 +349,9 @@ def get_account_saves():
 @bp.route('/comment', methods=['POST'])
 @is_logged_in
 def add_comment():
+    """
+    Add comment to a specific post
+    """
     commenter_id = session['user']
     post_id = request.form.get('post_id')
     text = request.form.get('text')
@@ -411,10 +409,14 @@ def get_comments(post_id):
 
     return jsonify(comment_list), 200
 
+
 # check id
 @bp.route('/checkid/<int:post_id>', methods=['GET'])
 @is_logged_in
 def is_self(post_id):
+    """
+    Check if the logged-in user is the owner of the post
+    """
     post = Post.get_post_by_id(post_id)
 
     if not post:
@@ -424,12 +426,13 @@ def is_self(post_id):
         is_self = post.poster_id == session['user']
         return jsonify({'is_self': is_self}), 200
 
+
 # check comment id
 @bp.route('/check-comment-owner/<int:comment_id>', methods=['GET'])
 @is_logged_in
 def is_comment_owner(comment_id):
     '''
-    Check if the logged-in user is the owner of the comment.
+    Check if the logged-in user is the owner of the comment
     '''
     comment = Comment.get_comment_by_comment_id(comment_id)
 
