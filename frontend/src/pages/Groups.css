@@ -114,11 +114,15 @@ button.dots {
 }
 
 /* Group Modal */
+
+.group-details {
+    width: 100%;
+}
 .group-details-content {
     background-color: #e9ede6;
     padding: 25px;
     border-radius: 10px;
-    width: 650px; 
+    width: 100%; 
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     margin: 20px auto;
     flex-direction: column;
