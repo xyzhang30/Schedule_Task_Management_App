@@ -97,16 +97,16 @@ def change_avatar():
     if not filename:
         response_message = {'msg': f'Please upload a file with one of the following extensions: {uploadParameters["ALLOWED_EXTENSIONS"]}'}
         status_code = 401
-    elif prev_avatar != 'default.jpg':
-        delete_file(prev_avatar)
-        upload_file(file, filename)
-        account.avatar = "/srv/app/avatars/" + filename
-        account.save()
-        response_message = {'msg': 'Avatar successfuly changed'}
-        status_code = 201
+    # elif prev_avatar != 'default.jpg':
+    #     delete_file(prev_avatar)
+    #     upload_file(file, filename)
+    #     account.avatar = "/srv/app/avatars/" + filename
+    #     account.save()
+    #     response_message = {'msg': 'Avatar successfuly changed'}
+    #     status_code = 201
     else: 
         upload_file(file, filename)
-        account.avatar = "/srv/app/" + filename
+        account.avatar = "/srv/app/avatars/" + filename
         account.save()
         response_message = {'msg': 'Avatar successfuly changed'}
         status_code = 201
