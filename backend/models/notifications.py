@@ -47,9 +47,17 @@ class Notifications(Base):
             notification_type=type
         ).all()
     
+    # @classmethod
+    # def get_pending_friend_requests_from_id(cls, id):
+    #     return db_session.query(cls).filter_by(account_id_from=id, is_pending=True).all()
+    
     @classmethod
     def get_pending_friend_requests_from_id(cls, id):
-        return db_session.query(cls).filter_by(account_id_from=id, is_pending=True).all()
+        return db_session.query(cls).filter_by(
+            account_id_from = id,
+            is_pending = True,
+            notification_type = "friend"
+        ).all()
 
     @classmethod
     def get_grp_notifications_by_acc_send_and_grp(cls, acc_id, grp_id):

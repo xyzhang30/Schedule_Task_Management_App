@@ -53,16 +53,43 @@ const Friends = () => {
     }
   };
 
+  const fetchUsernameById = async (id) => {
+    try {
+      const response = await axios.get(`${baseUrl}/account/name-by-id/${id}`, { withCredentials: true });
+      return response.data; 
+    } catch (err) {
+      console.error(`Error fetching username for ID ${id}:`, err);
+      return null;
+    }
+  };
+
+
+  // const fetchFriendRequestNotifications = async () => {
+  //   try {
+  //     const requestsResponse = await axios.get(`${baseUrl}/friend_request/get-requests`, { withCredentials: true });
+  //     setRequests(requestsResponse.data)
+  //   } catch (err) {
+  //     console.error("Error fetching friend request notifications:", err);
+  //     setError('Failed to fetch friend request notifications.');
+  //   }
+  // };
+
   const fetchFriendRequestNotifications = async () => {
     try {
       const requestsResponse = await axios.get(`${baseUrl}/friend_request/get-requests`, { withCredentials: true });
-      console.log("REQUESTED: ", requestsResponse.data)
-      setRequests(requestsResponse.data)
+      const requestsWithUsernames = await Promise.all(
+        requestsResponse.data.map(async (request) => {
+          const username = await fetchUsernameById(request.account_id_from);
+          return { ...request, username };
+        })
+      );
+      setRequests(requestsWithUsernames);
     } catch (err) {
       console.error("Error fetching friend request notifications:", err);
       setError('Failed to fetch friend request notifications.');
     }
-  }
+  };
+
 
   const fetchPendingFriends = async () => {
     try {
@@ -254,7 +281,7 @@ const Friends = () => {
               {requests.length > 0 ? (
                 requests.map((request) => (
                   <div key={request.notification_id} className="request-item">
-                    <p>{request.account_id_from} {request.message}.</p>
+                    <p>{request.username} {request.message}.</p>
                     <p>{request.created_at}</p>
                     <div className="request-actions">
                       <button onClick={() => handleAcceptRequest(request.account_id_from, request.notification_id)}>Accept</button>
