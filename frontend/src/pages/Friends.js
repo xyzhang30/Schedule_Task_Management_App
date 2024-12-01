@@ -3,6 +3,7 @@ import axios from 'axios';
 import './Friends.css'; 
 import '../App.css'
 import './SplitScreen.css'
+import Profile from './Profile';
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
@@ -252,20 +253,21 @@ const Friends = () => {
       <div className="split-screen-right">
         {selectedFriend &&(
           <div className="friends-profile-section">
-            <div className="profile-picture">
+            {/* <div className="profile-picture">
               <img src={selectedFriend.avatar} alt="Friend's Avatar" />
             </div>
             <div className="profile-info">
               <p>Name: {selectedFriend.username}</p>
               <p>Email: {selectedFriend.email}</p>
               <p>Phone: {selectedFriend.phone}</p>
-            </div>
+            </div> */}
             <button 
               className="remove-friend-button" 
               onClick={() => removeFriend(selectedFriend.account_id)}
             >
               Remove Friend
             </button>
+            <Profile self={false} accountId={selectedFriend.account_id}/>
           </div>
         )}
       </div>
