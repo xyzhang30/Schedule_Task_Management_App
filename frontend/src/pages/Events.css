@@ -87,6 +87,7 @@
   overflow-y: auto;
   max-height: 600px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
 }
 
 .events-date {
@@ -388,17 +389,22 @@
 }
 
 .toggle-button {
-  background-color: #007bff;
+  background-color: #606c38;;
   color: white;
-  padding: 12px 24px;
-  font-size: 16px;
+  padding: 12px 12px;
+  font-size: 12px;
   border: none;
-  border-radius: 25px;
+  border-radius: 10px;
   cursor: pointer;
   transition: background-color 0.3s ease;
   margin-bottom: 20px;
+
+  display: block;
+  margin-left: auto;
+  margin-right: 0;
+
 }
 
 .toggle-button:hover {
-  background-color: #0056b3;
+  background-color: #a3b18a;
 }

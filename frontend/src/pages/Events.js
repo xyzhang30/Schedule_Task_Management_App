@@ -458,7 +458,7 @@ const Events = () => {
         ) : (
           <div className="events-list">
             <button className="toggle-button" onClick={toggleShowPastEvents}>
-          {showPastEvents ? 'Hide Past Events' : 'Display All Previous Events'}
+          {showPastEvents ? 'Hide Past Events' : 'Previous Events'}
           </button>
             {Object.keys(filteredEvents)
               .sort((a, b) => new Date(a) - new Date(b))
