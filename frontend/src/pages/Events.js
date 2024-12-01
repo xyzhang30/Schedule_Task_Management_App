@@ -7,7 +7,7 @@ const baseUrl = process.env.REACT_APP_BASE_URL;
 
 axios.defaults.withCredentials = true;
 
-// Define the default color for events without a label
+
 const DEFAULT_LABEL_COLOR = '#2196F3';
 
 const Events = () => {
@@ -44,14 +44,18 @@ const Events = () => {
     label_color: DEFAULT_LABEL_COLOR,
   });
   const [alertEvent, setAlertEvent] = useState(null);
+  const [showPastEvents, setShowPastEvents] = useState(false);
 
   useEffect(() => {
     refreshEvents();
-  }, []);
+  }, [showPastEvents]);
 
   const refreshEvents = async () => {
     try {
-      const response = await axios.get(`${baseUrl}/event/getEventsByAccount`);
+      const response = await axios.get(`${baseUrl}/event/getEventsByAccount`, {params: {
+        include_past: showPastEvents,
+      },
+    });
       const eventData = response.data.events || [];
       eventData.forEach((event) => {
         event.alerted = false;
@@ -121,7 +125,7 @@ const Events = () => {
       grouped[date].push(event);
     });
 
-    // Sort the events within each date
+
     for (const date in grouped) {
       grouped[date].sort(
         (a, b) => new Date(a.start_date) - new Date(b.start_date)
@@ -147,6 +151,10 @@ const Events = () => {
 
   const handleLabelChange = (e) => {
     setSelectedLabel(e.target.value);
+  };
+
+  const toggleShowPastEvents = () => {
+    setShowPastEvents(!showPastEvents);
   };
 
   const filteredEvents = Object.keys(events).reduce((filtered, date) => {
@@ -383,10 +391,6 @@ const Events = () => {
     }
   };
 
-  const navigateTo = (link) => {
-    const fullLink = `http://localhost:3000${link}`;
-    window.location.href = fullLink;
-  };
 
   return (
     <div className="events-page-container">
@@ -453,6 +457,9 @@ const Events = () => {
           <p>{error}</p>
         ) : (
           <div className="events-list">
+            <button className="toggle-button" onClick={toggleShowPastEvents}>
+          {showPastEvents ? 'Hide Past Events' : 'Display All Previous Events'}
+          </button>
             {Object.keys(filteredEvents)
               .sort((a, b) => new Date(a) - new Date(b))
               .map((date) => (

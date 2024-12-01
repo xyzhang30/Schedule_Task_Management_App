@@ -41,6 +41,13 @@ class Event(Base):
             Event.start_date <= datetime.combine(now, datetime.max.time())
         ).all()
     
+    @classmethod
+    def get_future_events_by_account(cls, account_id, start_date):
+        return db_session.query(cls).filter(
+            cls.account_id == account_id,
+            cls.start_date >= datetime.combine(start_date, datetime.min.time())
+        ).order_by(cls.start_date).all()
+    
     def to_dict(self):
         return {
             'event_id': self.event_id,

@@ -28,7 +28,6 @@ const EventCreate = ({
     ...initialEventData,
   });
   const [errors, setErrors] = useState({});
-  const [newCategoryName, setNewCategoryName] = useState('');
 
   useEffect(() => {
     setNewEvent((prevEvent) => ({
