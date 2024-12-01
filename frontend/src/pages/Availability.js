@@ -353,11 +353,8 @@ const FindSharedAvailability = () => {
                   <p>{friend.username}</p>
                   <button
                     onClick={() => handleSelectFriend(friend)}
-                    className={
-                      participants.some((p) => p.account_id === friend.account_id)
-                        ? 'selected'
-                        : ''
-                    }
+                    className="button"
+                    id='smaller-button'
                   >
                     {participants.some((p) => p.account_id === friend.account_id)
                       ? 'Remove'

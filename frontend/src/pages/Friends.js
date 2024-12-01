@@ -332,6 +332,7 @@ const Friends = () => {
                         ) : (
                           <button 
                             className="add-friend-button" 
+                            id='smaller-button'
                             onClick={() => handleAddFriendClick(user.account_id)}
                           >
                             Add
