@@ -64,6 +64,10 @@
     padding: 4px 8px;
   }
 
+  #my-friends{
+    margin: 0;
+  }
+
   #friend-popup {
       position: relative; 
       display: block;

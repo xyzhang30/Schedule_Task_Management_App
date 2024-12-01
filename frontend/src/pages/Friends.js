@@ -232,7 +232,7 @@ const Friends = () => {
         </div>
 
         <div className="friends-list">
-          <p>My Friends: </p>
+          <p id='my-friends'>My Friends: </p>
           {loading ? (
             <p>Loading friends...</p>
           ) : filteredFriends.length > 0 ? (
