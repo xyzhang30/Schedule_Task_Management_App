@@ -390,16 +390,25 @@ def delete_comment(comment_id):
 @is_logged_in
 def get_comments(post_id):
     '''
-    Retrieves all comments for a specific post.
+    Retrieves all comments for a specific post, including commenter names
     '''
     comments = Comment.get_comments_by_post_id(post_id)
     if not comments:
         return jsonify([]), 200
     
-    comment_list = [{"commenter_id": comment.commenter_id, 
-                     "timestamp": comment.timestamp,
-                     "text": comment.text,
-                     "comment_id": comment.comment_id} for comment in comments]
+    comment_list = []
+    for comment in comments:
+        commenter_account = Account.get_acc_by_id(comment.commenter_id)
+        commenter_name = commenter_account.username if commenter_account else "Unknown"
+        
+        comment_list.append({
+            "commenter_id": comment.commenter_id,
+            "commenter_name": commenter_name,
+            "timestamp": comment.timestamp,
+            "text": comment.text,
+            "comment_id": comment.comment_id
+        })
+
     return jsonify(comment_list), 200
 
 # check id

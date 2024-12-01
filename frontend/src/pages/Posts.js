@@ -65,7 +65,7 @@ const Posts = () => {
     try {
       const response = await axios.get(`${baseUrl}/post/${postId}/comments`, { withCredentials: true });
       
-      // **Add ownership status for each comment**
+      // Add ownership status for each comment
       const commentsWithOwnership = await Promise.all(
         response.data.map(async (comment) => {
           const isOwner = await checkIfCommentOwner(comment.comment_id);
@@ -355,16 +355,17 @@ const Posts = () => {
       
       </div>
 
-        <div className="split-screen-left">
+      <div className="split-screen-left">
         <div className="posts-list">
-          <p>Available Posts: </p>
           {loading ? (
             <p>Loading posts...</p>
           ) : posts.length > 0 ? (
             posts.map((post, index) => (
               <div key={index} className="post-item">
                 <h3 onClick={() => handlePostClick(post.post_id)}>{post.title}</h3>
+                <p className="post-poster-name">By: {post.poster_name}</p>
                 <p>{post.content ? post.content.slice(0, 100) : "No content available"}...</p>
+
                 <button onClick={() => handleToggleLike(post.post_id)}>
                   {post.isLiked ? "Unlike" : "Like"}
                 </button>
@@ -377,7 +378,7 @@ const Posts = () => {
             <p>No posts available.</p>
           )}
         </div>
-        </div>
+      </div>
 
       <div className="split-screen-right">
         <div className="post-details">
@@ -388,12 +389,18 @@ const Posts = () => {
                 <p>Time: {new Date(selectedPost.date_posted).toLocaleString()}</p>
                 <p>By: {selectedPost.poster_name}</p>
                 {isOwner && (
-                  <div className="post-actions">
-                    <button onClick={() => handleUpdatePostClick(selectedPost)}>Update</button>
-                    <button onClick={() => handleDeletePost(selectedPost.post_id)}>Delete</button>
-                  </div>
+                  <div className="post-actions top-right">
+                  <button className="button" id="smaller-button" onClick={() => handleUpdatePostClick(selectedPost)}>Update</button>
+                  <button className="button" id="smaller-button" onClick={() => handleDeletePost(selectedPost.post_id)}>Delete</button>
+                </div>
                 )}
               </div>
+
+              <p
+                dangerouslySetInnerHTML={{
+                  __html: selectedPost.content.replace(/\n/g, '<br />'),
+                }}
+              ></p>
 
               {selectedPost.image_url && (
                 <div className="post-image-container">
@@ -404,17 +411,14 @@ const Posts = () => {
                   />
                 </div>
               )}
-
-              <p
-                dangerouslySetInnerHTML={{
-                  __html: selectedPost.content.replace(/\n/g, '<br />'),
-                }}
-              ></p>
+              
               <h4>Comments:</h4>
               {selectedPost.comments && selectedPost.comments.length > 0 ? (
                 selectedPost.comments.map((comment) => (
                   <div key={comment.comment_id} className="comment-item">
-                    <p>{comment.text}</p>
+                    <p>
+                      <strong>{comment.commenter_name}:</strong> {comment.text}
+                    </p>
                     {comment.isOwner && (
                       <button onClick={() => handleDeleteComment(comment)}>Delete</button>
                     )}
@@ -429,13 +433,14 @@ const Posts = () => {
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
               />
-              <button onClick={handleCommentSubmit}>Submit Comment</button>
+              <button className="button" id="smaller-button" onClick={handleCommentSubmit}>Submit Comment</button>
             </div>
           ) : (
             <p>Select a post to view details.</p>
           )}
         </div>
       </div>
+
       </div>
       {showModal && (
         <div className="modal-overlay">
