@@ -242,7 +242,7 @@ const Friends = () => {
                 className="friend-item"
                 onClick={() => handleFriendClick(friend)}
               >
-                <p>Name: {friend.username}</p>
+                <p>{friend.username}</p>
               </div>
             ))
           ) : (
