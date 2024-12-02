@@ -250,8 +250,12 @@ const Tasks = () => {
                 await axios.post(`${baseUrl}/task/complete/${selectedTask.task_id}`, {withCredentials:true});
     
                 const completedTasks = await axios.get(`${baseUrl}/task/sorted`, {withCredentials:true});
-                window.alert('Task marked as completed!');
                 setTasks(completedTasks.data);
+                setSelectedTask(prevState => ({
+                    ...prevState,
+                    complete: true,
+                }));
+                window.alert('Task marked as completed!');
             } catch (err) {
                 console.error('Error completing task:', err);
                 setError('Failed to complete task.');
@@ -265,14 +269,14 @@ const Tasks = () => {
                 <div className="split-screen-filter-container">
                     <h2>Tasks</h2>
                     <div className="filter-group">
-                        <label htmlFor="categoryFilter">Filter by Category: </label>
+                        <label htmlFor="categoryFilter">Filter by Category:</label>
                         <select id="categoryFilter" value={selectedCategory} onChange={handleCategoryChange}>
-                            <option value="">All Categories</option>
-                            {categories.map(category => (
-                                <option key={category.category_name} value={category.category_name}>
-                                    {category.category_name}
-                                </option>
-                            ))}
+                        <option value="">All Categories</option>
+                        {categories.map((category) => (
+                            <option key={category.category_name} value={category.category_name}>
+                            {category.category_name}
+                            </option>
+                        ))}
                         </select>
                     </div>
 
@@ -487,7 +491,11 @@ const Tasks = () => {
                     <div className="task-details-content">
                         <div className="task-header">
                             <h2>{selectedTask.task_name}</h2>
-                            <button className="complete-task-button" onClick={handleCompleteTask}>
+                            <button
+                                className={`complete-task-button ${selectedTask?.complete ? 'completed' : ''}`}
+                                onClick={!selectedTask?.complete ? handleCompleteTask : null}
+                                disabled={selectedTask?.complete}
+                            >
                                 <FontAwesomeIcon icon={faCheck} />
                             </button>
                         </div>
