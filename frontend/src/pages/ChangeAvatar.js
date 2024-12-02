@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+const baseUrl = process.env.REACT_APP_BASE_URL;
+
 const ChangeAvatar = () => {
   const [newAvatar, setNewAvatar] = useState(null);
   const [success, setSuccess] = useState('');
@@ -19,7 +21,7 @@ const ChangeAvatar = () => {
       const formData = new FormData();
       formData.append('new_avatar', newAvatar);
 
-      const response = await axios.post('http://localhost:8080/account/change_avatar', formData, {
+      const response = await axios.post(`${baseUrl}/account/change_avatar`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
