@@ -64,20 +64,22 @@ button.dots {
 }
 
 /* Radio Button & Modal Content for create + edit event */
-.modal-content input[type="text"], 
-.modal-content input[type="datetime-local"], 
-.modal-content input[type="date"],
-.modal-content select, 
-.modal-content input[type="color"] {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 6px;
-    border: 1px solid #ced4da;
-    font-size: 1rem;
-    color: #495057;
+.modal-content input[type="text"],
+.modal-content input[type="datetime-local"],
+.modal-content select{
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  border: 1px solid #ced4da;
+  font-size: 1rem;
+  color: #495057;
+
 }
 
+.modal-content input[type="color"] {
+  width: 100%;
+}
 .modal-content .radio-group {
     display: flex;
     gap: 15px;
