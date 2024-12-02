@@ -18,16 +18,10 @@ class Post(Base):
 
     @classmethod
     def all(cls):
-        '''
-        Get all posts
-        '''
         return db_session.query(cls).all()
 
     @classmethod
     def get_post_by_id(cls, post_id):
-        '''
-        Gets a post by its id
-        '''
         return db_session.query(cls).filter_by(post_id=post_id).first()
     
     @classmethod
