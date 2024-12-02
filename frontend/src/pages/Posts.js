@@ -3,6 +3,7 @@ import axios from 'axios';
 import './Posts.css'; 
 import './SplitScreen.css';
 import '../App.css'
+import SpeechToText from './SpeechToText';
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
@@ -342,6 +343,12 @@ const Posts = () => {
     }
   }, [selectedPost]);
 
+  const handleTranscriptChange = (transcript) => {
+    console.log("Received transcript:", transcript); // Add this for debugging
+    if (transcript && transcript.trim() !== '') {
+      setNewComment(transcript);
+    }
+  };
 
   return (
     <div className="split-screen-container">
@@ -423,12 +430,15 @@ const Posts = () => {
               ) : (
                 <p>No comments yet.</p>
               )}
-              <input
-                type="text"
-                placeholder="Add a comment..."
-                value={newComment}
-                onChange={(e) => setNewComment(e.target.value)}
-              />
+              <div className='comment-input'>
+                <input
+                  type="text"
+                  placeholder="Add a comment..."
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                />
+                <SpeechToText onTranscriptChange={handleTranscriptChange}/>
+              </div>
               <button onClick={handleCommentSubmit}>Submit Comment</button>
             </div>
           ) : (

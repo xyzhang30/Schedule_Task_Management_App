@@ -238,3 +238,7 @@
   font-size: 0.9em;
   color: #888;
 }
+
+.comment-input {
+  display: flex;
+}
