@@ -4,7 +4,6 @@ from ..models.notifications import Notifications
 from datetime import datetime, timedelta
 import logging
 from ..decorators import is_logged_in
-from ..db import db_session
 
 logger = logging.getLogger(__name__)
 handler = logging.FileHandler('event_controller.log')
@@ -17,14 +16,22 @@ logging.basicConfig(level=logging.DEBUG)
 
 bp = Blueprint('event', __name__, url_prefix='/event')
 
+@bp.route('/createEventNotSelf/<int:account_id>', methods=['POST'])
+@is_logged_in 
+def create_event_for_other(account_id):
+    return create_event(account_id)
 
 # Create Event
 @bp.route('/createEvent', methods=['POST'])
 @is_logged_in
-def create_event():
+def create_event_for_self():
+    return create_event(session.get('user'))
+
+
+def create_event(id):
     try:
         data = request.json
-        account_id = session.get('user')
+        account_id = id
         frequency = data.get('frequency')
         repeat_until_str = data.get('repeat_until')
         start_date = datetime.strptime(data['start_date'], '%Y-%m-%dT%H:%M')

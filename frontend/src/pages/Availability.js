@@ -91,6 +91,7 @@ const FindSharedAvailability = () => {
       setParticipants(participants.filter((p) => p.account_id !== friend.account_id));
     } else {
       // Add participant
+      console.log(participants);
       setParticipants((prevParticipants) => [...prevParticipants, friend]);
     }
   };
@@ -311,7 +312,7 @@ const FindSharedAvailability = () => {
             ) : error ? (
               <p>{error}</p>
             ) : availability ? (
-              <p>Available times are displayed on the right. Click on a time slot to create an event.</p>
+              <p>Available times are displayed on the right. Click on a time slot to create an event for all participants.</p>
             ) : (
               <p></p>
             )}
@@ -375,6 +376,7 @@ const FindSharedAvailability = () => {
         refreshEvents={handleSubmit}
         initialEventData={initialEventData}
         timeRange={timeRange}
+        participants={participants}
       />
     </div>
   );

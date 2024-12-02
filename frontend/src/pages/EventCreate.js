@@ -13,6 +13,7 @@ const EventCreate = ({
   refreshEvents,
   initialEventData = {},
   timeRange = {},
+  participants = {}
 }) => {
   const [newEvent, setNewEvent] = useState({
     name: '',

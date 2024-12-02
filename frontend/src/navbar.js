@@ -28,7 +28,7 @@ const NavBar = () => {
         </button>
         <button onClick={() => navigateTo('/event')}>
           <FontAwesomeIcon icon={faTicket} />
-          <span>Event</span>
+          <span>Events</span>
         </button>
         <button onClick={() => navigateTo('/friends')}>
           <FontAwesomeIcon icon={faFaceSmile} />
