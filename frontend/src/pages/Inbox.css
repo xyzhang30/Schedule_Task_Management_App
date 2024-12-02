@@ -37,14 +37,17 @@
   }
   
   .accept-button {
-    background-color: #4CAF50;
+    border-radius: 5px;
+    background-color: #86bb87;
   }
   
   .decline-button {
-    background-color: #f44336;
+    border-radius: 5px;
+    background-color: #e4776f;
   }
   
   .delete-button {
+    border-radius: 5px;
     background-color: #ff9800;
   }
   

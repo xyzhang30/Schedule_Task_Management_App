@@ -54,7 +54,8 @@ Table_creation = '''
         label_text VARCHAR(100),
         label_color VARCHAR(20),
         frequency VARCHAR(50),
-        repeat_until TIMESTAMP
+        repeat_until TIMESTAMP,
+        series_id INTEGER
     );
 
     CREATE TABLE event_category (

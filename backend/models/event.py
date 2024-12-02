@@ -16,6 +16,8 @@ class Event(Base):
     label_color = Column(String(20), nullable=True)
     frequency = Column(String(50), nullable=True)
     repeat_until = Column(DateTime, nullable=True)
+    # Added series_id to group events in a series
+    series_id = Column(Integer, nullable=True)
 
     def __repr__(self):
         return f"<Event event_id={self.event_id} name={self.name}>"
@@ -36,9 +38,9 @@ class Event(Base):
     def get_events_happening_today(cls, account_id, now):
         print("_____ TODAY: ", datetime.now().date())
         return db_session.query(cls).filter(
-            Event.account_id == account_id,
-            Event.start_date >= datetime.combine(now, datetime.min.time()),
-            Event.start_date <= datetime.combine(now, datetime.max.time())
+            cls.account_id == account_id,
+            cls.start_date >= datetime.combine(now, datetime.min.time()),
+            cls.start_date <= datetime.combine(now, datetime.max.time())
         ).all()
     
     @classmethod
@@ -47,6 +49,14 @@ class Event(Base):
             cls.account_id == account_id,
             cls.start_date >= datetime.combine(start_date, datetime.min.time())
         ).order_by(cls.start_date).all()
+    
+    # Added method to get occurrences by series_id
+    @classmethod
+    def get_occurrences_by_series_id(cls, series_id, exclude_event_id=None):
+        query = db_session.query(cls).filter(cls.series_id == series_id)
+        if exclude_event_id:
+            query = query.filter(cls.event_id != exclude_event_id)
+        return query.all()
     
     def to_dict(self):
         return {
@@ -60,7 +70,8 @@ class Event(Base):
             'label_text': self.label_text,
             'label_color': self.label_color,
             'frequency': self.frequency,
-            'repeat_until': self.repeat_until.strftime('%Y-%m-%dT%H:%M') if self.repeat_until else None
+            'repeat_until': self.repeat_until.strftime('%Y-%m-%dT%H:%M') if self.repeat_until else None,
+            'series_id': self.series_id  # Include series_id in the dictionary
         }
 
     def save(self):
@@ -78,7 +89,6 @@ class Event(Base):
     def update(self):
         db_session.commit()
 
-    # New functions moved from eventcontroller.py
     def get_notification(self, account_id):
         return db_session.query(Notifications).filter_by(
             account_id_to=account_id,
