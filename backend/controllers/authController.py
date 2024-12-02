@@ -204,6 +204,7 @@ def reset_password():
 
     return jsonify(response_message), status_code
     
+
 #Helper functions
 def new_password(account_id, new_pass):
     account = Account.get_acc_by_id(account_id)
@@ -246,5 +247,3 @@ def send_reset_email(reset_url):
     )
     email.body = f"Use this link to reset your password: {reset_url}. It will expire in 15 minutes"
     mail.send(email)
-
-#Todo: finalize session understanding
