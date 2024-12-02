@@ -211,64 +211,69 @@ const Inbox = () => {
       <h2>Inbox</h2>
       {error && <p className="error-message">{error}</p>}
 
-      <div className="friend-requests-list">
-        {friendRequests.length > 0 ? (
-          friendRequests.map((request) => (
-            <div key={request.notification_id} className="request-item">
-              <p>
-                User {request.account_id_from} {request.message}
-              </p>
-              <p>Received at: {new Date(request.created_at).toLocaleString()}</p>
-              <div className="request-actions">
-                <button
-                  className="accept-button"
-                  onClick={() => handleFriendAcceptRequest(request.account_id_from, request.notification_id)}
-                >
-                  Accept
-                </button>
-                <button
-                  className="decline-button"
-                  onClick={() => handleFriendDeclineRequest(request.notification_id)}
-                >
-                  Decline
-                </button>
+      <div className="event-notifications">
+        <h3>Friend Request Notifications</h3>
+        <div className="friend-requests-list">
+          {friendRequests.length > 0 ? (
+            friendRequests.map((request) => (
+              <div key={request.notification_id} className="request-item">
+                <p>
+                  User {request.account_id_from} {request.message}
+                </p>
+                <p>Received at: {new Date(request.created_at).toLocaleString()}</p>
+                <div className="request-actions">
+                  <button
+                    className="accept-button"
+                    onClick={() => handleFriendAcceptRequest(request.account_id_from, request.notification_id)}
+                  >
+                    Accept
+                  </button>
+                  <button
+                    className="decline-button"
+                    onClick={() => handleFriendDeclineRequest(request.notification_id)}
+                  >
+                    Decline
+                  </button>
+                </div>
               </div>
-            </div>
-          ))
-        ) : (
-          <p>No new friend requests.</p>
-        )}
+            ))
+          ) : (
+            <p>No new friend requests.</p>
+          )}
+        </div>
       </div>
 
-      <div className="group-requests-list">
-        {groupRequests.length > 0 ? (
-          groupRequests.map((request) => (
-            <div key={groupRequests.notification_id} className="request-item">
-              <p>From user: {request.account_name_from}</p>
-              <p>{request.message}</p>
-              <p>Received at: {new Date(request.created_at).toLocaleString()}</p>
-              <p>For group: {request.group_name}</p>
-              <div className="request-actions">
-                <button
-                  className="accept-button"
-                  onClick={() => handleGroupAcceptRequest(request.notification_id)}
-                >
-                  Accept
-                </button>
-                <button
-                  className="decline-button"
-                  onClick={() => handleGroupDeclineRequest(request.notification_id)}
-                >
-                  Decline
-                </button>
+      <div className="group-notifications">
+        <h3>Group Notifications</h3>
+        <div className="group-requests-list">
+          {groupRequests.length > 0 ? (
+            groupRequests.map((request) => (
+              <div key={groupRequests.notification_id} className="request-item">
+                <p>From user: {request.account_name_from}</p>
+                <p>{request.message}</p>
+                <p>Received at: {new Date(request.created_at).toLocaleString()}</p>
+                <p>For group: {request.group_name}</p>
+                <div className="request-actions">
+                  <button
+                    className="accept-button"
+                    onClick={() => handleGroupAcceptRequest(request.notification_id)}
+                  >
+                    Accept
+                  </button>
+                  <button
+                    className="decline-button"
+                    onClick={() => handleGroupDeclineRequest(request.notification_id)}
+                  >
+                    Decline
+                  </button>
+                </div>
               </div>
-            </div>
-          ))
-        ) : (
-          <p>No new group requests.</p>
-        )}
+            ))
+          ) : (
+            <p>No new group requests.</p>
+          )}
+        </div>
       </div>
-
 
       <div className="event-notifications">
         <h3>Event Notifications</h3>

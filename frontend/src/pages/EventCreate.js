@@ -3,7 +3,6 @@ import axios from 'axios';
 import './Events.css';
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
-
 const DEFAULT_LABEL_COLOR = '#2196F3';
 
 const EventCreate = ({
@@ -44,20 +43,16 @@ const EventCreate = ({
 
   const handleAddEvent = async (e) => {
     e.preventDefault();
-
-    // Check if time exceeds the available range
     if (timeRange && timeRange.start && timeRange.end) {
       const eventStart = new Date(newEvent.start_date);
       const eventEnd = new Date(newEvent.end_date);
       const rangeStart = new Date(timeRange.start);
       const rangeEnd = new Date(timeRange.end);
-
       if (eventStart < rangeStart || eventEnd > rangeEnd) {
         alert('Selected time exceeds the available time range.');
         return;
       }
     }
-
     const formData = {
       ...newEvent,
       category:
@@ -88,7 +83,6 @@ const EventCreate = ({
 
     try {
       await axios.post(`${baseUrl}/event/createEvent`, formData);
-
       if (newEvent.category === 'custom') {
         try {
           const data = { category_name: newEvent.customCategory };
@@ -97,7 +91,6 @@ const EventCreate = ({
           console.error('Error creating category:', err);
         }
       }
-
       onClose();
       setNewEvent({
         name: '',
