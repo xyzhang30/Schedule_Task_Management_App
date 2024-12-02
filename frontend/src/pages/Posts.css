@@ -15,6 +15,7 @@
   overflow-y: auto;
   box-sizing: border-box;
   background-color: #e9ede6;
+  position: relative;
 }
 
 /* Left Section (Posts List) */
@@ -35,9 +36,14 @@
   padding: 1rem;
   border: none;
   border-radius: 6px;
-  background-color: #e9ede6(209, 220, 201);
+  background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.post-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
 }
 
 .post-item h3 {
@@ -88,6 +94,14 @@
   border-radius: 4px;
 }
 
+.post-actions.top-right {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: flex;
+  gap: 10px;
+}
+
 .comment-item {
   display: flex;
   justify-content: space-between;
@@ -100,8 +114,8 @@
 }
 
 .comment-item button {
-  background-color: #606c38; /* New delete button color */
-  color: white; /* Text color */
+  background-color: #606c38;
+  color: white;
   border: none;
   border-radius: 4px;
   padding: 0.3rem 0.5rem;
@@ -117,6 +131,7 @@
   display: flex;
   gap: 0.5rem;
   margin-top: 1rem;
+  align-items: center;
 }
 
 .add-comment-section input {
@@ -124,19 +139,7 @@
   padding: 0.5rem;
   border: 1px solid #e9ede6;
   border-radius: 4px;
-}
-
-.add-comment-section button {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 4px;
-  background-color: #e9ede6;
-  color: #e9ede6;
-  cursor: pointer;
-}
-
-.add-comment-section button:hover {
-  background-color: #45a049;
+  height: 6rem;
 }
 
 /* Modal Styling */

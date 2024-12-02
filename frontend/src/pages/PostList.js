@@ -25,7 +25,7 @@ const PostList = ({ posts }) => {
 
               {/* Additional Post Details */}
               <p className="post-meta">
-                <strong>Posted By:</strong> {post.poster_name} | <strong>Date:</strong>{' '}
+                <strong>Posted By:</strong> {post.poster_name} | <strong>Time:</strong>{' '}
                 {new Date(post.date_posted).toLocaleString()}
               </p>
             </div>

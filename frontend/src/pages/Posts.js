@@ -8,7 +8,7 @@ const baseUrl = process.env.REACT_APP_BASE_URL;
 
 const Posts = () => {
   const [posts, setPosts] = useState([]);
-  const [selectedPost, setSelectedPost] = useState(null); // hold the currently selected post's data
+  const [selectedPost, setSelectedPost] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -17,37 +17,49 @@ const Posts = () => {
   const [newComment, setNewComment] = useState('');
   const [isOwner, setIsOwner] = useState(false);
 
-  // fetch posts and comments
   const fetchPosts = async () => {
     try {
       // Fetch friends' posts
       const friendsResponse = await axios.get(`${baseUrl}/post/get-friends-posts`, { withCredentials: true });
-      const friendsPosts = friendsResponse.data.map(post => ({
-        ...post,
-        isLiked: false,
-        isSaved: false,
-      }));
-
+      const friendsPosts = friendsResponse.data;
+  
       // Fetch own posts
       const ownResponse = await axios.get(`${baseUrl}/post/get-posts`, { withCredentials: true });
-      const ownPosts = ownResponse.data.map(post => ({
-        ...post,
-        isLiked: false,
-        isSaved: false,
-      }));
-
+      const ownPosts = ownResponse.data;
+  
       const allPosts = [...friendsPosts, ...ownPosts];
-      
-      setPosts(allPosts);
+  
+      const postsWithStatuses = await Promise.all(
+        allPosts.map(async (post) => {
+          try {
+            // Fetch `isLiked` status
+            const likeResponse = await axios.get(`${baseUrl}/post/${post.post_id}/is-liked`, { withCredentials: true });
+            const isLiked = likeResponse.data.isLiked;
+  
+            // Fetch `isSaved` status
+            const saveResponse = await axios.get(`${baseUrl}/post/${post.post_id}/is-saved`, { withCredentials: true });
+            const isSaved = saveResponse.data.isSaved;
+  
+            return {
+              ...post,
+              isLiked,
+              isSaved,
+            };
+          } catch (error) {
+            console.error(`Error fetching statuses for post ${post.post_id}:`, error);
+            return { ...post, isLiked: false, isSaved: false };
+          }
+        })
+      );
+  
+      setPosts(postsWithStatuses);
       setLoading(false);
-    } 
-    
-    catch (err) {
+    } catch (err) {
       console.error("Error fetching posts:", err);
       setError('Failed to fetch posts.');
       setLoading(false);
     }
-  };
+  };  
 
   // Check if the logged-in user owns a comment
   const checkIfCommentOwner = async (comment_id) => {
@@ -56,7 +68,7 @@ const Posts = () => {
       return response.data.is_self; // Return ownership status
     } catch (error) {
       console.error("Error checking comment ownership:", error);
-      return false; // Default to not owner if error occurs
+      return false; // Default to not owner
     }
   };
 
@@ -65,7 +77,7 @@ const Posts = () => {
     try {
       const response = await axios.get(`${baseUrl}/post/${postId}/comments`, { withCredentials: true });
       
-      // **Add ownership status for each comment**
+      // Add ownership status for each comment
       const commentsWithOwnership = await Promise.all(
         response.data.map(async (comment) => {
           const isOwner = await checkIfCommentOwner(comment.comment_id);
@@ -87,15 +99,14 @@ const Posts = () => {
     fetchPosts();
   }, []);
 
-  // posts
+  // Post details
   const handlePostClick = async (post_id) => {
     try {
       // Fetch the specific post and its comments with ownership
       const response = await axios.get(`${baseUrl}/post/get-post/${post_id}`, { withCredentials: true });
       setSelectedPost(response.data);
       
-      // Fetch comments with ownership checks for this post
-      fetchCommentsForPost(post_id); // **Ensure ownership status is set for all comments**
+      fetchCommentsForPost(post_id);
     } catch (err) {
       console.error("Error fetching post details:", err);
       setError('Failed to fetch post details.');
@@ -119,7 +130,7 @@ const Posts = () => {
       fetchPosts();
       
       setShowModal(false);
-      setNewPost({ title: '', content: '', image_url: '' });  // clear the form
+      setNewPost({ title: '', content: '', image_url: '' });  // Clear the form
 
     } catch (err) {
       console.error("Error adding new post:", err);
@@ -127,7 +138,7 @@ const Posts = () => {
     }
   };
 
-  // comments
+  // Comments
   const handleCommentSubmit = async (e) => {
   e.preventDefault();
   if (!newComment) return;
@@ -152,7 +163,6 @@ const Posts = () => {
 
   const handleDeleteComment = async (comment) => {
     const comment_id = comment.comment_id ;
-    // console.log("Deleting comment with ID:", comment_id); // Log the comment ID
 
     try {
       await axios.delete(`${baseUrl}/post/delete-comment/${comment_id}`, { withCredentials: true });
@@ -164,7 +174,7 @@ const Posts = () => {
     }
   };
 
-  // likes and saves
+  // Likes and saves
   const handleLike = async (post_id) => {
     try {
       const formData = new FormData();
@@ -263,7 +273,7 @@ const Posts = () => {
     }
   };
 
-  // update post
+  // Update post
   const handleUpdatePost = async () => {
     const formData = new FormData();
     if (newPost.title) {
@@ -310,7 +320,7 @@ const Posts = () => {
     setShowModal(true);
   };
   
-  // delete post
+  // Delete post
   const handleDeletePost = async (post_id) => {
     try {
       await axios.delete(`${baseUrl}/post/remove-post/${post_id}`, { withCredentials: true });
@@ -325,7 +335,7 @@ const Posts = () => {
     }
   }; 
 
-  // check ID
+  // Check ID
   const checkIfSelf = async (post_id) => {
     try {
       const response = await axios.get(`${baseUrl}/post/checkid/${post_id}`, { withCredentials: true });
@@ -355,16 +365,17 @@ const Posts = () => {
       
       </div>
 
-        <div className="split-screen-left">
+      <div className="split-screen-left">
         <div className="posts-list">
-          <p>Available Posts: </p>
           {loading ? (
             <p>Loading posts...</p>
           ) : posts.length > 0 ? (
             posts.map((post, index) => (
               <div key={index} className="post-item">
                 <h3 onClick={() => handlePostClick(post.post_id)}>{post.title}</h3>
+                <p className="post-poster-name">By: {post.poster_name}</p>
                 <p>{post.content ? post.content.slice(0, 100) : "No content available"}...</p>
+
                 <button onClick={() => handleToggleLike(post.post_id)}>
                   {post.isLiked ? "Unlike" : "Like"}
                 </button>
@@ -377,7 +388,7 @@ const Posts = () => {
             <p>No posts available.</p>
           )}
         </div>
-        </div>
+      </div>
 
       <div className="split-screen-right">
         <div className="post-details">
@@ -388,12 +399,18 @@ const Posts = () => {
                 <p>Time: {new Date(selectedPost.date_posted).toLocaleString()}</p>
                 <p>By: {selectedPost.poster_name}</p>
                 {isOwner && (
-                  <div className="post-actions">
-                    <button onClick={() => handleUpdatePostClick(selectedPost)}>Update</button>
-                    <button onClick={() => handleDeletePost(selectedPost.post_id)}>Delete</button>
-                  </div>
+                  <div className="post-actions top-right">
+                  <button className="button" id="smaller-button" onClick={() => handleUpdatePostClick(selectedPost)}>Update</button>
+                  <button className="button" id="smaller-button" onClick={() => handleDeletePost(selectedPost.post_id)}>Delete</button>
+                </div>
                 )}
               </div>
+
+              <p
+                dangerouslySetInnerHTML={{
+                  __html: selectedPost.content.replace(/\n/g, '<br />'),
+                }}
+              ></p>
 
               {selectedPost.image_url && (
                 <div className="post-image-container">
@@ -404,17 +421,14 @@ const Posts = () => {
                   />
                 </div>
               )}
-
-              <p
-                dangerouslySetInnerHTML={{
-                  __html: selectedPost.content.replace(/\n/g, '<br />'),
-                }}
-              ></p>
+              
               <h4>Comments:</h4>
               {selectedPost.comments && selectedPost.comments.length > 0 ? (
                 selectedPost.comments.map((comment) => (
                   <div key={comment.comment_id} className="comment-item">
-                    <p>{comment.text}</p>
+                    <p>
+                      <strong>{comment.commenter_name}:</strong> {comment.text}
+                    </p>
                     {comment.isOwner && (
                       <button onClick={() => handleDeleteComment(comment)}>Delete</button>
                     )}
@@ -429,13 +443,14 @@ const Posts = () => {
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
               />
-              <button onClick={handleCommentSubmit}>Submit Comment</button>
+              <button className="button" id="smaller-button" onClick={handleCommentSubmit}>Submit Comment</button>
             </div>
           ) : (
             <p>Select a post to view details.</p>
           )}
         </div>
       </div>
+
       </div>
       {showModal && (
         <div className="modal-overlay">
