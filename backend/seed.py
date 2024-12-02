@@ -324,6 +324,34 @@ for i in range(20):
 
 print("Post test data generated")
 
+# Generate comment data
+comments_texts = [
+    "Great post! Thanks for sharing.",
+    "I completely agree with your points.",
+    "This was really insightful.",
+    "Loved reading this. Keep it up!",
+    "Can you share more details on this?",
+    "This topic has been on my mind too!",
+    "Amazing! Thanks for the recommendations.",
+    "I have a different perspective, but this was helpful.",
+    "So true, I've experienced this myself.",
+    "What a brilliant idea!"
+]
+
+# Generate 50 comments across random posts
+for _ in range(50):
+    post_id = random.randint(1, 20)
+    commenter_id = random.randint(1, 6)
+    timestamp = faker.date_time_this_year()
+    text = random.choice(comments_texts)
+
+    cursor.execute('''
+        INSERT INTO comments (post_id, commenter_id, timestamp, text)
+        VALUES (%s, %s, %s, %s)
+    ''', (post_id, commenter_id, timestamp, text))
+
+print("Comments test data generated")
+
 
 # commit changes to save
 conn_details.commit()
