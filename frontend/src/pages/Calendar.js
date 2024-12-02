@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { ViewState, EditingState } from '@devexpress/dx-react-scheduler';
 import {
@@ -30,7 +30,6 @@ const baseUrl = process.env.REACT_APP_BASE_URL;
 
 // Define the default color for appointments without a label
 const DEFAULT_APPOINTMENT_COLOR = '#2196F3';
-
 
 // Custom Appointment Content Component
 const CustomAppointmentContent = ({ data, ...restProps }) => {
@@ -106,7 +105,6 @@ const Calendar = () => {
   const [showCreateEventModal, setShowCreateEventModal] = useState(false);
   const [newEventData, setNewEventData] = useState(null);
   const schedulerRef = useRef(null);
-  
 
   // Fetch events from backend
   useEffect(() => {
@@ -125,12 +123,11 @@ const Calendar = () => {
     try {
       const response = await axios.get(`${baseUrl}/event/getEventsByAccount`, {
         params: {
-          include_past: true, 
+          include_past: true, // Fetch all events, including past events
         },
-
-    });
+      });
       const eventData = response.data.events || [];
-      
+      // Ensure label_color is set for all events
       eventData.forEach((event) => {
         if (!event.label_color || event.label_color.trim() === '') {
           event.label_color = DEFAULT_APPOINTMENT_COLOR;
@@ -173,42 +170,7 @@ const Calendar = () => {
       const startDate = new Date(event.start_date);
       const endDate = new Date(event.end_date);
 
-      const frequency = event.frequency;
-      const repeatUntil = event.repeat_until
-        ? new Date(event.repeat_until)
-        : null;
-
-      let rRule = null;
-
-      if (frequency && frequency !== '' && repeatUntil) {
-        const untilStr = repeatUntil
-          .toISOString()
-          .replace(/[-:]/g, '')
-          .split('.')[0] + 'Z';
-        let freq;
-        let interval = 1;
-
-        switch (frequency) {
-          case 'Once a Week':
-            freq = 'WEEKLY';
-            break;
-          case 'Twice a Week':
-            freq = 'WEEKLY';
-            rRule = `FREQ=${freq};BYDAY=MO,TH;UNTIL=${untilStr}`;
-            break;
-          case 'Every Day':
-            freq = 'DAILY';
-            break;
-          default:
-            freq = null;
-            break;
-        }
-
-        if (!rRule && freq) {
-          rRule = `FREQ=${freq};INTERVAL=${interval};UNTIL=${untilStr}`;
-        }
-      }
-
+      // Removed recurrence rule generation to avoid duplicates
       appointments.push({
         title: event.name,
         startDate,
@@ -221,7 +183,7 @@ const Calendar = () => {
         frequency: event.frequency,
         repeat_until: event.repeat_until,
         originalEvent: event,
-        rRule,
+        // Removed rRule to prevent duplicate events
       });
     });
     return appointments;
@@ -239,6 +201,10 @@ const Calendar = () => {
   };
 
   const handleEdit = (event) => {
+    if (event.series_id && event.event_id !== event.series_id) {
+      alert('Cannot edit individual occurrences of a recurring event. Please edit the original event.');
+      return;
+    }
     setEventToUpdate({
       ...event,
       customCategory: '',
@@ -263,10 +229,12 @@ const Calendar = () => {
         const eventId = parseInt(eventIdStr);
         const changes = changed[eventIdStr];
 
-        const eventToChange = events.find(
-          (event) => event.event_id === eventId
-        );
+        const eventToChange = events.find((event) => event.event_id === eventId);
         if (eventToChange) {
+          if (eventToChange.series_id && eventToChange.event_id !== eventToChange.series_id) {
+            alert('Cannot edit individual occurrences of a recurring event. Please edit the original event.');
+            return;
+          }
           const formData = {
             ...eventToChange,
             start_date: changes.startDate
@@ -310,8 +278,6 @@ const Calendar = () => {
       e.stopPropagation();
       handleDelete(event.event_id);
     };
-
-    
 
     return (
       <Appointments.Appointment

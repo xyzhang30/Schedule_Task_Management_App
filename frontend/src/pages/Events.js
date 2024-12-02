@@ -7,7 +7,6 @@ const baseUrl = process.env.REACT_APP_BASE_URL;
 
 axios.defaults.withCredentials = true;
 
-
 const DEFAULT_LABEL_COLOR = '#2196F3';
 
 const Events = () => {
@@ -52,19 +51,18 @@ const Events = () => {
 
   const refreshEvents = async () => {
     try {
-      const response = await axios.get(`${baseUrl}/event/getEventsByAccount`, {params: {
-        include_past: showPastEvents,
-      },
-    });
+      const response = await axios.get(`${baseUrl}/event/getEventsByAccount`, {
+        params: {
+          include_past: showPastEvents,
+        },
+      });
       const eventData = response.data.events || [];
       eventData.forEach((event) => {
         event.alerted = false;
-        // Ensure label_color is set
         if (!event.label_color || event.label_color.trim() === '') {
           event.label_color = DEFAULT_LABEL_COLOR;
         }
       });
-      // Sort events by start date
       eventData.sort((a, b) => new Date(a.start_date) - new Date(b.start_date));
       const groupedEvents = groupEventsByDate(eventData);
       setEvents(groupedEvents);
@@ -90,7 +88,6 @@ const Events = () => {
         setError('Failed to fetch categories.');
       }
     };
-
     fetchCategories();
   }, []);
 
@@ -124,7 +121,6 @@ const Events = () => {
       }
       grouped[date].push(event);
     });
-
 
     for (const date in grouped) {
       grouped[date].sort(
@@ -219,16 +215,12 @@ const Events = () => {
     }
 
     try {
-      // Create event
       await axios.post(`${baseUrl}/event/createEvent`, formData);
 
-      // Update categories if custom category was added
       if (newEvent.category === 'custom') {
-        // First, create the category in the backend if it doesn't exist
         try {
           const data = { category_name: newEvent.customCategory };
           await axios.post(`${baseUrl}/event/category/create`, data);
-          // Update categories in the frontend
           setCategories((prevCategories) => {
             if (!prevCategories.includes(newEvent.customCategory)) {
               return [...prevCategories, newEvent.customCategory];
@@ -237,7 +229,6 @@ const Events = () => {
           });
         } catch (err) {
           console.error('Error creating category:', err);
-          // Handle error if needed
         }
       }
 
@@ -265,7 +256,6 @@ const Events = () => {
   };
 
   const handleDeleteEventClick = (eventId) => {
-    // Show confirmation dialog
     if (window.confirm('Are you sure you want to delete this event?')) {
       handleDeleteEvent(eventId);
     }
@@ -296,6 +286,10 @@ const Events = () => {
   };
 
   const handleUpdateEventClick = (event) => {
+    if (event.series_id && event.event_id !== event.series_id) {
+      alert('Cannot update individual occurrences of a recurring event. Please update the original event.');
+      return;
+    }
     setUpdatedEvent({
       ...event,
       customCategory: '',

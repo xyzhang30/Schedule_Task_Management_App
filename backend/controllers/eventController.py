@@ -17,7 +17,6 @@ logging.basicConfig(level=logging.DEBUG)
 
 bp = Blueprint('event', __name__, url_prefix='/event')
 
-
 # Create Event
 @bp.route('/createEvent', methods=['POST'])
 @is_logged_in
@@ -30,6 +29,8 @@ def create_event():
         start_date = datetime.strptime(data['start_date'], '%Y-%m-%dT%H:%M')
         end_date = datetime.strptime(data['end_date'], '%Y-%m-%dT%H:%M')
         repeat_until = datetime.strptime(repeat_until_str, '%Y-%m-%dT%H:%M') if repeat_until_str else None
+
+        # Save the new event first to get its event_id
         new_event = Event(
             account_id=account_id,
             name=data['name'],
@@ -43,6 +44,10 @@ def create_event():
             repeat_until=repeat_until
         )
         new_event.save()
+
+        # Set series_id to the event_id of the original event
+        new_event.series_id = new_event.event_id
+        new_event.update()
 
         if new_event.start_date.date() == datetime.now().date():
             new_event.create_or_update_notification(account_id)
@@ -81,7 +86,8 @@ def create_event():
                     label_text=data.get('label_text'),
                     label_color=data.get('label_color'),
                     frequency=frequency,
-                    repeat_until=repeat_until
+                    repeat_until=repeat_until,
+                    series_id=new_event.series_id  # Set series_id to original event's event_id
                 )
                 occurrence.save()
 
@@ -93,8 +99,7 @@ def create_event():
         logger.error(f"Error in create_event: {e}")
         return jsonify({'error': 'Failed to create event.'}), 500
 
-
-
+# Delete Event
 @bp.route('/deleteEvent/<int:event_id>', methods=['DELETE'])
 @is_logged_in
 def delete_event(event_id):
@@ -106,8 +111,16 @@ def delete_event(event_id):
     if not event or event.account_id != account_id:
         return jsonify({'message': 'Event not found'}), 404
     
-    event.delete_notifications(account_id)
-    event.delete()
+    if event.series_id and event.event_id == event.series_id:
+        # Deleting original event of a series, delete all occurrences
+        occurrences = Event.get_occurrences_by_series_id(event.series_id)
+        for occ in occurrences:
+            occ.delete_notifications(account_id)
+            occ.delete()
+    else:
+        # Deleting an individual occurrence
+        event.delete_notifications(account_id)
+        event.delete()
     return jsonify({'message': 'Event deleted successfully'}), 200
 
 # Fetch Event by ID
@@ -148,6 +161,7 @@ def get_events_by_account():
     events_list = [event.to_dict() for event in events]
     return jsonify({'events': events_list}), 200
 
+# Category Endpoints
 
 # Get all categories
 @bp.route('/category/all', methods=['GET'])
@@ -202,6 +216,7 @@ def clean_unused_categories():
     except Exception as e:
         return jsonify({'message': 'Failed to clean categories', 'error': str(e)}), 500
 
+# Update Event
 @bp.route('/updateEvent/<int:event_id>', methods=['PUT'])
 @is_logged_in
 def update_event(event_id):
@@ -210,8 +225,18 @@ def update_event(event_id):
         event = Event.get_event(event_id)
         if not event:
             return jsonify({'message': 'Event not found'}), 404
+        if event.account_id != account_id:
+            return jsonify({'message': 'Unauthorized'}), 403
 
         data = request.json
+
+        # Check if event is part of a series
+        if event.series_id and event.event_id != event.series_id:
+            # Not allowed to update individual occurrences except for deletion
+            return jsonify({'message': 'Cannot update individual occurrences of a recurring event. Please update the original event.'}), 400
+
+        # Update the original event
+        # Update event fields
         event.name = data.get('name', event.name)
         event.location = data.get('location', event.location)
         if 'start_date' in data:
@@ -225,7 +250,54 @@ def update_event(event_id):
         if 'repeat_until' in data:
             event.repeat_until = datetime.strptime(
                 data['repeat_until'], '%Y-%m-%dT%H:%M') if data.get('repeat_until') else None
+
+        # Save changes to the original event
         event.update()
+
+        # Delete existing occurrences
+        occurrences = Event.get_occurrences_by_series_id(event.series_id, exclude_event_id=event.event_id)
+        for occ in occurrences:
+            occ.delete_notifications(account_id)
+            occ.delete()
+
+        # Recreate occurrences based on updated frequency and repeat_until
+        if event.frequency and event.repeat_until:
+            current_start = event.start_date
+            current_end = event.end_date
+
+            while True:
+                # Generate next occurrence based on frequency
+                if event.frequency == 'Every Day':
+                    current_start += timedelta(days=1)
+                    current_end += timedelta(days=1)
+                elif event.frequency == 'Once a Week':
+                    current_start += timedelta(weeks=1)
+                    current_end += timedelta(weeks=1)
+                elif event.frequency == 'Twice a Week':
+                    current_start += timedelta(days=3)
+                    current_end += timedelta(days=3)
+                else:
+                    # Unsupported frequency
+                    break
+
+                if current_start > event.repeat_until:
+                    break
+
+                # Create new event occurrence
+                occurrence = Event(
+                    account_id=account_id,
+                    name=event.name,
+                    location=event.location,
+                    start_date=current_start,
+                    end_date=current_end,
+                    category=event.category,
+                    label_text=event.label_text,
+                    label_color=event.label_color,
+                    frequency=event.frequency,
+                    repeat_until=event.repeat_until,
+                    series_id=event.series_id
+                )
+                occurrence.save()
 
         now = datetime.now().date()
         # If the updated event is happening today
