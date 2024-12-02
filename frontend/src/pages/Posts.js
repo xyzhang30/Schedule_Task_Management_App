@@ -17,37 +17,49 @@ const Posts = () => {
   const [newComment, setNewComment] = useState('');
   const [isOwner, setIsOwner] = useState(false);
 
-  // fetch posts and comments
   const fetchPosts = async () => {
     try {
       // Fetch friends' posts
       const friendsResponse = await axios.get(`${baseUrl}/post/get-friends-posts`, { withCredentials: true });
-      const friendsPosts = friendsResponse.data.map(post => ({
-        ...post,
-        isLiked: false,
-        isSaved: false,
-      }));
-
+      const friendsPosts = friendsResponse.data;
+  
       // Fetch own posts
       const ownResponse = await axios.get(`${baseUrl}/post/get-posts`, { withCredentials: true });
-      const ownPosts = ownResponse.data.map(post => ({
-        ...post,
-        isLiked: false,
-        isSaved: false,
-      }));
-
+      const ownPosts = ownResponse.data;
+  
       const allPosts = [...friendsPosts, ...ownPosts];
-      
-      setPosts(allPosts);
+  
+      const postsWithStatuses = await Promise.all(
+        allPosts.map(async (post) => {
+          try {
+            // Fetch `isLiked` status
+            const likeResponse = await axios.get(`${baseUrl}/post/${post.post_id}/is-liked`, { withCredentials: true });
+            const isLiked = likeResponse.data.isLiked;
+  
+            // Fetch `isSaved` status
+            const saveResponse = await axios.get(`${baseUrl}/post/${post.post_id}/is-saved`, { withCredentials: true });
+            const isSaved = saveResponse.data.isSaved;
+  
+            return {
+              ...post,
+              isLiked,
+              isSaved,
+            };
+          } catch (error) {
+            console.error(`Error fetching statuses for post ${post.post_id}:`, error);
+            return { ...post, isLiked: false, isSaved: false };
+          }
+        })
+      );
+  
+      setPosts(postsWithStatuses);
       setLoading(false);
-    } 
-    
-    catch (err) {
+    } catch (err) {
       console.error("Error fetching posts:", err);
       setError('Failed to fetch posts.');
       setLoading(false);
     }
-  };
+  };  
 
   // Check if the logged-in user owns a comment
   const checkIfCommentOwner = async (comment_id) => {

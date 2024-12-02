@@ -313,6 +313,18 @@ def get_likes(post_id):
     return jsonify(liker_list), 200
 
 
+@bp.route('/<int:post_id>/is-liked', methods=['GET'])
+@is_logged_in
+def is_post_liked(post_id):
+    """
+    Check if the current user has liked the specified post.
+    """
+    liker_id = session['user']
+    like = Like.get_like_by_post_and_liker_id(post_id, liker_id)
+
+    return jsonify({"isLiked": bool(like)}), 200
+
+
 # Save
 @bp.route('/save', methods=['POST'])
 @is_logged_in
@@ -373,6 +385,19 @@ def get_account_saves():
     
     post_list = [{"post_id": save.post_id} for save in saves]
     return jsonify(post_list), 200
+
+
+@bp.route('/<int:post_id>/is-saved', methods=['GET'])
+@is_logged_in
+def is_post_saved(post_id):
+    """
+    Check if the current user has saved the specified post.
+    """
+    saver_id = session['user']
+    saved = Save.get_save_by_post_and_saver_id(post_id, saver_id)
+
+    return jsonify({"isSaved": bool(saved)}), 200
+
 
 # Comment
 @bp.route('/comment', methods=['POST'])
