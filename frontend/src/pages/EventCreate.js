@@ -13,7 +13,6 @@ const EventCreate = ({
   initialEventData = {},
   timeRange = {},
   participants = [], 
-  currentUserId,
 }) => {
   const [newEvent, setNewEvent] = useState({
     name: '',
@@ -111,24 +110,18 @@ const EventCreate = ({
         console.error('Participants prop is not an array or object:', participants);
       }
       console.log('Participant IDs:', participantIds);
+      await axios.post(`${baseUrl}/event/createEvent`, formData);
       if (participantIds.length > 0) {
-        
         for (let i = 0; i < participantIds.length; i++) {
           const participantId = participantIds[i];
           if (isNaN(participantId)) {
             console.error('Invalid participant ID:', participantId);
-            continue; 
+            continue;
           }
-          if (participantId === currentUserId) {
-            
-            await axios.post(`${baseUrl}/event/createEvent`, formData);
-          } else {
-            await axios.post(`${baseUrl}/event/createEventNotSelf/${participantId}`, formData);
-          }
+          await axios.post(`${baseUrl}/event/createEventNotSelf/${participantId}`, formData);
         }
         alert('Events created successfully for all participants!');
       } else {
-        await axios.post(`${baseUrl}/event/createEvent`, formData);
         alert('Event created successfully!');
       }
 
