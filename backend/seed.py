@@ -46,13 +46,13 @@ Table_creation = '''
     CREATE TABLE events ( 
         event_id SERIAL PRIMARY KEY,
         account_id INTEGER REFERENCES accounts(account_id),
-        name VARCHAR(20) NOT NULL,
-        location VARCHAR(30),
+        name VARCHAR(200) NOT NULL,
+        location VARCHAR(300),
         start_date TIMESTAMP NOT NULL,
         end_date TIMESTAMP NOT NULL,
-        category VARCHAR(30), 
+        category VARCHAR(300), 
         label_text VARCHAR(100),
-        label_color VARCHAR(20),
+        label_color VARCHAR(200),
         frequency VARCHAR(50),
         repeat_until TIMESTAMP,
         series_id INTEGER
@@ -214,25 +214,72 @@ for n in range (3):
 print("Friends test data generated")
 
 
-# events test data
-for _ in range(10):
-    event_name = faker.word()
-    event_location = faker.city()
-    s_date = faker.date_this_year() 
-    start_time = faker.time_object() 
-    s_date = datetime.combine(s_date, start_time)
-    end_time = (datetime.combine(s_date.date(), start_time) + timedelta(hours=random.randint(1, 5), minutes=random.randint(0, 59))).time()
-    e_date = datetime.combine(s_date.date(), end_time) 
-    category = random.choice(['club', 'personal', 'school', 'work'])
-    account_id = random.randint(1, 6)
-    label_text = faker.word()  # Random word for label text
-    label_color = faker.color_name()  # Random color name for label color
-
+# events test 
+event_categories = ['club', 'personal', 'school', 'work', 'health', 'meetup', 'conference', 'webinar']
+for category in event_categories:
     cursor.execute('''
-        INSERT INTO events (name, location, start_date, end_date, category, account_id, label_text, label_color)
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-    ''', (event_name, event_location, s_date, e_date, category, account_id, label_text, label_color))
-print("Events test data generated")
+        INSERT INTO event_category (category_name)
+        VALUES (%s)
+        ON CONFLICT (category_name) DO NOTHING
+    ''', (category,))
+print("Event categories test data generated")
+num_events = 20  
+for _ in range(num_events):
+    event_name = faker.sentence(nb_words=3).rstrip('.')
+    event_location = faker.city()
+    start_date = faker.date_time_between(start_date='-1y', end_date='+1y')
+    duration = timedelta(hours=random.randint(1, 5), minutes=random.randint(0, 59))
+    end_date = start_date + duration
+    category = random.choice(event_categories)
+    account_id = random.randint(1, 6)
+    label_text = random.choice(['Important', 'Optional', 'Urgent', 'Follow-up', 'Review'])
+    label_color = random.choice(['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'grey', 'pink'])
+    frequency_options = ['Every Day', 'Once a Week', 'Twice a Week', None]
+    frequency = random.choice(frequency_options)
+    repeat_until = None
+    if frequency:
+        repeat_until = start_date + timedelta(days=random.randint(30, 180))
+    cursor.execute('''
+        INSERT INTO events (
+            name, location, start_date, end_date, category,
+            account_id, label_text, label_color, frequency, repeat_until
+        )
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+    ''', (
+        event_name,
+        event_location,
+        start_date,
+        end_date,
+        category,
+        account_id,
+        label_text,
+        label_color,
+        frequency,
+        repeat_until
+    ))
+print(f"{num_events} Events test data generated")
+
+
+
+
+# for _ in range(10):
+#     event_name = faker.word()
+#     event_location = faker.city()
+#     s_date = faker.date_this_year() 
+#     start_time = faker.time_object() 
+#     s_date = datetime.combine(s_date, start_time)
+#     end_time = (datetime.combine(s_date.date(), start_time) + timedelta(hours=random.randint(1, 5), minutes=random.randint(0, 59))).time()
+#     e_date = datetime.combine(s_date.date(), end_time) 
+#     category = random.choice(['club', 'personal', 'school', 'work'])
+#     account_id = random.randint(1, 6)
+#     label_text = faker.word()  # Random word for label text
+#     label_color = faker.color_name()  # Random color name for label color
+
+#     cursor.execute('''
+#         INSERT INTO events (name, location, start_date, end_date, category, account_id, label_text, label_color)
+#         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+#     ''', (event_name, event_location, s_date, e_date, category, account_id, label_text, label_color))
+# print("Events test data generated")
 
 
 # tasks test data

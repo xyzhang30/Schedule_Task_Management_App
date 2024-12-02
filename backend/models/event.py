@@ -13,7 +13,7 @@ class Event(Base):
     end_date = Column(DateTime, nullable=False)
     category = Column(String(100), nullable=True)
     label_text = Column(String(100), nullable=True)
-    label_color = Column(String(20), nullable=True)
+    label_color = Column(String(200), nullable=True)
     frequency = Column(String(50), nullable=True)
     repeat_until = Column(DateTime, nullable=True)
     # Added series_id to group events in a series
