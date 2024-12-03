@@ -82,16 +82,6 @@
   border-bottom: none;
 }
 
-.cta-buttons .btn {
-  margin: 10px;
-  background-color: #fff;
-  padding: 10px 20px;
-  font-size: 1.2rem;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
 .edit-profile-buttons-container {
   display: grid;
 }
