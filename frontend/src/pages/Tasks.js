@@ -70,6 +70,10 @@ const Tasks = () => {
         fetchEvents();
     }, []);
 
+    useEffect(() => {
+        console.log('Edited task updated:', editedTask);
+    }, [editedTask]);
+
     const handleTaskClick = (task) => {
         console.log('Task clicked:', task);
         setSelectedTask(task);
@@ -82,6 +86,8 @@ const Tasks = () => {
             task_name: task.task_name,
             category: task.category,
             due_time: new Date(task.due_time).toISOString().slice(0, 16),
+            event_id: task.event_id || '',
+            event_name: events.find(event => event.event_id === task.event_id)?.name || ''
         });
         setSelectedTask(task);
         setShowEditTaskModal(true);
@@ -109,6 +115,17 @@ const Tasks = () => {
             ...newTask,
             event_id: selectedEvent ? selectedEvent.event_id : '',
             event_name: selectedEventName 
+        });
+    };
+
+    const handleEditInputChangeEventID = (e) => {
+        const selectedEventName = e.target.value;
+        const selectedEvent = events.find(event => event.name === selectedEventName);
+    
+        setEditedTask({
+            ...editedTask,
+            event_id: selectedEvent ? selectedEvent.event_id : '',
+            event_name: selectedEventName
         });
     };
 
@@ -192,7 +209,6 @@ const Tasks = () => {
         }
     };
 
-
     const handleEditTask = async (e) => {
         console.log('Edit task called')
         e.preventDefault();
@@ -201,6 +217,7 @@ const Tasks = () => {
             formData.append('task_name', editedTask.task_name);
             formData.append('category', editedTask.category);
             formData.append('due_time', editedTask.due_time);
+            formData.append('event_id', editedTask.event_id);
     
             const response = await axios.put(`${baseUrl}/task/update/${selectedTask.task_id}`, formData, {withCredentials:true});
             console.log('Task updated:', response.data);
@@ -214,7 +231,7 @@ const Tasks = () => {
             setTasks(updatedTasks.data);
     
             setShowEditTaskModal(false);
-            setSelectedTask(null);
+            //setSelectedTask(null);
         } catch (err) {
             console.error('Error updating task:', err);
             setError('Failed to update task.');
@@ -296,30 +313,7 @@ const Tasks = () => {
                             Add Task
                         </button>
                     </div>
-
-            
-                
-            
-            
-       
-    
-            
-                
-                
-                {/* <form onSubmit={handleAddCategory} className="add-category-form">
-                    <input 
-                        type="text" 
-                        placeholder="New Category" 
-                        value={newCategory} 
-                        onChange={handleNewCategoryChange} 
-                        required 
-                    />
-                    <button type="submit" className="button">
-                        Add Category
-                    </button>
-                </form> */}
-                
-            
+                    
 
             {showAddCategoryModal && (
                 <div className="modal-overlay">
@@ -454,6 +448,21 @@ const Tasks = () => {
                                     onChange={(e) => setEditedTask({ ...editedTask, due_time: e.target.value })} 
                                     required 
                                 />
+                            </label>
+                            <label>
+                                Associated Event:
+                                <select
+                                    name="event_name" 
+                                    value={editedTask.event_name || ''}
+                                    onChange={handleEditInputChangeEventID}
+                                >
+                                    <option value="">Select an Event</option>
+                                    {events.map(event => (
+                                        <option key={event.event_id} value={event.name}>
+                                            {event.name}
+                                        </option>
+                                    ))}
+                                </select>
                             </label>
                             <div className="modal-actions">
                                 <button type="submit">Update Task</button>
