@@ -46,12 +46,12 @@ const StudyTime = () => {
   
           const weekResponse = await axios.get(`${baseUrl}/studytime/week`, { withCredentials: true });
           const weekTimeInSeconds = weekResponse.data.study_time
-          const weekhours = Math.floor(studyTimeInSeconds / 3600);
-          const weekminutes = Math.floor((studyTimeInSeconds % 3600) / 60);
+          const weekhours = Math.floor(weekTimeInSeconds / 3600);
+          const weekminutes = Math.floor((weekTimeInSeconds % 3600) / 60);
           if (weekResponse.status === 200) {
               console.log(weekhours);
               setWeekHours(weekhours);
-              setWeekMinutes(minutes);
+              setWeekMinutes(weekminutes);
           }
       } catch (error) {
           console.error("Error fetching study time data:", error);
