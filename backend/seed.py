@@ -260,8 +260,6 @@ for _ in range(num_events):
 print(f"{num_events} Events test data generated")
 
 
-
-
 # for _ in range(10):
 #     event_name = faker.word()
 #     event_location = faker.city()

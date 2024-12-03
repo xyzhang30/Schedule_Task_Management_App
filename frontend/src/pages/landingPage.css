@@ -12,7 +12,8 @@ html {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(oklch(49% 0.17 157), oklch(70% 0.09 176));
+  /* background: linear-gradient(oklch(49% 0.17 157), oklch(70% 0.09 176)); */
+  background: linear-gradient(#A3B18A, #588157);
   color: white;
   text-align: center;
 }
@@ -36,7 +37,9 @@ html {
   white-space: nowrap;
   overflow: hidden;
   display: inline-block;
-  color: #ffeb3b; /* Bright Yellow for Title */
+  /* color: #ffeb3b;  */
+  /* color: #283618 */
+  color: white
 }
 
 /* Paragraph */
@@ -44,7 +47,8 @@ html {
   font-size: 1.5rem;
   font-weight: bold;
   margin-bottom: 40px;
-  color: #dce775;
+  /* color: #dce775; */
+  color: white
 }
 
 /* Buttons */
@@ -59,7 +63,8 @@ html {
   font-size: 1.2rem;
   font-weight: bold;
   border-radius: 5px;
-  background-color: #ff02;
+  /* background-color: #ff02; */
+  background-color: #3A5A40;
   color: white;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -68,4 +73,5 @@ html {
 .cta-buttons .btn:hover {
   transform: translateY(-5px);
   box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.2);
+  color: white;
 }
