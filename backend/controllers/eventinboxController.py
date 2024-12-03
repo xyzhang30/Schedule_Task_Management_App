@@ -9,7 +9,7 @@ from ..db import db_session
 
 bp = Blueprint('event_inbox', __name__, url_prefix='/event_inbox')
 
-# Set up logging
+
 logger = logging.getLogger(__name__)
 handler = logging.FileHandler('event_inbox.log')
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
@@ -20,6 +20,14 @@ logger.setLevel(logging.INFO)
 @bp.route('/get-notifications', methods=['GET'])
 @is_logged_in
 def get_event_notifications():
+    """
+    Retrieve event notifications for the currently logged-in user. 
+    This will check if any event is happening today, and if no notification exists,
+    it will create one.
+    
+    :return: JSON response with a list of event notifications or an error message.
+    :raises: HTTPError if the process fails.
+    """
     try:
         account_id = session['user']
         now = datetime.now().date() - timedelta(days=1)
@@ -27,12 +35,12 @@ def get_event_notifications():
         events_today = Event.get_events_happening_today(account_id, now)
 
         for event in events_today:
-            # Check if notification already exists for this event (regardless of is_pending status)
+            
             existing_notification = Notifications.get_existing_messages(account_id, event.event_id)
 
             if not existing_notification:
                 message = f"Your event '{event.name}' is happening today at {event.start_date.strftime('%H:%M')}."
-                # Create a new notification
+                
                 notification = Notifications(
                     account_id_from=account_id,
                     account_id_to=account_id,
@@ -44,7 +52,7 @@ def get_event_notifications():
                 )
                 notification.save_notification()
 
-        # Retrieve event notifications
+       
         notifications = Notifications.retrieve_event_notifications(account_id)
 
         notifications_list = [n.to_dict() for n in notifications]
@@ -56,6 +64,13 @@ def get_event_notifications():
 @bp.route('/delete-notification', methods=['POST'])
 @is_logged_in
 def delete_event_notification():
+    """
+    Delete an event notification for the currently logged-in user. 
+    The notification is identified by its notification ID.
+
+    :return: JSON response with success or error message.
+    :raises: HTTPError if the process fails or if access is denied.
+    """
     try:
         data = request.get_json()
         notification_id = data.get('notification_id')
