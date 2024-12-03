@@ -5,18 +5,14 @@ import './landingPage.css';
 
 const LandingPage = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [title, setTitle] = useState('');
   const navigate = useNavigate();
 
-  // Check if the user is logged in by calling the session_status endpoint
   useEffect(() => {
     const checkSession = async () => {
       try {
         const response = await axios.get('http://localhost:8080/auth/session_status', { withCredentials: true });
-        if (response.data.loggedIn) {
-          setIsLoggedIn(true);  // Set the state to true if the user is logged in
-        } else {
-          setIsLoggedIn(false);
-        }
+        setIsLoggedIn(response.data.loggedIn);
       } catch (err) {
         console.error('Error checking session:', err);
       }
@@ -25,31 +21,53 @@ const LandingPage = () => {
     checkSession();
   }, []);
 
+  // Animation for title display
+  useEffect(() => {
+    const text = "W elcome to Task Manager";
+    let index = 0;
+
+    const interval = setInterval(() => {
+      if (index < text.length - 1) {
+        setTitle((prev) => prev + text[index]);
+        index++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 100); // Adjust speed (100ms per letter)
+
+    return () => clearInterval(interval); // Cleanup interval on component unmount
+  }, []);
+
   return (
     <div className="landing-page">
-      <section className="hero-banner">
-        <h1>Master Your College Life</h1>
-        <p>Organize your academic and personal life with ease.</p>
-        {!isLoggedIn ? (
-          <div className="cta-buttons">
-            <button className="btn sign-up" onClick={() => navigate('/register')}>Sign Up</button>
-            <button className="btn log-in" onClick={() => navigate('/login')}>Log In</button>
-            <button className="btn forgot-password" onClick={() => navigate('/forgot-password')}>Forgot Password</button>
-          </div>
-        ) : (
-          <div className="cta-buttons">
-            <button className="btn log-out" onClick={() => navigate('/logout')}>Log Out</button>
-            <button className="btn change-username" onClick={() => navigate('/change-username')}>Change Username</button>
-            <button className="btn change-email" onClick={() => navigate('/change-email')}>Change Email</button>
-            <button className="btn change-password" onClick={() => navigate('/change-password')}>Change Password</button>
-            <button className="btn change-phone" onClick={() => navigate('/change-phone-number')}>Change Phone Number</button>
-            <button className="btn change-major" onClick={() => navigate('/change-major')}>Change Major</button>
-            <button className="btn change-avatar" onClick={() => navigate('/change-avatar')}>Change Avatar</button>
-            <button className="btn forgot-password" onClick={() => navigate('/forgot-password')}>Forgot Password</button>
-            <button className="btn profile" onClick={() => navigate('/profile')}>View Your Profile</button>
-          </div>
-        )}
-      </section>
+      <div className="hero-banner">
+        <h1 className="animated-title">{title}</h1>
+        <p>The perfect tool to organize your life.</p>
+        <div className="cta-buttons">
+          {!isLoggedIn ? (
+            <>
+              <button className="btn" onClick={() => navigate('/register')}>
+                Sign Up
+              </button>
+              <button className="btn" onClick={() => navigate('/login')}>
+                Log In
+              </button>
+              <button className="btn" onClick={() => navigate('/forgot-password')}>
+                Forgot Password
+              </button>
+            </>
+          ) : (
+            <>
+              <button className="btn" onClick={() => navigate('/profile')}>
+                View Profile
+              </button>
+              <button className="btn" onClick={() => navigate('/settings')}>
+                Account Settings
+              </button>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
