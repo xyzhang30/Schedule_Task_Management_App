@@ -1,4 +1,5 @@
 import React from 'react';
+import './EditProfileButtonPages.css'
 
 const SpotifyLogin = () => {
   const handleLogin = () => {
@@ -6,7 +7,7 @@ const SpotifyLogin = () => {
   };
 
   return (
-    <div>
+    <div className='edit-profile-pages'>
       <h1>Login to Spotify</h1>
       <button onClick={handleLogin}>Login with Spotify</button>
     </div>
