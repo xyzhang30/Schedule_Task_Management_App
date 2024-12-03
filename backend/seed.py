@@ -216,6 +216,49 @@ print("Friends test data generated")
 
 # events test 
 event_categories = ['club', 'personal', 'school', 'work', 'health', 'meetup', 'conference', 'webinar']
+event = [
+    "Freshman Orientation", "Student Union Building",
+    "Career Fair", "Main Hall",
+    "Hackathon Weekend", "Engineering Auditorium",
+    "Guest Lecture: AI in Healthcare", "Science and Technology Center",
+    "Cultural Diversity Festival", "Campus Green",
+    "Annual Research Symposium", "University Conference Center",
+    "International Food Festival", "Student Commons",
+    "Poetry Reading Night", "Library Lounge",
+    "Charity Run for a Cause", "Sports Complex Track",
+    "Music Concert: Student Bands", "Campus Amphitheater",
+    "Alumni Networking Event", "University Ballroom",
+    "Faculty Panel Discussion", "Lecture Hall 2A",
+    "Spring Graduation Ceremony", "Campus Stadium",
+    "Art Exhibition: Student Creators", "Art Gallery",
+    "Intercollegiate Debate Championship", "Debate Hall",
+    "Technology and Innovation Expo", "Engineering Plaza",
+    "Sustainability Workshop", "Environmental Science Building",
+    "Global Health Conference", "Health Sciences Auditorium"
+]
+locations = [
+    "Student Union Building",
+    "Main Hall",
+    "Engineering Auditorium",
+    "Science and Technology Center",
+    "Campus Green",
+    "University Conference Center",
+    "Student Commons",
+    "Library Lounge",
+    "Sports Complex Track",
+    "Campus Amphitheater",
+    "University Ballroom",
+    "Lecture Hall 2A",
+    "Campus Stadium",
+    "Art Gallery",
+    "Debate Hall",
+    "Engineering Plaza",
+    "Environmental Science Building",
+    "Health Sciences Auditorium",
+    "Dining Hall",
+    "Computer Science Lab"
+]
+
 for category in event_categories:
     cursor.execute('''
         INSERT INTO event_category (category_name)
@@ -223,12 +266,16 @@ for category in event_categories:
         ON CONFLICT (category_name) DO NOTHING
     ''', (category,))
 print("Event categories test data generated")
+
+
+
+
 num_events = 20  
 for _ in range(num_events):
-    event_name = faker.sentence(nb_words=3).rstrip('.')
-    event_location = faker.city()
+    event_name = random.choice(event)
+    event_location = random.choice(locations)
     start_date = faker.date_time_between(start_date='-1y', end_date='+1y')
-    duration = timedelta(hours=random.randint(1, 5), minutes=random.randint(0, 59))
+    duration = timedelta(hours=random.randint(1, 3), minutes=random.randint(0, 59))
     end_date = start_date + duration
     category = random.choice(event_categories)
     account_id = random.randint(1, 6)
