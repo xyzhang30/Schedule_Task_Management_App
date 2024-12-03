@@ -518,6 +518,102 @@ for _ in range(50):
 print("Comments test data generated")
 
 
+# Generate group and public event data
+group_events = {
+    "Photography Club": ["Photo Walk in City", "Mastering Portrait Photography", "Outdoor Photography Tips", "Night Photography Workshop", "Landscape Capturing Day"],
+    "Robotics Club": ["Building Advanced Drones", "Coding AI for Robots", "Intro to Machine Learning", "Robotics Expo", "Robot Battle Challenge"],
+    "Drama Society": ["Shakespeare Night", "Modern Play Rehearsal", "Drama Workshop for Beginners", "Improv Comedy Night", "Acting Masterclass"],
+    "Coding Club": ["Hackathon for Beginners", "Intro to Web Development", "Coding Bootcamp", "Data Structures Workshop", "AI Programming Tips"],
+    "Chess Club": ["Beginner Chess Class", "Advanced Chess Tactics", "Simultaneous Chess Match", "Speed Chess Tournament", "Chess Strategy Workshop"],
+    "Book Club": ["Fiction Book Review", "Author Spotlight Night", "Classic Literature Discussion", "Weekly Reading Meetup", "Poetry Slam Night"],
+    "Dance Team": ["Hip Hop Workshop", "Classical Dance Rehearsal", "Salsa Night", "Contemporary Dance Show", "Group Choreography Practice"],
+    "Music Ensemble": ["Orchestra Practice", "Jazz Night", "Solo Recital Showcase", "Band Jam Session", "Classical Music Masterclass"],
+    "Sports Club": ["Friendly Soccer Match", "Basketball Pickup Game", "Tennis Tournament", "Swimming Relay Practice", "Track and Field Sprinting"],
+    "Entrepreneurship Society": ["Startup Pitch Night", "Business Plan Workshop", "Venture Capital Talk", "Entrepreneur Q&A Session", "Product Launch Simulation"],
+    "Volunteering Club": ["Community Clean-Up Drive", "Charity Bake Sale", "Clothes Donation Drive", "Neighborhood Fundraiser", "Animal Shelter Visit"],
+    "Film Society": ["Weekly Movie Screening", "Film Discussion Panel", "Short Film Competition", "Director Guest Lecture", "Silent Film Night"],
+    "Environment Club": ["Tree Planting Event", "Beach Clean-Up Day", "Recycling Workshop", "Energy Conservation Talk", "Sustainable Living Seminar"],
+    "Astronomy Club": ["Star Gazing Night", "Planetarium Visit", "Astrophotography Workshop", "Telescope Building Session", "Space Documentary Screening"],
+    "AI Society": ["Neural Networks Workshop", "Ethics in AI Debate", "Introduction to Natural Language Processing", "AI Coding Contest", "AI Startup Networking"],
+    "Toastmasters": ["Public Speaking 101", "Speech Contest", "Leadership Development Workshop", "Impromptu Speaking Night", "Storytelling Techniques"],
+    "Hackers United": ["Cybersecurity Basics", "Capture the Flag Challenge", "Reverse Engineering Workshop", "Penetration Testing Demo", "Ethical Hacking Seminar"],
+    "Gardening Club": ["Indoor Plant Care Workshop", "Community Garden Day", "Composting Techniques", "Garden Design Basics", "Seed Exchange Meetup"],
+    "Board Games Club": ["Board Game Night", "New Strategy Game Workshop", "Chess and Checkers Evening", "Collaborative Puzzle Solving", "Dungeons & Dragons Session"],
+    "Yoga Enthusiasts": ["Morning Yoga Session", "Yoga for Stress Relief", "Power Yoga Workshop", "Breathwork and Meditation", "Yoga Flow Challenge"],
+    "Running Club": ["Sunrise Marathon Training", "Park Run Meetup", "Sprint Drills Workshop", "Trail Running Adventure", "Post-Run Nutrition Talk"],
+    "Baking Circle": ["Cupcake Decorating Class", "Sourdough Bread Baking", "Cookie Swap Event", "Baking Science Basics", "Cake Frosting Workshop"],
+    "Cultural Association": ["International Food Festival", "Cultural Dance Performances", "World Music Night", "Language Learning Exchange", "Art and Craft Fair"],
+    "Gaming Guild": ["LAN Party Night", "New Game Launch Meetup", "Retro Gaming Competition", "Game Development Workshop", "Esports Viewing Party"],
+    "MUN Team": ["Model UN Training Session", "Debate and Negotiation Workshop", "Resolution Drafting Practice", "Mock Committee Session", "International Policy Talk"],
+    "Literature Lovers": ["Poetry Reading Night", "Book Signing Event", "Creative Writing Workshop", "Literary Trivia Contest", "Author Spotlight Series"],
+    "Podcast Club": ["Podcast Recording Basics", "Interview Techniques Workshop", "Podcast Editing Tips", "Storytelling in Podcasts", "Podcast Launch Party"],
+    "Art Collective": ["Art Exhibit Opening", "Sketching Workshop", "Modern Art Discussion", "Painting for Beginners", "Art Supply Swap"],
+    "Startups Hub": ["Elevator Pitch Practice", "Startup Legal Basics", "Funding Strategy Session", "Startup Success Stories", "Networking Night"],
+    "Chess Enthusiasts": ["Chess Opening Tactics", "Endgame Strategies", "Simultaneous Chess Challenge", "Speed Chess Workshop", "Chess AI Analysis"]
+}
+
+group_events_list = [(group_name, events) for group_name, events in group_events.items()]
+
+for account in range(1, 7):
+    for i in range(5):
+        group_name = group_events_list[i + (account - 1) * 5][0]
+        events_list = group_events_list[i + (account - 1) * 5][1]
+
+        # Insert group and retrieve its ID
+        year_created = random.randint(2021, 2025)
+        cursor.execute('''
+            INSERT INTO groups (group_name, admin_id, year_created)
+            VALUES (%s, %s, %s)
+            ON CONFLICT (group_name) DO NOTHING
+            RETURNING group_id
+        ''', (group_name, account, year_created))
+
+        # Add membership for this account to the group
+        cursor.execute('''
+            INSERT INTO memberships (account_id, group_id)
+            VALUES (%s, (SELECT group_id FROM groups WHERE group_name = %s))
+            ON CONFLICT (account_id, group_id) DO NOTHING
+        ''', (account, group_name,))
+
+        # Add public events for the group
+        for event_name in events_list:
+            is_all_day = random.choice([True, False])
+
+            if is_all_day:
+                random_start_date = faker.date_between(start_date=start, end_date=end)
+                start_date = datetime(
+                    year=random_start_date.year,
+                    month=random_start_date.month,
+                    day=random_start_date.day,
+                    hour=0,
+                    minute=0
+                )
+                duration_hours = random.choice([23, 47, 71, 95])
+                duration_minutes = 59
+                end_date = start_date + timedelta(hours=duration_hours, minutes=duration_minutes)
+            else:
+                random_start_date = faker.date_between(start_date=start, end_date=end)
+                random_start_hour = random.randint(9, 23)
+                random_start_minute = random.choice([0, 15, 30, 45])
+                start_date = datetime(
+                    year=random_start_date.year,
+                    month=random_start_date.month,
+                    day=random_start_date.day,
+                    hour=random_start_hour,
+                    minute=random_start_minute
+                )
+                duration_hours = random.randint(1, 5)
+                end_date = start_date + timedelta(hours=duration_hours)
+
+            cursor.execute('''
+                INSERT INTO public_events (event_name, group_id, start_date_time, end_date_time, is_all_day)
+                VALUES (%s, (SELECT group_id FROM groups WHERE group_name = %s), %s, %s, %s)
+                ON CONFLICT (event_name) DO NOTHING
+            ''', (event_name, group_name, start_date, end_date, is_all_day))
+
+print("Group and public event test data generated")
+
+
 # commit changes to save
 conn_details.commit()
 cursor.close()
