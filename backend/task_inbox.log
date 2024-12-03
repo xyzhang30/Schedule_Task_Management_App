@@ -1976,3 +1976,295 @@ Traceback (most recent call last):
     raise exc.TimeoutError(
 sqlalchemy.exc.TimeoutError: QueuePool limit of size 30 overflow 10 reached, connection timed out, timeout 30.00 (Background on this error at: https://sqlalche.me/e/20/3o7r)
 
+2024-12-03 01:34:44,144 ERROR Error in get_task_notifications: (psycopg2.errors.UndefinedColumn) column task.event_id does not exist
+LINE 1: ...S task_task_name, task.complete AS task_complete, task.event...
+                                                             ^
+
+[SQL: SELECT task.task_id AS task_task_id, task.account_id AS task_account_id, task.category AS task_category, task.due_time AS task_due_time, task.task_name AS task_task_name, task.complete AS task_complete, task.event_id AS task_event_id 
+FROM task 
+WHERE task.account_id = %(account_id_1)s AND date(task.due_time) = %(date_1)s ORDER BY task.due_time ASC]
+[parameters: {'account_id_1': 13, 'date_1': datetime.date(2024, 12, 3)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedColumn: column task.event_id does not exist
+LINE 1: ...S task_task_name, task.complete AS task_complete, task.event...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Task.all_tasks_by_due_date(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/task.py", line 85, in all_tasks_by_due_date
+    ).order_by(cls.due_time.asc()).all()
+                                   ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2191, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1422, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 514, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1644, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1850, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1990, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2357, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column task.event_id does not exist
+LINE 1: ...S task_task_name, task.complete AS task_complete, task.event...
+                                                             ^
+
+[SQL: SELECT task.task_id AS task_task_id, task.account_id AS task_account_id, task.category AS task_category, task.due_time AS task_due_time, task.task_name AS task_task_name, task.complete AS task_complete, task.event_id AS task_event_id 
+FROM task 
+WHERE task.account_id = %(account_id_1)s AND date(task.due_time) = %(date_1)s ORDER BY task.due_time ASC]
+[parameters: {'account_id_1': 13, 'date_1': datetime.date(2024, 12, 3)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+2024-12-03 01:34:44,159 ERROR Error in get_task_notifications: (psycopg2.errors.UndefinedColumn) column task.event_id does not exist
+LINE 1: ...S task_task_name, task.complete AS task_complete, task.event...
+                                                             ^
+
+[SQL: SELECT task.task_id AS task_task_id, task.account_id AS task_account_id, task.category AS task_category, task.due_time AS task_due_time, task.task_name AS task_task_name, task.complete AS task_complete, task.event_id AS task_event_id 
+FROM task 
+WHERE task.account_id = %(account_id_1)s AND date(task.due_time) = %(date_1)s ORDER BY task.due_time ASC]
+[parameters: {'account_id_1': 13, 'date_1': datetime.date(2024, 12, 3)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedColumn: column task.event_id does not exist
+LINE 1: ...S task_task_name, task.complete AS task_complete, task.event...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Task.all_tasks_by_due_date(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/task.py", line 85, in all_tasks_by_due_date
+    ).order_by(cls.due_time.asc()).all()
+                                   ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2191, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1422, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 514, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1644, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1850, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1990, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2357, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column task.event_id does not exist
+LINE 1: ...S task_task_name, task.complete AS task_complete, task.event...
+                                                             ^
+
+[SQL: SELECT task.task_id AS task_task_id, task.account_id AS task_account_id, task.category AS task_category, task.due_time AS task_due_time, task.task_name AS task_task_name, task.complete AS task_complete, task.event_id AS task_event_id 
+FROM task 
+WHERE task.account_id = %(account_id_1)s AND date(task.due_time) = %(date_1)s ORDER BY task.due_time ASC]
+[parameters: {'account_id_1': 13, 'date_1': datetime.date(2024, 12, 3)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+2024-12-03 01:34:51,637 ERROR Error in get_task_notifications: (psycopg2.errors.UndefinedColumn) column task.event_id does not exist
+LINE 1: ...S task_task_name, task.complete AS task_complete, task.event...
+                                                             ^
+
+[SQL: SELECT task.task_id AS task_task_id, task.account_id AS task_account_id, task.category AS task_category, task.due_time AS task_due_time, task.task_name AS task_task_name, task.complete AS task_complete, task.event_id AS task_event_id 
+FROM task 
+WHERE task.account_id = %(account_id_1)s AND date(task.due_time) = %(date_1)s ORDER BY task.due_time ASC]
+[parameters: {'account_id_1': 13, 'date_1': datetime.date(2024, 12, 3)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedColumn: column task.event_id does not exist
+LINE 1: ...S task_task_name, task.complete AS task_complete, task.event...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Task.all_tasks_by_due_date(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/task.py", line 85, in all_tasks_by_due_date
+    ).order_by(cls.due_time.asc()).all()
+                                   ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2191, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1422, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 514, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1644, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1850, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1990, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2357, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column task.event_id does not exist
+LINE 1: ...S task_task_name, task.complete AS task_complete, task.event...
+                                                             ^
+
+[SQL: SELECT task.task_id AS task_task_id, task.account_id AS task_account_id, task.category AS task_category, task.due_time AS task_due_time, task.task_name AS task_task_name, task.complete AS task_complete, task.event_id AS task_event_id 
+FROM task 
+WHERE task.account_id = %(account_id_1)s AND date(task.due_time) = %(date_1)s ORDER BY task.due_time ASC]
+[parameters: {'account_id_1': 13, 'date_1': datetime.date(2024, 12, 3)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
+2024-12-03 01:34:51,658 ERROR Error in get_task_notifications: (psycopg2.errors.UndefinedColumn) column task.event_id does not exist
+LINE 1: ...S task_task_name, task.complete AS task_complete, task.event...
+                                                             ^
+
+[SQL: SELECT task.task_id AS task_task_id, task.account_id AS task_account_id, task.category AS task_category, task.due_time AS task_due_time, task.task_name AS task_task_name, task.complete AS task_complete, task.event_id AS task_event_id 
+FROM task 
+WHERE task.account_id = %(account_id_1)s AND date(task.due_time) = %(date_1)s ORDER BY task.due_time ASC]
+[parameters: {'account_id_1': 13, 'date_1': datetime.date(2024, 12, 3)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedColumn: column task.event_id does not exist
+LINE 1: ...S task_task_name, task.complete AS task_complete, task.event...
+                                                             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/srv/app/controllers/taskinboxController.py", line 31, in get_task_notifications
+    tasks_due_today = Task.all_tasks_by_due_date(account_id, today)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/srv/app/models/task.py", line 85, in all_tasks_by_due_date
+    ).order_by(cls.due_time.asc()).all()
+                                   ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2673, in all
+    return self._iter().all()  # type: ignore
+           ^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/query.py", line 2827, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2306, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/session.py", line 2191, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/orm/context.py", line 293, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1422, in execute
+    return meth(
+           ^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/sql/elements.py", line 514, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1644, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1850, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1990, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 2357, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/base.py", line 1971, in _exec_single_context
+    self.dialect.do_execute(
+  File "/usr/local/lib/python3.11/site-packages/sqlalchemy/engine/default.py", line 919, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedColumn) column task.event_id does not exist
+LINE 1: ...S task_task_name, task.complete AS task_complete, task.event...
+                                                             ^
+
+[SQL: SELECT task.task_id AS task_task_id, task.account_id AS task_account_id, task.category AS task_category, task.due_time AS task_due_time, task.task_name AS task_task_name, task.complete AS task_complete, task.event_id AS task_event_id 
+FROM task 
+WHERE task.account_id = %(account_id_1)s AND date(task.due_time) = %(date_1)s ORDER BY task.due_time ASC]
+[parameters: {'account_id_1': 13, 'date_1': datetime.date(2024, 12, 3)}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+
