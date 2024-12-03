@@ -22,8 +22,6 @@ const Tasks = () => {
     const [events, setEvents] = useState([]);
     const [notifications, setNotifications] = useState([]);
 
-
-
     useEffect(() => {
         const fetchTasks = async () => {
             try {
@@ -246,21 +244,31 @@ const Tasks = () => {
 
     const handleCompleteTask = async () => {
         if (!selectedTask) return;
-            try {
-                await axios.post(`${baseUrl}/task/complete/${selectedTask.task_id}`, {withCredentials:true});
-    
-                const completedTasks = await axios.get(`${baseUrl}/task/sorted`, {withCredentials:true});
+        try {
+            if (selectedTask.complete) {
+                const response = await axios.post(`${baseUrl}/task/cancel_complete/${selectedTask.task_id}`, { withCredentials: true });
+                console.log('Task uncompleted:', response.data);
+                setSelectedTask(prevState => ({
+                    ...prevState,
+                    complete: false,
+                }));
+                window.alert('Cancelled marking task as completed!');
+            } else {
+                await axios.post(`${baseUrl}/task/complete/${selectedTask.task_id}`, { withCredentials: true });
+                const completedTasks = await axios.get(`${baseUrl}/task/sorted`, { withCredentials: true });
                 setTasks(completedTasks.data);
                 setSelectedTask(prevState => ({
                     ...prevState,
                     complete: true,
                 }));
                 window.alert('Task marked as completed!');
-            } catch (err) {
-                console.error('Error completing task:', err);
-                setError('Failed to complete task.');
             }
+        } catch (err) {
+            console.error('Error handling task completion:', err);
+            setError('Failed to update task status.');
+        }
     };
+    
 
     return (
         <div className="split-screen-container">
@@ -493,8 +501,7 @@ const Tasks = () => {
                             <h2>{selectedTask.task_name}</h2>
                             <button
                                 className={`complete-task-button ${selectedTask?.complete ? 'completed' : ''}`}
-                                onClick={!selectedTask?.complete ? handleCompleteTask : null}
-                                disabled={selectedTask?.complete}
+                                onClick={handleCompleteTask}
                             >
                                 <FontAwesomeIcon icon={faCheck} />
                             </button>
