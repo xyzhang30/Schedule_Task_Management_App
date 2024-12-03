@@ -111,7 +111,9 @@ def create_event(id):
 @bp.route('/deleteEvent/<int:event_id>', methods=['DELETE'])
 @is_logged_in
 def delete_event(event_id):
-    """Delete an event by event ID."""
+    '''
+    Delete an event by event ID.
+    '''
     account_id = session.get('user')
     if not account_id:
         return jsonify({'message': 'User not logged in'}), 401
@@ -135,7 +137,8 @@ def delete_event(event_id):
 @bp.route('/getEvent/<int:event_id>', methods=['GET'])
 @is_logged_in
 def get_event(event_id):
-    """Retrieve an event by its ID.
+    """
+    Retrieve an event by its ID.
     :param event_id: ID of the event to retrieve
     :return: JSON response with event data
     """
@@ -149,7 +152,8 @@ def get_event(event_id):
 @bp.route('/getEventsByAccount', methods=['GET'])
 @is_logged_in
 def get_events_by_account():
-    """Retrieve all events for the logged-in user.
+    """
+    Retrieve all events for the logged-in user.
     :return: JSON response with list of events
     """
     account_id = session.get('user')
@@ -159,23 +163,22 @@ def get_events_by_account():
     include_past = request.args.get('include_past', 'false').lower() == 'true'
 
     if include_past:
-        # Include all events
         events = Event.get_events_by_account(account_id)
     else:
-        # Only events from today onwards
-        today = datetime.now().date() - timedelta(days=1)
+        today = datetime.now().date()
         events = Event.get_future_events_by_account(account_id, today)
 
     events_list = [event.to_dict() for event in events]
     return jsonify({'events': events_list}), 200
 
-# Category Endpoints
+
 
 # Get all categories
 @bp.route('/category/all', methods=['GET'])
 @is_logged_in
 def getAllCategory():
-    """Retrieve all event categories.
+    """
+    Retrieve all event categories.
     :return: JSON response with list of categories
     """
     categories = EventCategory.all()
@@ -186,7 +189,8 @@ def getAllCategory():
 @bp.route('/category/create', methods=['POST'])
 @is_logged_in
 def createCategory():
-    """Create a new event category.
+    """
+    Create a new event category.
     :return: JSON response with success message
     """
     data = request.json
@@ -207,7 +211,8 @@ def createCategory():
 @bp.route('/category/clean', methods=['DELETE'])
 @is_logged_in
 def clean_unused_categories():
-    """Delete all unused event categories.
+    """
+    Delete all unused event categories.
     :return: JSON response with success message
     """
     try:
@@ -228,6 +233,10 @@ def clean_unused_categories():
 @bp.route('/updateEvent/<int:event_id>', methods=['PUT'])
 @is_logged_in
 def update_event(event_id):
+    '''
+    update the event with the given event id 
+    param: event_id
+    '''
     try:
         account_id = session.get('user')
         event = Event.get_event(event_id)
@@ -238,13 +247,9 @@ def update_event(event_id):
 
         data = request.json
 
-        # Check if event is part of a series
+        
         if event.series_id and event.event_id != event.series_id:
-            # Not allowed to update individual occurrences except for deletion
             return jsonify({'message': 'Cannot update individual occurrences of a recurring event. Please update the original event.'}), 400
-
-        # Update the original event
-        # Update event fields
         event.name = data.get('name', event.name)
         event.location = data.get('location', event.location)
         if 'start_date' in data:

@@ -89,6 +89,9 @@ def change_major():
 @bp.route('change_avatar', methods = ['POST'])
 @is_logged_in
 def change_avatar():
+    '''
+    changes the current user's avatar
+    '''
     file = request.files.get('new_avatar')
     account = Account.get_acc_by_id(session['user'])
     username = account.username
@@ -97,13 +100,6 @@ def change_avatar():
     if not filename:
         response_message = {'msg': f'Please upload a file with one of the following extensions: {uploadParameters["ALLOWED_EXTENSIONS"]}'}
         status_code = 401
-    # elif prev_avatar != 'default.jpg':
-    #     delete_file(prev_avatar)
-    #     upload_file(file, filename)
-    #     account.avatar = "/srv/app/avatars/" + filename
-    #     account.save()
-    #     response_message = {'msg': 'Avatar successfuly changed'}
-    #     status_code = 201
     else: 
         upload_file(file, filename)
         account.avatar = "/srv/app/avatars/" + filename
@@ -116,6 +112,9 @@ def change_avatar():
 @bp.route('/get_username', methods = ['GET'])
 @is_logged_in
 def get_username():
+    '''
+    Fetches the current user's username
+    '''
     account = Account.get_acc_by_id(session['user'])
     username = account.username
     response_message = {'username': username}
@@ -125,6 +124,9 @@ def get_username():
 @bp.route('/get_phone_number', methods = ['GET'])
 @is_logged_in
 def get_phone_number():
+    '''
+    Fetches the current user's phone number
+    '''
     account = Account.get_acc_by_id(session['user'])
     phone_number = account.phone
     response_message = {'phone_number': phone_number}
@@ -134,6 +136,9 @@ def get_phone_number():
 @bp.route('/get_year', methods = ['GET'])
 @is_logged_in
 def get_year_created():
+    '''
+    Fetches the year the current user's account is created
+    '''
     account = Account.get_acc_by_id(session['user'])
     year_created = account.year_created
     response_message = {'year_created': year_created}
@@ -142,6 +147,9 @@ def get_year_created():
 
 @bp.route('/', methods = ['GET'])
 def index():
+    '''
+    returns all users except the current user
+    '''
     logged_in_user = session['user']
     account = Account.all_except_self(logged_in_user)
     accounts_list = [a.to_dict() for a in account]
@@ -150,6 +158,9 @@ def index():
 
 @bp.route('/create', methods = ['POST'])
 def createAccount():
+    '''
+    creates a new account and post it to the database
+    '''
     username = request.form.get("username")
     password = request.form.get("password")
     email = request.form.get("email")
@@ -171,10 +182,16 @@ def createAccount():
 @bp.route('/current-user', methods=['GET'])
 @is_logged_in
 def get_current_user():
+    '''
+    get the current user's user id
+    '''
     return session['user']
 
 @bp.route('/name-by-id/<id>', methods=['GET'])
 def get_username_by_id(id):
+    '''
+    get a user's username by their user id
+    '''
     acc = Account.get_acc_by_id(id)
     username = acc.username
     return username
@@ -182,6 +199,9 @@ def get_username_by_id(id):
 @bp.route('<int:id>/get_avatar', methods = ['GET'])
 @is_logged_in
 def get_avatar_by_id(id):
+    '''
+    get a user's avatar by their user id
+    '''
     account = Account.get_acc_by_id(id)
     file_path = account.avatar
     file_name = get_file_name(file_path)
@@ -190,6 +210,9 @@ def get_avatar_by_id(id):
 @bp.route('/get_avatar', methods = ['GET'])
 @is_logged_in
 def get_avatar():
+    '''
+    gets the current user's avatar
+    '''
     account = Account.get_acc_by_id(session['user'])
     file_path = account.avatar
     file_name = get_file_name(file_path)
@@ -198,6 +221,9 @@ def get_avatar():
 @bp.route('/get_major', methods = ['GET'])
 @is_logged_in
 def get_major():
+    '''
+    gets the current user's major
+    '''
     account = Account.get_acc_by_id(session['user'])
     major = account.major
     response_message = {'major': major}
@@ -206,5 +232,8 @@ def get_major():
 
 #Helper Functions
 def get_file_name(file_path):
+    '''
+    returns the file name from the provided filepath
+    '''
     file_name = os.path.basename(file_path)
     return file_name

@@ -42,11 +42,16 @@ def get_tasks_grouped_by_date():
     '''
     account_id = session['user']
     map = Task.get_tasks_by_account_dic(account_id)
+    today = datetime.today().date()
     
     tasks_dict = {}
     for date, tasks in map.items():
-        uncompleted_tasks = [task for task in tasks if not task.complete]
-        completed_tasks = [task for task in tasks if task.complete]
+        filtered_tasks = [
+            task for task in tasks if not (task.complete and task.due_time.date() < today)
+        ]
+        print(filtered_tasks)
+        uncompleted_tasks = [task for task in filtered_tasks if not task.complete]
+        completed_tasks = [task for task in filtered_tasks if task.complete]
         uncompleted_tasks.sort(key=lambda task: task.due_time)
         completed_tasks.sort(key=lambda task: task.due_time)
         sorted_tasks = uncompleted_tasks + completed_tasks

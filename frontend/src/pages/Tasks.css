@@ -131,14 +131,19 @@
     background-color: #a4ac86;
     color: white;
     border: none;
-    padding: 5px; 
+    padding: 5px;
     border-radius: 5px;
     cursor: pointer;
-    font-size: 1rem; 
+    font-size: 1rem;
 }
 
 .complete-task-button:hover {
+    background-color: #606c38; 
+}
+
+.complete-task-button.completed {
     background-color: #606c38;
+    cursor: not-allowed;
 }
 
 .category-controls {
@@ -202,3 +207,31 @@
     display: flex;
     gap: 10px;
 }
+
+.filter-group {
+    display: flex; 
+    align-items: center; 
+    gap: 10px;
+    margin-left: 20px;
+  }
+  
+.filter-group label {
+    font-weight: bold; 
+    color: #495057; 
+    margin-bottom: 1px;
+}
+  
+.filter-group select {
+    padding: 10px 12px; 
+    border-radius: 30px; 
+    border: 1px solid #ced4da; 
+    font-size: 1rem; 
+    color: #495057; 
+    outline: none; 
+    transition: border-color 0.3s ease; 
+}
+  
+.filter-group select:focus {
+    border-color: #606c38;
+}
+  

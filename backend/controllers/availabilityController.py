@@ -11,6 +11,10 @@ bp = Blueprint('availability', __name__, url_prefix='/availability')
 @bp.route('/generate', methods = ['POST'])
 @is_logged_in
 def generate_availability():
+    '''
+    generate and returns the shared available timeslots of all participants
+    on a specified time range, and always including the current user
+    '''
     date_input = request.form.get("date")
     start_time_input = request.form.get("start_time")
     end_time_input = request.form.get("end_time")
@@ -26,18 +30,10 @@ def generate_availability():
     start = datetime.combine(date, start_time)
     end = datetime.combine(date, end_time)
 
-    print("___________________________")
-    print("start: ", start, " ", type(start))
-    print("end: ", end, " ", type(end))
-    print("participants: ", participants)
-
     unavailable_times = get_unavailable_times(start, end, participants)
-    print("unavailable: ", unavailable_times)
     merged_unavailable_times = merge_unavailable_intervals(unavailable_times)
-    print("merged: ", merged_unavailable_times)
     curr_time = start
     shared_availability = get_shared_availability(curr_time, end, merged_unavailable_times)
-    print("available: ", shared_availability)
 
     # result = [{"start_time": str(start), "end_time": str(end)} for start, end in shared_availability]
     result = [
@@ -47,14 +43,16 @@ def generate_availability():
         }
         for start, end in shared_availability
     ]
-    print("result: ", result)
 
     return jsonify(result)
 
 
 
-
+# private helper methods
 def get_unavailable_times(start, end, participants):
+    '''
+    gets all users' unavailable timeslots according to their events between the given time range
+    '''
     unavailable_times = [] 
 
     for id in participants:
@@ -80,6 +78,9 @@ def get_unavailable_times(start, end, participants):
 
 
 def merge_unavailable_intervals(unavailable_times):
+    '''
+    merges the unavailable timeslots generated from the previous method, getting rid of overlaps
+    '''
     merged_unavailable_times = []
 
     for curr_start, curr_end in unavailable_times:
@@ -99,6 +100,9 @@ def merge_unavailable_intervals(unavailable_times):
 
 
 def get_shared_availability(curr_time, end_time, merged_unavailable_times):
+    '''
+    finds the share available timeslots according to the unavailable timeslots generated from the previous method
+    '''
     shared_availability = []
 
     for unavailable_start, unavailable_end in merged_unavailable_times:
@@ -110,27 +114,3 @@ def get_shared_availability(curr_time, end_time, merged_unavailable_times):
         shared_availability.append((curr_time, end_time))
 
     return shared_availability
-
-
-
-
-# @bp.route('/', methods = ['GET'])
-# def index():
-#     availability = Availability.query.all()
-#     availability_list = [a.to_dict() for a in availability]
-#     return jsonify(availability_list)
-
-
-# @bp.route('/addInterval', methods = ['POST'])
-# def addAvailability():
-#     account_id = request.form.get("account_id")
-#     unav_interval = request.form.get("unav_interval")
-#     full_date = request.form.get("full_date")
-
-#     availability = Availability(
-#         account_id=account_id,
-#         unav_interval=unav_interval,
-#         full_date=full_date,
-#         )
-#     availability.save()
-#     return index()
