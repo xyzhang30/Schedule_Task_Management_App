@@ -10,7 +10,6 @@ class Group(Base):
 	# group_avatar = Column(String(255), unique=False)
 	year_created = Column(Integer, unique=False)
 	admin_id = Column(Integer, ForeignKey('accounts.account_id'), unique=False, nullable=False)
-	# description = Column(String(2000), nullable=False)
 
 
 	def __repr__(self):

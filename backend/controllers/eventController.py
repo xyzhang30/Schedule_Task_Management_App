@@ -4,7 +4,6 @@ from ..models.notifications import Notifications
 from datetime import datetime, timedelta
 import logging
 from ..decorators import is_logged_in
-from ..db import db_session
 
 logger = logging.getLogger(__name__)
 handler = logging.FileHandler('event_controller.log')
@@ -17,13 +16,22 @@ logging.basicConfig(level=logging.DEBUG)
 
 bp = Blueprint('event', __name__, url_prefix='/event')
 
+@bp.route('/createEventNotSelf/<int:account_id>', methods=['POST'])
+@is_logged_in 
+def create_event_for_other(account_id):
+    return create_event(account_id)
+
 # Create Event
 @bp.route('/createEvent', methods=['POST'])
 @is_logged_in
-def create_event():
+def create_event_for_self():
+    return create_event(session.get('user'))
+
+
+def create_event(id):
     try:
         data = request.json
-        account_id = session.get('user')
+        account_id = id
         frequency = data.get('frequency')
         repeat_until_str = data.get('repeat_until')
         start_date = datetime.strptime(data['start_date'], '%Y-%m-%dT%H:%M')
@@ -103,7 +111,9 @@ def create_event():
 @bp.route('/deleteEvent/<int:event_id>', methods=['DELETE'])
 @is_logged_in
 def delete_event(event_id):
-    """Delete an event by event ID."""
+    '''
+    Delete an event by event ID.
+    '''
     account_id = session.get('user')
     if not account_id:
         return jsonify({'message': 'User not logged in'}), 401
@@ -127,7 +137,8 @@ def delete_event(event_id):
 @bp.route('/getEvent/<int:event_id>', methods=['GET'])
 @is_logged_in
 def get_event(event_id):
-    """Retrieve an event by its ID.
+    """
+    Retrieve an event by its ID.
     :param event_id: ID of the event to retrieve
     :return: JSON response with event data
     """
@@ -141,7 +152,8 @@ def get_event(event_id):
 @bp.route('/getEventsByAccount', methods=['GET'])
 @is_logged_in
 def get_events_by_account():
-    """Retrieve all events for the logged-in user.
+    """
+    Retrieve all events for the logged-in user.
     :return: JSON response with list of events
     """
     account_id = session.get('user')
@@ -153,7 +165,7 @@ def get_events_by_account():
     if include_past:
         events = Event.get_events_by_account(account_id)
     else:
-        today = datetime.now().date()
+        today = datetime.now().date() - timedelta(days=1)
         events = Event.get_future_events_by_account(account_id, today)
 
     events_list = [event.to_dict() for event in events]
@@ -165,7 +177,8 @@ def get_events_by_account():
 @bp.route('/category/all', methods=['GET'])
 @is_logged_in
 def getAllCategory():
-    """Retrieve all event categories.
+    """
+    Retrieve all event categories.
     :return: JSON response with list of categories
     """
     categories = EventCategory.all()
@@ -176,7 +189,8 @@ def getAllCategory():
 @bp.route('/category/create', methods=['POST'])
 @is_logged_in
 def createCategory():
-    """Create a new event category.
+    """
+    Create a new event category.
     :return: JSON response with success message
     """
     data = request.json
@@ -197,7 +211,8 @@ def createCategory():
 @bp.route('/category/clean', methods=['DELETE'])
 @is_logged_in
 def clean_unused_categories():
-    """Delete all unused event categories.
+    """
+    Delete all unused event categories.
     :return: JSON response with success message
     """
     try:
@@ -218,6 +233,10 @@ def clean_unused_categories():
 @bp.route('/updateEvent/<int:event_id>', methods=['PUT'])
 @is_logged_in
 def update_event(event_id):
+    '''
+    update the event with the given event id 
+    param: event_id
+    '''
     try:
         account_id = session.get('user')
         event = Event.get_event(event_id)

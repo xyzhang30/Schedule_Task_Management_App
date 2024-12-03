@@ -35,7 +35,7 @@ const ChangePassword = () => {
   };
 
   return (
-    <div>
+    <div className='edit-profile-pages'>
       <h2>Change Password</h2>
       <form onSubmit={handleSubmit}>
         <div>
