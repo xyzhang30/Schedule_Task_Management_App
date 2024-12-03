@@ -8,8 +8,8 @@
   .input-group label {
     color: #333;
     font-weight: 500;
-    text-align: left; /* Changed from text-align: right to left */
-    min-width: 120px; /* Increased width to accommodate left alignment */
+    text-align: left; 
+    min-width: 120px; 
   }
   
   .input-group input[type="date"],
@@ -38,22 +38,8 @@
     margin-bottom: 10px;
     color: #333;
     font-weight: 500;
-    text-align: left; /* Ensure left alignment for section label */
+    text-align: left; 
   }
-  
-  /* .participants {
-    /* display: flex; */
-    /* flex-wrap: wrap; */
-    /* gap: 10px; */
-    /* align-items: flex-start;  */
-/* } */
-  /* .participant-item {
-    background-color: #e6f2ff;
-    border-radius: 4px;
-    align-items: center;
-    gap: 5px;
-    font-size: 14px;
-  } */
 
   .friend-item p {
     margin-bottom: 0;
@@ -104,7 +90,7 @@
   
   .availability-display {
     margin-top: 15px;
-    text-align: left; /* Changed from center to left */
+    text-align: left; 
     color: #666;
     font-style: italic;
   }
@@ -112,7 +98,7 @@
   @media (max-width: 768px) {
     .input-group {
       flex-direction: column;
-      align-items: flex-start; /* Align to start for mobile */
+      align-items: flex-start; 
     }
   
     .input-group label {
@@ -122,6 +108,6 @@
   
     .participants {
       flex-direction: column;
-      align-items: flex-start; /* Align to start for mobile */
+      align-items: flex-start; 
     }
 }

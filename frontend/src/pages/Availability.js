@@ -30,7 +30,7 @@ const FindSharedAvailability = () => {
   const [participants, setParticipants] = useState([]);
   const [showAddParticipantsPopup, setShowAddParticipantsPopup] = useState(false);
   const [friends, setFriends] = useState([]);
-  const [loading, setLoading] = useState(false); // Set initial loading to false
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [availability, setAvailability] = useState(null);
   const [appointments, setAppointments] = useState([]);
@@ -56,6 +56,7 @@ const FindSharedAvailability = () => {
   const handleTimeToChange = (e) => setTimeTo(e.target.value);
 
   useEffect(() => {
+    // load friend list (for adding participants), categories for event creation and current user info when component mounts
     fetchFriends();
     fetchCategories();
     setCurrUserInfo();
@@ -96,6 +97,8 @@ const FindSharedAvailability = () => {
     }
   };
 
+
+  // function to post time range and participants to API to generate shared availability
   const handleSubmit = async () => {
     if (!date || !timeFrom || !timeTo || participants.length < 1) {
       alert('Please fill in all fields and add participants.');
