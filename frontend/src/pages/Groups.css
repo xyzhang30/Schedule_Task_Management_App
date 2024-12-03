@@ -66,6 +66,7 @@ button.dots {
 /* Radio Button & Modal Content for create + edit event */
 .modal-content input[type="text"],
 .modal-content input[type="datetime-local"],
+.modal-content input[type="date"],
 .modal-content select{
   width: 100%;
   padding: 10px;
@@ -261,4 +262,25 @@ button.dots {
     display: flex;
     justify-content: space-between;
     padding-top: 20px;
+}
+
+/* My Pending Request Modal */
+.request-list {
+    margin-top: 15px;
+}
+
+.request-card {
+    background-color: #e9ede6;
+    padding: 15px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    margin-bottom: 15px;
+}
+
+.request-card button {
+    padding: 6px 12px;
+    border-radius: 5px;
+    margin-right: 15px;
+    cursor: pointer;
+    border: none;
+    font-size: 0.9rem;
 }

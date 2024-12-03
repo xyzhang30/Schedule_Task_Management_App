@@ -93,14 +93,20 @@ def declineRequest(request_id):
 @is_logged_in
 def showOutRequests():
     """
-    Fetch and return a list of group join requests sent by the current user.
+    Fetch and return a list of group join requests sent by the current user, including the group name.
 
     :return: JSON response with a list of sent group requests or an empty list if no requests are found
     """
     user_id = session.get('user')
 
     out_requests = Notifications.get_notifications_by_acc_send(user_id, "group")
-    out_requests_dict = [request.to_dict() for request in out_requests]
+
+    out_requests_dict = []
+    for request in out_requests:
+        request_dict = request.to_dict()
+        group = Group.get_grp_by_id(request.group_id)
+        request_dict['group_name'] = group.group_name
+        out_requests_dict.append(request_dict)
 
     return jsonify(out_requests_dict), 200
 
@@ -109,14 +115,22 @@ def showOutRequests():
 @is_logged_in
 def showInRequests():
     """
-    Fetch and return a list of group join requests received by the current user.
+    Fetch and return a list of group join requests received by the current user, including the group name.
 
     :return: JSON response with a list of received group requests or an empty list if no requests are found
     """
     user_id = session.get('user')
 
     in_requests = Notifications.get_notifications_by_acc_recv(user_id, "group")
-    in_requests_dict = [request.to_dict() for request in in_requests]
+
+    in_requests_dict = []
+    for request in in_requests:
+        request_dict = request.to_dict()
+        group = Group.get_grp_by_id(request.group_id)
+        request_dict['group_name'] = group.group_name
+        account = Account.get_acc_by_id(request.account_id_from)
+        request_dict['account_name_from'] = account.username
+        in_requests_dict.append(request_dict)
 
     return jsonify(in_requests_dict), 200
 
@@ -125,7 +139,7 @@ def showInRequests():
 @is_logged_in
 def getGrpRequest(group_id):
     """
-    Fetch and return the latest group join request sent by the current user to the specified group.
+    Fetch and return the latest group join request sent by the current user to the specified group, including the group name.
     If there are mutliple group join requests sent, only the LATEST one will be fetched and returned.
 
     :param group_id: ID of the group to fetch the request for
@@ -137,8 +151,12 @@ def getGrpRequest(group_id):
 
     if not grp_request:
         return jsonify({'message': 'No group request sent by this user to this group'}), 204
+    
+    grp_request_dict = grp_request.to_dict()
+    group = Group.get_grp_by_id(group_id)
+    grp_request_dict['group_name'] = group.group_name
 
-    return jsonify(grp_request.to_dict()), 200
+    return jsonify(grp_request_dict), 200
 
 
 def groupAdminError(group_id):

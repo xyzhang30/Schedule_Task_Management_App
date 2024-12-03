@@ -23,7 +23,6 @@ const GroupIndex = () => {
 
     const [viewPendingRequest, setViewPendingRequest] = useState(false);
     const [pendingRequest, setPendingRequest] = useState(null);
-    const [pendingGroup, setPendingGroup] = useState(null);
 
     const [selectedAdmin, setSelectedAdmin] = useState(null);
 
@@ -138,17 +137,6 @@ const GroupIndex = () => {
         }
     };
 
-    // Handle Sent Request
-    const handleViewRequest = async () => {
-        try {
-            const group = groups.find(g => g.group_id === pendingRequest.group_id);
-            setPendingGroup(group);
-            setViewPendingRequest(true);
-        } catch (err) {
-            console.error('Failed to find group:', err);
-        }
-    };
-
     return(
         <div className="split-screen-container">
             <div className="split-screen-content">
@@ -203,7 +191,7 @@ const GroupIndex = () => {
                                     )}
                                     {pendingRequest && (
                                         <>
-                                            <button className="button view-button" onClick={handleViewRequest}>
+                                            <button className="button view-button" onClick={() => setViewPendingRequest(true)}>
                                                 <FontAwesomeIcon icon={faRotateRight} /> Request Pending
                                             </button>
                                         </>
@@ -247,7 +235,7 @@ const GroupIndex = () => {
                         <div className="modal-content">
                             <h2>Pending Request</h2>
                             <div key={pendingRequest.request_id} className="request-card">
-                                <p>To group: {pendingGroup.group_name}</p>
+                                <p>To group: {pendingRequest.group_name}</p>
                                 <p>Message: {pendingRequest.message}</p>
                                 <p>Created at: {pendingRequest.created_at}</p>
                             </div>
