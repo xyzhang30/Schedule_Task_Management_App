@@ -357,12 +357,10 @@ const Posts = () => {
     <div className="split-screen-container">
       <div className="split-screen-content">
       <div className="split-screen-filter-container">
-        
           <h2>Posts</h2>
           <div className="button-group">
           <button className="button" onClick={openAddPostModal}>Add Post</button>
           </div>
-      
       </div>
 
       <div className="split-screen-left">
@@ -370,20 +368,22 @@ const Posts = () => {
           {loading ? (
             <p>Loading posts...</p>
           ) : posts.length > 0 ? (
-            posts.map((post, index) => (
-              <div key={index} className="post-item">
-                <h3 onClick={() => handlePostClick(post.post_id)}>{post.title}</h3>
-                <p className="post-poster-name">By: {post.poster_name}</p>
-                <p>{post.content ? post.content.slice(0, 100) : "No content available"}...</p>
+            [...posts]
+              .sort((a, b) => new Date(b.date_posted) - new Date(a.date_posted))
+              .map((post, index) => (
+                <div key={index} className="post-item">
+                  <h3 onClick={() => handlePostClick(post.post_id)}>{post.title}</h3>
+                  <p className="post-poster-name">By: {post.poster_name}</p>
+                  <p>{post.content ? post.content.slice(0, 100) : "No content available"}...</p>
 
-                <button onClick={() => handleToggleLike(post.post_id)}>
-                  {post.isLiked ? "Unlike" : "Like"}
-                </button>
-                <button onClick={() => handleToggleSave(post.post_id)}>
-                  {post.isSaved ? "Unsave" : "Save"}
-                </button>
-              </div>
-            ))
+                  <button onClick={() => handleToggleLike(post.post_id)}>
+                    {post.isLiked ? "Unlike" : "Like"}
+                  </button>
+                  <button onClick={() => handleToggleSave(post.post_id)}>
+                    {post.isSaved ? "Unsave" : "Save"}
+                  </button>
+                </div>
+              ))
           ) : (
             <p>No posts available.</p>
           )}

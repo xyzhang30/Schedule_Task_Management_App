@@ -151,17 +151,15 @@ def get_events_by_account():
     include_past = request.args.get('include_past', 'false').lower() == 'true'
 
     if include_past:
-        # Include all events
         events = Event.get_events_by_account(account_id)
     else:
-        # Only events from today onwards
-        today = datetime.now().date() - timedelta(days=1)
+        today = datetime.now().date()
         events = Event.get_future_events_by_account(account_id, today)
 
     events_list = [event.to_dict() for event in events]
     return jsonify({'events': events_list}), 200
 
-# Category Endpoints
+
 
 # Get all categories
 @bp.route('/category/all', methods=['GET'])
@@ -230,13 +228,9 @@ def update_event(event_id):
 
         data = request.json
 
-        # Check if event is part of a series
+        
         if event.series_id and event.event_id != event.series_id:
-            # Not allowed to update individual occurrences except for deletion
             return jsonify({'message': 'Cannot update individual occurrences of a recurring event. Please update the original event.'}), 400
-
-        # Update the original event
-        # Update event fields
         event.name = data.get('name', event.name)
         event.location = data.get('location', event.location)
         if 'start_date' in data:
