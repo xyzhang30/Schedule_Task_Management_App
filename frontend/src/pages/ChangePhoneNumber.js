@@ -31,7 +31,7 @@ const ChangePhoneNumber = () => {
   };
 
   return (
-    <div>
+    <div className='edit-profile-pages'>
       <h2>Change Phone Number</h2>
       <form onSubmit={handleSubmit}>
         <div>

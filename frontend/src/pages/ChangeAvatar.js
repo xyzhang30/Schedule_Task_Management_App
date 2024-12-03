@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import './EditProfileButtonPages.css'
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
@@ -46,7 +47,7 @@ const ChangeAvatar = () => {
   };
 
   return (
-    <div>
+    <div className='edit-profile-pages'>
       <h2>Change Avatar</h2>
       <form onSubmit={handleSubmit}>
         <div>

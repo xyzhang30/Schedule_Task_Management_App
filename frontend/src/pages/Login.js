@@ -38,7 +38,7 @@ const Login = () => {
   };
 
   return (
-    <div>
+    <div className='edit-profile-pages'>
       <h2>Login</h2>
       <form onSubmit={handleSubmit}>
         <div>

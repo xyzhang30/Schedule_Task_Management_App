@@ -61,7 +61,7 @@ def register():
         
     if user_inputted_avatar: 
         #Checks the user input if they have submitted data in the profile_picture field
-        filename = create_file_name(user_inputted_avatar, user_inputted_username)
+        filename = create_file_name(user_inputted_username, user_inputted_avatar)
     else:
         filename = 'default.jpg'
 

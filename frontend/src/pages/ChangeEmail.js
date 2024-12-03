@@ -36,7 +36,7 @@ const ChangeEmail = () => {
   };
 
   return (
-    <div>
+    <div className='edit-profile-pages'>
       <h2>Change Email</h2>
       <form onSubmit={handleSubmit}>
         <div>
