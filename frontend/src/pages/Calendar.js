@@ -279,8 +279,6 @@ const Calendar = () => {
       handleDelete(event.event_id);
     };
 
-    
-
     return (
       <Appointments.Appointment
         {...restProps}
