@@ -66,7 +66,7 @@ Table_creation = '''
         task_id SERIAL PRIMARY KEY,
         account_id INTEGER REFERENCES accounts(account_id),
         due_time TIMESTAMP NOT NULL,
-        task_name VARCHAR(20) NOT NULL,
+        task_name VARCHAR(200) NOT NULL,
         category VARCHAR(100),
         complete BOOLEAN DEFAULT false,
         event_id INTEGER REFERENCES events(event_id)
@@ -223,7 +223,7 @@ for category in event_categories:
         ON CONFLICT (category_name) DO NOTHING
     ''', (category,))
 print("Event categories test data generated")
-num_events = 20  
+num_events = 20
 for _ in range(num_events):
     event_name = faker.sentence(nb_words=3).rstrip('.')
     event_location = faker.city()
@@ -283,30 +283,86 @@ print(f"{num_events} Events test data generated")
 
 
 # tasks test data
-for _ in range (30):
-    due_time = faker.date_time_this_year() 
-    task_name = faker.word()
-    category = random.choice(['club', 'personal', 'school', 'work'])
-    complete = random.choice([True, False])
-    account_id = random.randint(1, 5)
-    event_id = random.randint(1, 3)
+task_categories = ['club', 'personal', 'assignment', 'housework']
+start_date = datetime(2024, 10, 28)
+end_date = datetime(2025, 1, 1)
+tasks = {
+    'club': [
+        'Organize Club Meeting', 'Plan Club Event', 'Recruit New Members', 
+        'Design Club Flyers', 'Host Club Social', 'Book Club Venue', 
+        'Coordinate Club Fundraiser', 'Arrange Club Trip', 'Prepare Club Newsletter', 
+        'Organize Club Elections'
+    ],
+    'personal': [
+        'Go for a Run', 'Backup Phone Data', 'Learn a New Skill', 
+        'Book a Spa Day', 'Write a Daily Journal Entry', 'Plan a Vacation', 
+        'Write a Letter to a Friend', 'Try a New Recipe', 'Do a Puzzle', 
+        'Take a Photography Walk'
+    ],
+    'assignment': [
+        'Complete Math Homework', 'Write History Essay', 'Study for Final', 
+        'Prepare Presentation', 'Research for Project', 'Complete Lab Report', 
+        'Review Notes', 'Practice Coding', 'Finish Reading Assignment', 'Complete Group Work'
+    ],
+    'housework': [
+        'Clean Kitchen', 'Wash Dishes', 'Vacuum Living Room', 'Mop Floors', 
+        'Do Laundry', 'Take Out Trash', 'Clean Bathroom', 'Organize Closet', 
+        'Water Plants', 'Clean Windows'
+    ]
+}
+for account in range(1, 6):
+    #categories
+    for category in task_categories:
+        cursor.execute('''
+            INSERT INTO task_category (account_id, category_name)
+            VALUES (%s, %s)
+            ON CONFLICT (account_id, category_name) DO NOTHING
+        ''', (account, category))
+    #tasks
+    for _ in range (20):
+        random_date = faker.date_between(start_date=start_date, end_date=end_date)
+        random_hour = random.randint(9, 23) 
+        random_minute = random.choice([0, 30, 59])
+        due_time = datetime(
+            year=random_date.year,
+            month=random_date.month,
+            day=random_date.day,
+            hour=random_hour,
+            minute=random_minute
+        )
+        due_time = faker.date_time_between(start_date=start_date, end_date=end_date)
+        category = random.choice(task_categories)
+        task_name = random.choice(tasks[category])
+        complete = random.choice([True, False])
+        account_id = account
+        event_id = random.randint(1, 10)
 
-    cursor.execute('''
-        INSERT INTO task (due_time, task_name, category, complete)
-        VALUES (%s, %s, %s, %s)
-    ''', (due_time, task_name, category, complete))
+        cursor.execute('''
+            INSERT INTO task (due_time, task_name, category, complete, account_id, event_id)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        ''', (due_time, task_name, category, complete, account_id, event_id))
 print("Tasks test data generated")
 
 
 #studytime test data
-for i in range (1, 6):
-    account_id = i
-    date = '2024-11-12'
-    study_time = '02:25:43'
+today = datetime.today()
+start_of_week = today - timedelta(days=today.weekday())
+this_week = [start_of_week + timedelta(days=i) for i in range(7)]
 
-    cursor.execute('''
-        INSERT INTO studytime (account_id, date, study_time)
-        VALUES (%s, %s, %s)
+for account in range(1, 6):
+    account_id = account
+    print(f"Account {account_id}:")
+    for date in this_week:
+        hours = random.randint(0, 14)
+        minutes = random.randint(0, 59)
+        seconds = random.randint(0, 59) 
+        date_str = date.strftime('%Y-%m-%d')
+        study_time = f"{hours:02}:{minutes:02}:{seconds:02}"
+        print(f"  Date: {date_str}, Study Time: {study_time}")
+
+        cursor.execute('''
+            INSERT INTO studytime (account_id, date, study_time)
+            VALUES (%s, %s, %s)
     ''', (account_id, date, study_time))
 print("Studytime test data generated")
 
