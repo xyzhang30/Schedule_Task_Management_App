@@ -370,8 +370,9 @@ const Calendar = () => {
             onCurrentDateChange={setCurrentDate}
           />
           <EditingState onCommitChanges={handleCommitChanges} />
-          <DayView startDayHour={8} endDayHour={24} />
           <WeekView startDayHour={0} endDayHour={24} />
+          <DayView startDayHour={8} endDayHour={24} />
+          
           <MonthView />
           <AllDayPanel />
           <Appointments appointmentComponent={Appointment} />
