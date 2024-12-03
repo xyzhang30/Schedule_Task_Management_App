@@ -2,10 +2,6 @@ import os
 from flask import Flask
 from flask_cors import CORS
 from flask_mail import Mail
-<<<<<<< Updated upstream
-=======
-from app.controllers import accountController, availabilityController, friendController, groupController, taskController, postController, authController, friendRequestController, eventController, studyTimeController, groupRequestController, eventinboxController, taskinboxController, spotifyController
->>>>>>> Stashed changes
 from .db import init_db
 
 mail = Mail() #create mail instance for importing
@@ -26,18 +22,8 @@ def create_app(test_config=None):
     app.config['POST_IMAGE_PARAMETERS'] = postImageParameters
 
     mail.init_app(app)
-<<<<<<< Updated upstream
     CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000"]}})
 
-=======
-    CORS(app, supports_credentials=True, resources={
-        r"/*": {
-            "origins": ["http://localhost:3000", "http://127.0.0.1:3000"],
-            "methods": ["GET", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization"]
-        }
-    })
->>>>>>> Stashed changes
     # app.config.from_mapping(
     #     SECRET_KEY='not-really-that-secret-huh',
     #     DATABASE=os.path.join(app.instance_path, 'mvc.sqlite'),

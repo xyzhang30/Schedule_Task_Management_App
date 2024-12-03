@@ -1,9 +1,6 @@
 .search-bar {
     grid-column: 1 / span 2;
-<<<<<<< Updated upstream
     margin-bottom: 20px;
-=======
->>>>>>> Stashed changes
   }
   
 .search-bar input {
@@ -13,7 +10,6 @@
     border: 1px solid #606c38;
 }
 
-<<<<<<< Updated upstream
 /* Buttons */
 button.button {
     border: none;
@@ -105,13 +101,10 @@ button.dots {
 }
 
 /* Group List */
-=======
->>>>>>> Stashed changes
 .group-card {
     background-color: #e9ede6;
     padding: 10px;
     margin-bottom: 10px;
-<<<<<<< Updated upstream
     cursor: pointer;
     border-radius: 4px;
     transition: background-color 0.3s ease;
@@ -269,14 +262,3 @@ button.dots {
     justify-content: space-between;
     padding-top: 20px;
 }
-=======
-    cursor: pointer;
-    border-radius: 4px;
-    transition: background-color 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-}
-
-.group-card:hover {
-    background-color: #cad2c5;
-}
->>>>>>> Stashed changes

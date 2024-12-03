@@ -3,12 +3,8 @@ import axios from 'axios';
 import './SplitScreen.css'
 import './Groups.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-<<<<<<< Updated upstream
 import { faEllipsis, faTrash, faPencilAlt, faCheck, faCircleXmark, faUser, faUserPlus, faUserLargeSlash, faCirclePlus, faEye, faStar, faUsersLine } from '@fortawesome/free-solid-svg-icons';
 import { useNavigate } from 'react-router-dom';
-=======
-import { faEllipsis } from '@fortawesome/free-solid-svg-icons';
->>>>>>> Stashed changes
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
@@ -54,11 +50,8 @@ const Groups = () => {
     // const [memberRequests, setMemberRequests] = useState([]);
 
     const [selectedAdmin, setSelectedAdmin] = useState(null);
-<<<<<<< Updated upstream
 
     const navigate = useNavigate();
-=======
->>>>>>> Stashed changes
 
     
     // Fetch Groups - Runs once when the component mounts
@@ -596,7 +589,6 @@ const Groups = () => {
 
                 <div className="split-screen-filter-container">
                     <h2>My Groups</h2>
-<<<<<<< Updated upstream
                     <div className="main-actions">
                         <button className="button add-button" onClick={() => setCreateGroupModal(true)}>
                             <FontAwesomeIcon icon={faCirclePlus} /> Create Group
@@ -611,17 +603,6 @@ const Groups = () => {
                             <FontAwesomeIcon icon={faEye} /> View All Groups
                         </button>
                     </div>
-=======
-                    <button className="create-group-button" onClick={() => setCreateGroupModal(true)}>
-                        Create Group
-                    </button>
-                    <button className="view-my-requests-button" onClick={() => setMyRequestsModal(true)}>
-                        View My Pending Requests
-                    </button>
-                    {/* <button className="view-member-requests-button" onClick={() => setMemberRequestsModal(true)}>
-                        View Member Pending Requests
-                    </button> */}
->>>>>>> Stashed changes
                 </div>
 
                 <div className="split-screen-left">
@@ -653,7 +634,6 @@ const Groups = () => {
                                 {/* <div className="group-avatar">
                                     <img src={selectedGroup.avatar} alt="Group's Avatar" />
                                 </div> */}
-<<<<<<< Updated upstream
                                 <div className="group-profile-header">
                                     <h2>{selectedGroup.group_name}</h2>
                                     <button className="button add-button" onClick={() => setCreateEventModal(true)}>
@@ -665,11 +645,6 @@ const Groups = () => {
                                     <button className="dots" onClick={() => setGroupActionsModal(true)}>
                                         <FontAwesomeIcon icon={faEllipsis} />
                                     </button>
-=======
-                                <div className="group-profile">
-                                    <h2> {selectedGroup.group_name} </h2>
-                                    <p>Administrator: {selectedAdmin || "Loading..."}</p>
->>>>>>> Stashed changes
                                 </div>
                                 <div className="group-events">
                                     {groupEvents[selectedGroup.group_id] && groupEvents[selectedGroup.group_id].length > 0 ? (
@@ -677,11 +652,7 @@ const Groups = () => {
                                             <div key={event.event_id} className="event-card">
                                                 <h3>{event.event_name}</h3>
                                                 <p>{formatDateTime(event.start_date_time)} - {formatDateTime(event.end_date_time)}</p>
-<<<<<<< Updated upstream
                                                 <button className="dots" onClick={(e) => handleEventClick(e, event.event_id)}>
-=======
-                                                <button onClick={(e) => handleEventClick(e, event.event_id)}>
->>>>>>> Stashed changes
                                                     <FontAwesomeIcon icon={faEllipsis} />
                                                 </button>
                                             </div>
@@ -690,7 +661,6 @@ const Groups = () => {
                                         <p>No events available.</p>
                                     )}
                                 </div>
-<<<<<<< Updated upstream
 
                             </div>
                         ) : (
@@ -714,30 +684,16 @@ const Groups = () => {
                                             <button className="button delete-button" onClick={() => handleDeleteGroup()}>
                                                 <FontAwesomeIcon icon={faTrash} />Delete
                                             </button>
-=======
-                                <div className="group-actions">
-                                    {selectedGroup.is_admin && (
-                                        <>  
-                                            <button onClick={() => setCreateEventModal(true)}>Create Event</button>
-                                            <button onClick={() => handleEditGroupClick()}>Edit Group</button>
-                                            <button onClick={() => handleDeleteGroup()}>Delete Group</button>
-                                            <button onClick={() => handleViewMembersClick()}>Manage Members</button>
->>>>>>> Stashed changes
                                         </>
                                     )}
                                     {selectedGroup.is_member && (
                                         <>
-<<<<<<< Updated upstream
                                             <button onClick={() => handleLeaveGroup()}>
                                                 <FontAwesomeIcon icon={faUserLargeSlash} />Leave Group
                                             </button>
                                             <button onClick={() => handleViewMembersClick()}>
                                                 <FontAwesomeIcon icon={faUser} />View Members
                                             </button>
-=======
-                                            <button onClick={() => handleLeaveGroup()}>Leave Group</button>
-                                            <button onClick={() => handleViewMembersClick()}>View Members</button>
->>>>>>> Stashed changes
                                         </>
                                     )}
                                     {/* {selectedGroup.is_guest && (
@@ -745,7 +701,6 @@ const Groups = () => {
                                             <button onClick={() => setSentRequestModal(true)}>Request to Join</button>
                                         </>
                                     )} */}
-<<<<<<< Updated upstream
                                     <button className='button close-button' onClick={() => setGroupActionsModal(false)}>
                                         Close
                                     </button>
@@ -753,18 +708,6 @@ const Groups = () => {
                             </div>
                         </div>
                     )}
-=======
-                                    <button className='close-group-button' onClick={handleCloseGroup}>
-                                        Close
-                                    </button>
-                                </div>
-
-                            </div>
-                        ) : (
-                            <p>Select a group to view details</p>
-                        )}
-                    </div>
->>>>>>> Stashed changes
                     
                     {selectedEvent && (
                         <div className="modal-overlay">
@@ -775,7 +718,6 @@ const Groups = () => {
                                         <>
                                             {selectedEvent.registered ? (
                                                 <>
-<<<<<<< Updated upstream
                                                     <button className="button edit-button" onClick={() => handleDropEvent()}>
                                                         <FontAwesomeIcon icon={faCircleXmark} /> Drop
                                                     </button>
@@ -793,24 +735,12 @@ const Groups = () => {
                                             <button className="button delete-button" onClick={() => handleCancelEvent()}>
                                                 <FontAwesomeIcon icon={faTrash} /> Cancel
                                             </button>
-=======
-                                                    <button onClick={() => handleDropEvent()}>Drop Registration</button>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <button onClick={() => handleRegisterEvent()}>Register</button>
-                                                </>
-                                            )}
-                                            <button onClick={() => handleEditEventClick()}>Edit Event</button>
-                                            <button onClick={() => handleCancelEvent()}>Cancel Event</button>
->>>>>>> Stashed changes
                                         </>
                                     )}
                                     {selectedEvent.is_member && (
                                         <>
                                             {selectedEvent.registered ? (
                                                 <>
-<<<<<<< Updated upstream
                                                     <button className="button edit-button" onClick={() => handleDropEvent()}>
                                                         <FontAwesomeIcon icon={faCircleXmark} /> Drop
                                                     </button>
@@ -820,105 +750,17 @@ const Groups = () => {
                                                     <button className="button add-button" onClick={() => handleRegisterEvent()}>
                                                         <FontAwesomeIcon icon={faCheck} /> Register
                                                     </button>
-=======
-                                                    <button onClick={() => handleDropEvent()}>Drop Registration</button>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <button onClick={() => handleRegisterEvent()}>Register</button>
->>>>>>> Stashed changes
                                                 </>
                                             )}
                                         </>
                                     )}
-<<<<<<< Updated upstream
                                     <button className='button close-button' onClick={handleCloseEvent}>
-=======
-                                    {/* {selectedEvent.is_guest && (
-                                        <>
-                                            {selectedEvent.registered ? (
-                                                <>
-                                                    <button onClick={() => handleDropEvent()}>Drop Registration</button>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <button onClick={() => setSentRequestModal(true)}>Request to Join Group</button>
-                                                </>
-                                            )}
-                                        </>
-                                    )} */}
-                                    <button className='close-event-button' onClick={handleCloseEvent}>
->>>>>>> Stashed changes
                                         Close
                                     </button>
                                 </div>
                             </div>
                         </div>
                     )}
-<<<<<<< Updated upstream
-=======
-
-                    {/* <div className="event-details">
-                        {selectedEvent ? (
-                            <div className="event-details-content">
-                                <div className="event-profile">
-                                    <h2> {selectedEvent.event_name} </h2>
-                                    <p>ID: {selectedEvent.event_id}</p>
-                                    <p>{formatDateTime(selectedEvent.start_date_time)} - {formatDateTime(selectedEvent.end_date_time)}</p>
-                                </div>
-                                <div className="event-actions">
-                                    {selectedEvent.is_admin && (
-                                        <>
-                                            {selectedEvent.registered ? (
-                                                <>
-                                                    <button onClick={() => handleDropEvent()}>Drop Registration</button>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <button onClick={() => handleRegisterEvent()}>Register</button>
-                                                </>
-                                            )}
-                                            <button onClick={() => handleEditEventClick()}>Edit Event</button>
-                                            <button onClick={() => handleCancelEvent()}>Cancel Event</button>
-                                        </>
-                                    )}
-                                    {selectedEvent.is_member && (
-                                        <>
-                                            {selectedEvent.registered ? (
-                                                <>
-                                                    <button onClick={() => handleDropEvent()}>Drop Registration</button>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <button onClick={() => handleRegisterEvent()}>Register</button>
-                                                </>
-                                            )}
-                                        </>
-                                    )}
-                                    {selectedEvent.is_guest && (
-                                        <>
-                                            {selectedEvent.registered ? (
-                                                <>
-                                                    <button onClick={() => handleDropEvent()}>Drop Registration</button>
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <button onClick={() => setSentRequestModal(true)}>Request to Join Group</button>
-                                                </>
-                                            )}
-                                        </>
-                                    )}
-                                    <button className='close-event-button' onClick={handleCloseEvent}>
-                                        Close
-                                    </button>
-                                </div>
-
-                            </div>
-                        ) : (
-                            <p>Select an event to view details</p>
-                        )}
-                    </div> */}
->>>>>>> Stashed changes
                     
                 </div>
             </div>
@@ -1304,11 +1146,7 @@ const Groups = () => {
                             )}
                         </div>
                         <div className="request-actions">
-<<<<<<< Updated upstream
                             <button className='button close-button' onClick={() => setMyRequestsModal(false)}>
-=======
-                            <button className='close-my-requests-button' onClick={() => setMyRequestsModal(false)}>
->>>>>>> Stashed changes
                                 Close
                             </button>
                         </div>
