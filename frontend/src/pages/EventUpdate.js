@@ -4,7 +4,7 @@ import axios from 'axios';
 const baseUrl = process.env.REACT_APP_BASE_URL;
 axios.defaults.withCredentials = true;
 
-// Define the default color for events without a label
+
 const DEFAULT_LABEL_COLOR = '#2196F3';
 
 const EventUpdateModal = ({
