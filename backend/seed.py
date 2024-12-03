@@ -66,11 +66,7 @@ Table_creation = '''
         task_id SERIAL PRIMARY KEY,
         account_id INTEGER REFERENCES accounts(account_id),
         due_time TIMESTAMP NOT NULL,
-<<<<<<< HEAD
-        task_name VARCHAR(200) NOT NULL,
-=======
         task_name VARCHAR(1000) NOT NULL,
->>>>>>> 82be85e344c24c9e48577356669f48819b379b64
         category VARCHAR(100),
         complete BOOLEAN DEFAULT false,
         event_id INTEGER REFERENCES events(event_id)
@@ -301,29 +297,6 @@ for category in event_categories:
         VALUES (%s)
         ON CONFLICT (category_name) DO NOTHING
     ''', (category,))
-<<<<<<< HEAD
-print("Event categories test data generated")
-num_events = 20
-for _ in range(num_events):
-    event_name = faker.sentence(nb_words=3).rstrip('.')
-    event_location = faker.city()
-    start_date = faker.date_time_between(start_date='-1y', end_date='+1y')
-    duration = timedelta(hours=random.randint(1, 5), minutes=random.randint(0, 59))
-    end_date = start_date + duration
-    category = random.choice(event_categories)
-    account_id = random.randint(1, 6)
-    label_text = random.choice(['Important', 'Optional', 'Urgent', 'Follow-up', 'Review'])
-    label_color = random.choice(['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'grey', 'pink'])
-    frequency_options = ['Every Day', 'Once a Week', 'Twice a Week', None]
-    frequency = random.choice(frequency_options)
-    repeat_until = None
-    if frequency:
-        repeat_until = start_date + timedelta(days=random.randint(30, 180))
-    cursor.execute('''
-        INSERT INTO events (
-            name, location, start_date, end_date, category,
-            account_id, label_text, label_color, frequency, repeat_until
-=======
 
 for account in range(1, 7):
     for _ in range(20):
@@ -340,7 +313,6 @@ for account in range(1, 7):
             day=random_start_date.day,
             hour=random_start_hour,
             minute=random_start_minute
->>>>>>> 82be85e344c24c9e48577356669f48819b379b64
         )
         start_date = faker.date_time_between(start_date=start, end_date=end)
 
@@ -393,13 +365,9 @@ tasks = {
         'Water Plants', 'Clean Windows'
     ]
 }
-<<<<<<< HEAD
-for account in range(1, 6):
-=======
 
 event_idx = 1
 for account in range(1, 7):
->>>>>>> 82be85e344c24c9e48577356669f48819b379b64
     #categories
     for category in task_categories:
         cursor.execute('''
@@ -424,14 +392,6 @@ for account in range(1, 7):
         task_name = random.choice(tasks[category])
         complete = random.choice([True, False])
         account_id = account
-<<<<<<< HEAD
-        event_id = random.randint(1, 10)
-
-        cursor.execute('''
-            INSERT INTO task (due_time, task_name, category, complete, account_id, event_id)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        ''', (due_time, task_name, category, complete, account_id, event_id))
-=======
 
         event_id = random.randint(event_idx, event_idx + 20)
 
@@ -442,7 +402,6 @@ for account in range(1, 7):
 
     event_idx += 20
 
->>>>>>> 82be85e344c24c9e48577356669f48819b379b64
 print("Tasks test data generated")
 
 

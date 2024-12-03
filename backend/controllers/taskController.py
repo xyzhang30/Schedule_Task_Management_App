@@ -265,7 +265,6 @@ def update_task_notification(task_id):
         if not task:
             return jsonify({"error": "Task not found."}), 404
         notification = Notifications.get_notifications_by_task(task_id)
-<<<<<<< Updated upstream
         current_date = date.today()
         if task.due_time.date() != current_date:
             if notification:
@@ -278,12 +277,10 @@ def update_task_notification(task_id):
                 return jsonify({"message": "Task notification updated", "notification": notification.to_dict()}), 200
         return jsonify({"message": "No notification to update or delete."}), 200
 
-=======
-        if not notification:
-            return jsonify({"error": "Notification not found."}), 404
-        notification.message = f"Your task '{task.task_name}' is due today at {task.due_time.strftime('%H:%M')}."
-        notification.save_notification()
-        return jsonify({"message": "Task notification updated", "notification": notification.to_dict()}), 200
->>>>>>> Stashed changes
+        # if not notification:
+        #     return jsonify({"error": "Notification not found."}), 404
+        # notification.message = f"Your task '{task.task_name}' is due today at {task.due_time.strftime('%H:%M')}."
+        # notification.save_notification()
+        # return jsonify({"message": "Task notification updated", "notification": notification.to_dict()}), 200
     except Exception as e:
         return jsonify({"error": "Failed to update task notification."}), 500
