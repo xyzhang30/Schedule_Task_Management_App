@@ -30,10 +30,6 @@ const baseUrl = process.env.REACT_APP_BASE_URL;
 
 // Define the default color for appointments without a label
 const DEFAULT_APPOINTMENT_COLOR = '#2196F3';
-<<<<<<< Updated upstream
-=======
-
->>>>>>> Stashed changes
 
 // Custom Appointment Content Component
 const CustomAppointmentContent = ({ data, ...restProps }) => {
@@ -109,10 +105,6 @@ const Calendar = () => {
   const [showCreateEventModal, setShowCreateEventModal] = useState(false);
   const [newEventData, setNewEventData] = useState(null);
   const schedulerRef = useRef(null);
-<<<<<<< Updated upstream
-=======
-  
->>>>>>> Stashed changes
 
   // Fetch events from backend
   useEffect(() => {
@@ -191,11 +183,7 @@ const Calendar = () => {
         frequency: event.frequency,
         repeat_until: event.repeat_until,
         originalEvent: event,
-<<<<<<< Updated upstream
         // Removed rRule to prevent duplicate events
-=======
-        rRule,
->>>>>>> Stashed changes
       });
     });
     return appointments;
