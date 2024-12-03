@@ -18,7 +18,14 @@ if not CLIENT_ID or not CLIENT_SECRET:
 
 @bp.route('/login', methods=['GET'])
 def login():
-    """Redirect the user to Spotify's authorization page."""
+    """
+    Redirect the user to Spotify's authorization page for login.
+
+    This route constructs the authorization URL for Spotify, including the necessary
+    client ID, redirect URI, and required scopes for user authentication and authorization.
+
+    :return: A redirect to Spotify's authorization page for the user to log in
+    """
     scope = 'user-read-playback-state user-modify-playback-state streaming user-top-read'
     spotify_auth_url = (
         f"https://accounts.spotify.com/authorize"
@@ -31,8 +38,14 @@ def login():
 
 @bp.route('/callback', methods=['GET'])
 def callback():
-    """Handle Spotify's callback and exchange code for an access token."""
+    """
+    Handle Spotify's callback and exchange the authorization code for an access token.
 
+    This route receives the authorization code from Spotify's callback, constructs the
+    necessary request to obtain an access token, and returns the token if successful.
+
+    :return: JSON response containing the access token or error message if failed
+    """
     code = request.args.get('code')
     if not code:
         return jsonify({'error': 'Authorization failed'}), 400
@@ -58,8 +71,14 @@ def callback():
     
 @bp.route('/top-tracks', methods=['GET', 'OPTIONS'])
 def getTopTracks():
+    """
+    Fetch the top tracks of the current user from Spotify.
 
-    # ChatGPT's debug suggestions: 
+    Handles both the OPTIONS preflight request for CORS and the main GET request to 
+    retrieve the user's top tracks from Spotify. The tracks are returned in JSON format.
+
+    :return: JSON response containing the top tracks or an error message if failed
+    """
     if request.method == 'OPTIONS':
         # Handle preflight request
         response = jsonify({'message': 'Preflight OK'})
