@@ -165,7 +165,7 @@ def get_events_by_account():
     if include_past:
         events = Event.get_events_by_account(account_id)
     else:
-        today = datetime.now().date()
+        today = datetime.now().date() - timedelta(days=1)
         events = Event.get_future_events_by_account(account_id, today)
 
     events_list = [event.to_dict() for event in events]
