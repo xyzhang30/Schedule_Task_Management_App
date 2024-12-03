@@ -61,9 +61,6 @@ const LandingPage = () => {
               <button className="btn" onClick={() => navigate('/profile')}>
                 View Profile
               </button>
-              <button className="btn" onClick={() => navigate('/settings')}>
-                Account Settings
-              </button>
             </>
           )}
         </div>
