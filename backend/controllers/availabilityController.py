@@ -89,7 +89,7 @@ def merge_unavailable_intervals(unavailable_times):
             merged_unavailable_times.append((curr_start, curr_end))
         else :
             # else: merge curr interval with last interval in the merged list
-            merge_unavailable_intervals[-1] = (
+            merged_unavailable_times[-1] = (
                 merged_unavailable_times[-1][0], 
                 max(merged_unavailable_times[-1][1], curr_end)
             )

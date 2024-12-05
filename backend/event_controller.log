@@ -59,3 +59,57 @@ DETAIL:  Key (account_id_from)=(0) is not present in table "accounts".
 [SQL: INSERT INTO notifications (account_id_from, account_id_to, notification_type, message, is_pending, created_at, event_id, task_id) VALUES (%(account_id_from)s, %(account_id_to)s, %(notification_type)s, %(message)s, %(is_pending)s, %(created_at)s, %(event_id)s, %(task_id)s) RETURNING notifications.notification_id]
 [parameters: {'account_id_from': 0, 'account_id_to': 3, 'notification_type': 'Event Today', 'message': "Your event 'test2' is happening today at 02:17.", 'is_pending': True, 'created_at': datetime.datetime(2024, 11, 24, 7, 16, 36, 34757), 'event_id': None, 'task_id': None}]
 (Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-12-05 02:40:41,234 ERROR Error in update_event: (psycopg2.errors.ForeignKeyViolation) update or delete on table "events" violates foreign key constraint "task_event_id_fkey" on table "task"
+DETAIL:  Key (event_id)=(1) is still referenced from table "task".
+
+[SQL: DELETE FROM events WHERE events.event_id = %(event_id)s]
+[parameters: {'event_id': 1}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-12-05 02:40:46,055 ERROR Error in update_event: (psycopg2.errors.ForeignKeyViolation) update or delete on table "events" violates foreign key constraint "task_event_id_fkey" on table "task"
+DETAIL:  Key (event_id)=(1) is still referenced from table "task".
+
+[SQL: DELETE FROM events WHERE events.event_id = %(event_id)s]
+[parameters: {'event_id': 1}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-12-05 02:41:06,891 ERROR Error in update_event: (psycopg2.errors.ForeignKeyViolation) update or delete on table "events" violates foreign key constraint "task_event_id_fkey" on table "task"
+DETAIL:  Key (event_id)=(1) is still referenced from table "task".
+
+[SQL: DELETE FROM events WHERE events.event_id = %(event_id)s]
+[parameters: {'event_id': 1}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-12-05 02:46:28,859 ERROR Error in update_event: (psycopg2.errors.ForeignKeyViolation) update or delete on table "events" violates foreign key constraint "task_event_id_fkey" on table "task"
+DETAIL:  Key (event_id)=(1) is still referenced from table "task".
+
+[SQL: DELETE FROM events WHERE events.event_id = %(event_id)s]
+[parameters: {'event_id': 1}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-12-05 02:46:48,686 ERROR Error in update_event: (psycopg2.errors.ForeignKeyViolation) update or delete on table "events" violates foreign key constraint "task_event_id_fkey" on table "task"
+DETAIL:  Key (event_id)=(1) is still referenced from table "task".
+
+[SQL: DELETE FROM events WHERE events.event_id = %(event_id)s]
+[parameters: {'event_id': 1}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-12-05 02:47:17,503 ERROR Error in update_event: (psycopg2.errors.ForeignKeyViolation) update or delete on table "events" violates foreign key constraint "task_event_id_fkey" on table "task"
+DETAIL:  Key (event_id)=(1) is still referenced from table "task".
+
+[SQL: DELETE FROM events WHERE events.event_id = %(event_id)s]
+[parameters: {'event_id': 1}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-12-05 02:54:10,481 ERROR Error in update_event: (psycopg2.errors.ForeignKeyViolation) update or delete on table "events" violates foreign key constraint "task_event_id_fkey" on table "task"
+DETAIL:  Key (event_id)=(1) is still referenced from table "task".
+
+[SQL: DELETE FROM events WHERE events.event_id = %(event_id)s]
+[parameters: {'event_id': 1}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-12-05 02:54:16,108 ERROR Error in update_event: (psycopg2.errors.ForeignKeyViolation) update or delete on table "events" violates foreign key constraint "task_event_id_fkey" on table "task"
+DETAIL:  Key (event_id)=(1) is still referenced from table "task".
+
+[SQL: DELETE FROM events WHERE events.event_id = %(event_id)s]
+[parameters: {'event_id': 1}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
+2024-12-05 02:54:16,587 ERROR Error in update_event: (psycopg2.errors.ForeignKeyViolation) update or delete on table "events" violates foreign key constraint "task_event_id_fkey" on table "task"
+DETAIL:  Key (event_id)=(1) is still referenced from table "task".
+
+[SQL: DELETE FROM events WHERE events.event_id = %(event_id)s]
+[parameters: {'event_id': 1}]
+(Background on this error at: https://sqlalche.me/e/20/gkpj)
