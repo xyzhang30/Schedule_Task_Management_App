@@ -18,7 +18,7 @@ const Tasks = () => {
     const [newCategory, setNewCategory] = useState('');
     const [showEditTaskModal, setShowEditTaskModal] = useState(false);
     const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
-    const [editedTask, setEditedTask] = useState({ task_name: '', category: '', due_time: '' });
+    const [editedTask, setEditedTask] = useState({ task_name: '', category: '', due_time: '', event_name: '', event_id: '' });
     const [events, setEvents] = useState([]);
     const [notifications, setNotifications] = useState([]);
 
@@ -78,10 +78,13 @@ const Tasks = () => {
     };
 
     const handleEditButtonClick = (task) => {
+        const associatedEvent = events.find(event => event.event_id === task.event_id);
         setEditedTask({
             task_name: task.task_name,
             category: task.category,
             due_time: new Date(task.due_time).toISOString().slice(0, 16),
+            event_name: associatedEvent ? associatedEvent.name : '',
+            event_id: task.event_id || '',
         });
         setSelectedTask(task);
         setShowEditTaskModal(true);
@@ -194,21 +197,16 @@ const Tasks = () => {
 
 
     const handleEditTask = async (e) => {
-        console.log('Edit task called')
         e.preventDefault();
         try {
             const formData = new FormData();
             formData.append('task_name', editedTask.task_name);
             formData.append('category', editedTask.category);
             formData.append('due_time', editedTask.due_time);
+            formData.append('event_id', editedTask.event_id);
     
             const response = await axios.put(`${baseUrl}/task/update/${selectedTask.task_id}`, formData, {withCredentials:true});
             console.log('Task updated:', response.data);
-
-            const notificationUpdated = await updateTaskNotification(selectedTask.task_id);
-            if (notificationUpdated) {
-                console.log('Notification updated successfully.');
-            }
     
             const updatedTasks = await axios.get(`${baseUrl}/task/sorted`, {withCredentials:true});
             setTasks(updatedTasks.data);
@@ -220,6 +218,7 @@ const Tasks = () => {
             setError('Failed to update task.');
         }
     };
+    
     
 
     const handleDeleteTask = async () => {
@@ -246,18 +245,37 @@ const Tasks = () => {
         if (!selectedTask) return;
         try {
             if (selectedTask.complete) {
-                const response = await axios.post(`${baseUrl}/task/cancel_complete/${selectedTask.task_id}`, { withCredentials: true });
-                console.log('Task uncompleted:', response.data);
-                setSelectedTask(prevState => ({
+                await axios.post(`${baseUrl}/task/cancel_complete/${selectedTask.task_id}`, null, { withCredentials: true });
+                setTasks((prevTasks) => {
+                    const updatedTasks = { ...prevTasks };
+                    Object.keys(updatedTasks).forEach((date) => {
+                        updatedTasks[date] = updatedTasks[date].map((task) =>
+                            task.task_id === selectedTask.task_id
+                                ? { ...task, complete: false }
+                                : task
+                        );
+                    });
+                    return updatedTasks;
+                });
+                setSelectedTask((prevState) => ({
                     ...prevState,
                     complete: false,
                 }));
                 window.alert('Cancelled marking task as completed!');
             } else {
-                await axios.post(`${baseUrl}/task/complete/${selectedTask.task_id}`, { withCredentials: true });
-                const completedTasks = await axios.get(`${baseUrl}/task/sorted`, { withCredentials: true });
-                setTasks(completedTasks.data);
-                setSelectedTask(prevState => ({
+                await axios.post(`${baseUrl}/task/complete/${selectedTask.task_id}`, null, { withCredentials: true });
+                setTasks((prevTasks) => {
+                    const updatedTasks = { ...prevTasks };
+                    Object.keys(updatedTasks).forEach((date) => {
+                        updatedTasks[date] = updatedTasks[date].map((task) =>
+                            task.task_id === selectedTask.task_id
+                                ? { ...task, complete: true }
+                                : task
+                        );
+                    });
+                    return updatedTasks;
+                });
+                setSelectedTask((prevState) => ({
                     ...prevState,
                     complete: true,
                 }));
@@ -268,6 +286,7 @@ const Tasks = () => {
             setError('Failed to update task status.');
         }
     };
+    
     
 
     return (
@@ -455,6 +474,28 @@ const Tasks = () => {
                                     required 
                                 />
                             </label>
+                            <label>
+                                Associated Event:
+                                <select
+                                    name="event_name"
+                                    value={editedTask.event_name || ''}
+                                    onChange={(e) => {
+                                        const selectedEvent = events.find(event => event.name === e.target.value);
+                                        setEditedTask({
+                                            ...editedTask,
+                                            event_name: e.target.value,
+                                            event_id: selectedEvent ? selectedEvent.event_id : '',
+                                        });
+                                    }}
+                                >
+                                    <option value="">Select an Event</option>
+                                    {events.map(event => (
+                                        <option key={event.event_id} value={event.name}>
+                                            {event.name}
+                                        </option>
+                                    ))}
+                                </select>
+                            </label>
                             <div className="modal-actions">
                                 <button type="submit">Update Task</button>
                                 <button type="button" onClick={() => setShowEditTaskModal(false)}>
@@ -466,6 +507,7 @@ const Tasks = () => {
                 </div>
             )}
 
+
     
             {loading ? (
                 <p>Loading tasks...</p>
@@ -473,24 +515,25 @@ const Tasks = () => {
                 <p>{error}</p>
             ) : (
                 <div className="split-screen-left">
-                    {Object.keys(filteredTasks).map(date => (
-                        <div key={date} className="tasks-date">
-                            <h3>{date}</h3>
-                            {Array.isArray(filteredTasks[date]) ? (
-                                filteredTasks[date].map(task => (
-                                    <div
-                                        key={task.id}
-                                        className={`task-item ${task.complete ? 'completed-task' : ''}`}
-                                        onClick={() => handleTaskClick(task)}
-                                    >
-                                        {task.task_name}
-                                    </div>
-                                ))
-                            ) : (
-                                <p>No tasks available for this date</p>
-                            )}
-                        </div>
-                    ))}
+                    {Object.keys(filteredTasks).map((date) => (
+                <div key={date} className="tasks-date">
+                    <h3>{date}</h3>
+                    {Array.isArray(filteredTasks[date]) ? (
+                        filteredTasks[date].map((task) => (
+                            <div
+                                key={task.task_id}
+                                className={`task-item ${task.complete ? 'completed-task' : ''}`}
+                                onClick={() => handleTaskClick(task)}
+                            >
+                                <span>{task.task_name}</span>
+                            </div>
+                        ))
+                    ) : (
+                        <p>No tasks for this date.</p>
+                    )}
+                </div>
+                ))}
+
                 </div>
             )}
     
