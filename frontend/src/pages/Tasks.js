@@ -273,6 +273,12 @@ const Tasks = () => {
                                 ? { ...task, complete: false }
                                 : task
                         );
+                        updatedTasks[date].sort((a, b) => {
+                            if (a.complete !== b.complete) {
+                                return a.complete - b.complete;
+                            }
+                            return new Date(a.due_time) - new Date(b.due_time);
+                        });
                     });
                     return updatedTasks;
                 });
@@ -291,6 +297,12 @@ const Tasks = () => {
                                 ? { ...task, complete: true }
                                 : task
                         );
+                        updatedTasks[date].sort((a, b) => {
+                            if (a.complete !== b.complete) {
+                                return a.complete - b.complete;
+                            }
+                            return new Date(a.due_time) - new Date(b.due_time);
+                        });
                     });
                     return updatedTasks;
                 });
