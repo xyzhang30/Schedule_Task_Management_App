@@ -2,6 +2,7 @@ import React from 'react';
 import './EditProfileButtonPages.css'
 
 const SpotifyLogin = () => {
+  // redirect to spotify login page
   const handleLogin = () => {
     window.location.href = 'http://localhost:8080/spotify/login';
   };

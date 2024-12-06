@@ -38,6 +38,7 @@ const SpotifyCallback = () => {
     }
   }, []);
 
+  // fetch top song tracks when component mounts
   useEffect(() => {
     const fetchSongTracks = async () => {
       try {
@@ -59,14 +60,15 @@ const SpotifyCallback = () => {
     }
   }, [accessToken]);
 
+  // loading and error situations
   if (loading) {
     return <div className="loading">Processing Spotify Login...</div>;
   }
-
   if (!accessToken) {
     return <div className="error">Failed to retrieve access token. Please try logging in again.</div>;
   }
 
+  // show play current track split on click 
   const handlePlayTrack = (track) => {
     setCurrentTrack(track);
   };

@@ -31,6 +31,7 @@ const Register = () => {
     }
   };
 
+  // save new user
   const handleSubmit = async (e) => {
     e.preventDefault();
     const data = new FormData(); // Create FormData object

@@ -22,6 +22,7 @@ function Profile({ self = true, accountId = null}) {
   const [savedPosts, setSavedPosts] = useState([]);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false); 
 
+  // fetch all profile info when component mounts
   useEffect(() => {
     const fetchProfile = async () => {
       try {

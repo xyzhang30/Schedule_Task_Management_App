@@ -15,6 +15,7 @@ const StudyTime = () => {
     const [error, setError] = useState(null);
     const navigate = useNavigate();
 
+    // set timer when component mounts
     useEffect(() => {
         let timer;
         if (isRunning) {
@@ -25,6 +26,7 @@ const StudyTime = () => {
         return () => clearInterval(timer);
     }, [isRunning]);
 
+    // format time for display
     const formatTime = (seconds) => {
         const hrs = Math.floor(seconds / 3600);
         const mins = Math.floor((seconds % 3600) / 60);
@@ -32,6 +34,7 @@ const StudyTime = () => {
         return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     };
 
+    // gets the user's study time for the current day and current week for display
     const fetchDailyAndWeeklyHours = async () => {
       try {
           const response = await axios.get(`${baseUrl}/studytime/day`, { withCredentials: true });
@@ -63,6 +66,7 @@ const StudyTime = () => {
         fetchDailyAndWeeklyHours();
     }, []);
 
+    // save newly clocked hours
     const handleSave = async (e) => {
       e.preventDefault();
       const formattedTime = formatTime(time);
@@ -88,11 +92,12 @@ const StudyTime = () => {
       }
     };
 
-
+    // pause the study timer
     const handlePause = () => {
         setIsRunning(!isRunning);
     };
 
+    // clear the timer
     const handleClear = () => {
         setTime(0);
         setIsRunning(false);

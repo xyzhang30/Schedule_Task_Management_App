@@ -22,6 +22,7 @@ const Tasks = () => {
     const [events, setEvents] = useState([]);
     const [notifications, setNotifications] = useState([]);
 
+    // fetch tasks and categories when task component mounts
     useEffect(() => {
         const fetchTasks = async () => {
             try {
@@ -94,6 +95,7 @@ const Tasks = () => {
         setShowEditTaskModal(true);
     };
     
+    // formats due time for display
     const formatDueTime = (timestamp) => {
         const date = new Date(timestamp);
         const formattedDate = `${date.getUTCFullYear()}-${(date.getUTCMonth() + 1).toString().padStart(2, '0')}-${date.getUTCDate().toString().padStart(2, '0')}`;
@@ -130,6 +132,7 @@ const Tasks = () => {
         });
     };
 
+    // saves new task
     const handleAddTask = async (e) => {
         e.preventDefault();
         try {
@@ -163,6 +166,7 @@ const Tasks = () => {
         setNewCategory(e.target.value);
     };
 
+    // creates a new task category
     const handleAddCategory = async (e) => {
         e.preventDefault();
         if (categories.some(category => category.category_name === newCategory)) {
@@ -185,6 +189,7 @@ const Tasks = () => {
         }
     };
 
+    // filter tasks based on category
     const filteredTasks = Object.keys(tasks).reduce((filtered, date) => {
         const tasksForDate = tasks[date].filter(task => 
             selectedCategory === '' || task.category === selectedCategory
@@ -210,6 +215,7 @@ const Tasks = () => {
         }
     };
 
+    // save updated task
     const handleEditTask = async (e) => {
         e.preventDefault();
         try {
@@ -236,7 +242,7 @@ const Tasks = () => {
     };
     
     
-
+    // remove a task
     const handleDeleteTask = async () => {
         if (!selectedTask) return;
         
@@ -260,6 +266,7 @@ const Tasks = () => {
         }
     };
 
+    // mark a task as complete
     const handleCompleteTask = async () => {
         if (!selectedTask) return;
         try {

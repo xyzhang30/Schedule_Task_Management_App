@@ -5,9 +5,9 @@ import StartSpeechIcon from './images/microphone-solid.svg';
 import StopSpeechIcon from './images/microphone-slash-solid.svg';
 
 const SpeechToText = ({ onTranscriptChange }) => {
-    const [recognizer, setRecognizer] = useState(null);  // store speech Recognizer (Azure)
-    const [transcript, setTranscript] = useState('');  // store current transcript
-    const [isRecognizing, setIsRecognizing] = useState(false);  // store if recognizer is recognizing
+    const [recognizer, setRecognizer] = useState(null);  
+    const [transcript, setTranscript] = useState('');  
+    const [isRecognizing, setIsRecognizing] = useState(false);  
 
     // Azure Speech-to-Text setup
     const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(
@@ -16,11 +16,11 @@ const SpeechToText = ({ onTranscriptChange }) => {
     );
     speechConfig.speechRecognitionLanguage = 'en-US';
 
-    // speechConfig.setProperty(
-    //     SpeechSDK.PropertyId.SpeechServiceConnection_InitialSilenceTimeoutMs,
-    //     "3000"
-    // );
-
+    // silence timeouts
+    speechConfig.setProperty(
+        SpeechSDK.PropertyId.SpeechServiceConnection_InitialSilenceTimeoutMs,
+        "3000"
+    );
     speechConfig.setProperty(
         SpeechSDK.PropertyId.SpeechServiceConnection_EndSilenceTimeoutMs,
         "2000"
@@ -73,12 +73,6 @@ const SpeechToText = ({ onTranscriptChange }) => {
     return (
         <div className="speech-to-text-container">
             <div className="recognition-buttons">
-                {/* <img
-                    src={isRecognizing ? startIcon : stopIcon}
-                    alt={isRecognizing ? "Start Voice Recognition" : "Stop Voice Recognition"}
-                    className="recognition-button-icon"
-                    onClick={isRecognizing ? stopRecognition : startRecognition}
-                /> */}
                 <img
                     src={isRecognizing ? StopSpeechIcon : StartSpeechIcon}
                     alt={isRecognizing ? "Start Voice Recognition" : "Stop Voice Recognition"}

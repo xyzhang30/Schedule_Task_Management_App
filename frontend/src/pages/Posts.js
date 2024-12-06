@@ -162,6 +162,7 @@ const Posts = () => {
   }
   };
 
+  // remove comment
   const handleDeleteComment = async (comment) => {
     const comment_id = comment.comment_id ;
 
@@ -190,6 +191,7 @@ const Posts = () => {
     }
   };
 
+  // remove a like from a post
   const handleUnlike = async (post_id) => {
     try {
       const formData = new FormData();

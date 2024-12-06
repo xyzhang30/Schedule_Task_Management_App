@@ -8,6 +8,7 @@ const ResetPassword = () => {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
+  // submit and save new password
   const handleSubmit = async (e) => {
     e.preventDefault();
 
