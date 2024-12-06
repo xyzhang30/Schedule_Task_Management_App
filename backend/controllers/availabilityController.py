@@ -1,8 +1,6 @@
 from flask import Blueprint, jsonify, session
 from flask import request
-from ..models.availability import Availability
 from ..models.event import Event
-from ..models.account import Account
 from ..decorators import is_logged_in
 from datetime import datetime
 

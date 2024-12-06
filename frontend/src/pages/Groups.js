@@ -1183,7 +1183,7 @@ const Groups = () => {
                                         <p>From: {request.account_name_from}</p>
                                         <p>Message: {request.message}</p>
                                         <p>Created at: {request.created_at}</p>
-                                        <button className='button edit-button' onClick={() => handleAcceptRequest(request.request_id)}>
+                                        <button className='button edit-button' onClick={() => handleAcceptRequest(request.notification_id)}>
                                             Accept
                                         </button>
                                         <button className="button delete-button" onClick={() => handleDeclineRequest(request.notification_id)}>

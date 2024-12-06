@@ -24,7 +24,7 @@ conn_details = psycopg2.connect(
 # create tables 
 cursor = conn_details.cursor()
 Table_creation = '''
-    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, notifications, groups, public_events, memberships, registrations, group_requests, category, event_category, task_category, studytime CASCADE;    
+    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, event, post, accounts, notifications, groups, public_events, memberships, registrations, group_requests, category, event_category, task_category, studytime CASCADE;    
     
     CREATE TABLE accounts (
         account_id SERIAL PRIMARY KEY,
@@ -72,22 +72,10 @@ Table_creation = '''
         event_id INTEGER REFERENCES events(event_id)
     );
 
-    CREATE TABLE assignment ( 
-        task_id INTEGER PRIMARY KEY REFERENCES task(task_id),
-        class_id INTEGER REFERENCES events(event_id)
-    );
-
     CREATE TABLE task_category (
         account_id INTEGER REFERENCES accounts(account_id),
         category_name VARCHAR(100),
         PRIMARY KEY (account_id, category_name)
-    );
-
-    CREATE TABLE availability (
-        account_id INTEGER REFERENCES accounts(account_id),
-        unav_interval VARCHAR(20),
-        full_date VARCHAR(15),
-        PRIMARY KEY (account_id, unav_interval, full_date)
     );
 
     CREATE TABLE post ( 
@@ -103,12 +91,6 @@ Table_creation = '''
         post_id INTEGER REFERENCES post(post_id),
         liker_id INTEGER REFERENCES accounts(account_id),
         PRIMARY KEY (post_id, liker_id)
-    );
-
-    CREATE TABLE shares(
-        post_id INTEGER REFERENCES post(post_id),
-        sharer_id INTEGER REFERENCES accounts(account_id),
-        PRIMARY KEY (post_id, sharer_id)
     );
 
     CREATE TABLE saves(
