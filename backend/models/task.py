@@ -20,49 +20,88 @@ class Task(Base):
 
     @classmethod
     def all(cls):
+        '''
+        returns all tasks in the database
+        '''
         return db_session.query(cls).all()
 
     def save(self):
+        '''
+        saves a new task in the database
+        '''
         db_session.add(self)
         db_session.commit()
 
     def to_dict(self):
+        '''
+        return a dictionary format of the account object 
+        '''
         return {column.name: getattr(self, column.name) for column in self.__table__.columns}
     
     def delete(self):
+        '''
+        removes a task from the database
+        '''
         db_session.delete(self)
         db_session.commit()
 
     def complete_task(self):
+        '''
+        sets the complete status of the task to true in the database
+        '''
         self.complete = True
         db_session.commit()
 
     def cancel_complete_task(self):
+        '''
+        sets the complete status of the task to false in the database
+        '''
         self.complete = False
         db_session.commit()
 
     @classmethod
     def get_task(cls, task_id):
+        '''
+        gets the task object with the specified task id
+        '''
         return db_session.query(cls).get(task_id)
     
     @classmethod
     def get_to_do(cls):
+        '''
+        get all tasks with complete status = true
+        '''
         return db_session.query(cls).filter_by(complete = True)
     
     @classmethod
     def get_by_account(cls, account_id):
+        '''
+        gets all tasks created by the specified account
+        '''
         return db_session.query(cls).filter_by(account_id=account_id).all()
     
     @classmethod
     def get_by_date(cls, account_id, due_date):
+        '''
+        gets all tasks created by the specified account that's due on the specified date
+        '''
         return db_session.query(cls).filter(cls.account_id == account_id, func.date(cls.due_time) == due_date).all()
     
     @classmethod
     def get_by_category(cls, account_id, category):
+        '''
+        gets all tasks created by the specified account and of the specified category
+        '''
         return db_session.query(cls).filter_by(account_id=account_id).filter_by(category=category).all()
     
     @classmethod
     def get_tasks_by_account_dic(cls, account_id):
+        '''
+        Retrieves and organizes tasks for a specific account by their due date.
+
+        RETURNS: 
+        - map: A dictionary where the keys are due dates, and the values are lists of tasks sorted by their due time. 
+        '''
         tasks = cls.get_by_account(account_id)
         map = defaultdict(list)
         
@@ -77,6 +116,9 @@ class Task(Base):
     
     @classmethod
     def all_tasks_by_due_date(cls, account_id, due_date):
+        '''
+        returns all tasks created by the specified account id, and are due on the specified due date
+        '''
         print("test")
         print(func.date(cls.due_time))
         tasks = db_session.query(cls).filter(
@@ -97,18 +139,26 @@ class Category(Base):
         return f"<Category category_name={self.category_name}>"
     
     def to_dict(self):
-        print("called to_dict")
         return {column.name: getattr(self, column.name) for column in self.__table__.columns}
     
     def save(self):
+        '''
+        save a new category to the database
+        '''
         db_session.add(self)
         db_session.commit()
 
     @classmethod
     def all(cls):
+        '''
+        returns all category objects from the database
+        '''
         return db_session.query(cls).all()
     
     @classmethod
     def all_per_user(cls, account_id):
+        '''
+        returns all categories created by the specified account
+        '''
         return db_session.query(cls).filter_by(account_id=account_id).all()
     

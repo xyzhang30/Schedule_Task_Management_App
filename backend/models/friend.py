@@ -15,6 +15,9 @@ class Friend(Base):
 
 	@classmethod
 	def all(cls):
+		'''
+		returns all friend pairs in the database
+		'''
 		return db_session.query(cls).all()
 
 
@@ -38,7 +41,13 @@ class Friend(Base):
 	@classmethod
 	def get_friends_by_id(cls, account_id):
 		'''
-		gets all friend accounts of a given account
+		gets all friends of the specified account 
+		
+		PARAMS: 
+		- account_id: the account id to find all friends for
+
+		RETURNS: 
+		- friends: list of all the ids of the accounts the specified account is friends with
 		'''
 		try:
 			friend_pairs = db_session.query(Friend).filter(
@@ -62,12 +71,21 @@ class Friend(Base):
 		
 
 	def save(self):
+		'''
+		saves a friend pair in the database
+		'''
 		db_session.add(self)
 		db_session.commit()
 
 	def delete(self):
+		'''
+		deletes a friend pair from the database
+		  '''
 		db_session.delete(self)
 		db_session.commit()
 
 	def to_dict(self):
+		'''
+		return a dictionary format of the account object 
+		'''
 		return {column.name: getattr(self, column.name) for column in self.__table__.columns}

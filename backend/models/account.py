@@ -44,15 +44,33 @@ class Account(Base):
 	
 	@classmethod
 	def get_acc_by_username(cls, un):
+		'''
+		gets the account object of the user with specified username 
+		 
+		:param:
+		- un: the username of the target account
+		'''
 		return db_session.query(cls).filter_by(username = un).first()
 
 	@classmethod
 	def get_acc_by_email(cls, email_address):
+		'''
+		gets the account object of the user with specified email 
+		 
+		:param:
+		- email_address: the email of the target account
+		'''
 		return db_session.query(cls).filter_by(email = email_address).first()
 	
 	def save(self):
+		'''
+		saves the account object into the database and commit the change
+		'''
 		db_session.add(self)
 		db_session.commit()
 
 	def to_dict(self):
+		'''
+		return a dictionary format of the account object 
+		'''
 		return {column.name: getattr(self, column.name) for column in self.__table__.columns}

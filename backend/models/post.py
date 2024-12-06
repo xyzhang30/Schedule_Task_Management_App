@@ -141,9 +141,15 @@ class Comment(Base):
         return db_session.query(cls).get(comment_id)
 
     def save(self):
+        '''
+        saves a new comment in the database
+        '''
         db_session.add(self)
         db_session.commit()
 
     def delete(self):
+        '''
+        removes a comment from the database
+        '''
         db_session.delete(self)
         db_session.commit()

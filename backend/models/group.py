@@ -17,23 +17,50 @@ class Group(Base):
 
 	@classmethod
 	def all(cls):
+		'''
+		returns all groups in the database
+		'''
 		return db_session.query(cls).all()
 
 	@classmethod
 	def get_grp_by_id(cls, grp_id):
+		'''
+		gets the group object with the specified group id
+		
+		PARAMS: 
+		- grp_id: the id of the target group
+
+		RETURNS: 
+		- the target group object from the database
+		'''
 		return db_session.query(cls).filter_by(group_id = grp_id).first()
 	
 	@classmethod
 	def get_grp_by_admin(cls, admin_id):
+		'''
+		gets all groups who's administrator is the account with the specified id
+
+		PARAMS: 
+		- admin_id: the id of the admin account
+		'''
 		return db_session.query(cls).filter_by(admin_id = admin_id).all()
 	
 	def save(self):
+		'''
+		saves a group to the database
+		'''
 		db_session.add(self)
 		db_session.commit()
 
 	def delete(self):
+		'''
+		deletes a group from the database
+		'''
 		db_session.delete(self)
 		db_session.commit()
 
 	def to_dict(self):
+		'''
+		return a dictionary format of the account object 
+		'''
 		return {column.name: getattr(self, column.name) for column in self.__table__.columns}
