@@ -17,25 +17,48 @@ class StudyTime(Base):
 
     @classmethod
     def all(cls):
+        '''
+        returns all clocked study time entries
+        '''
         return db_session.query(cls).all()
 
     def save(self):
+        '''
+        saves a clocked study time entry to the database
+        '''
         db_session.add(self)
         db_session.commit()
 
     def to_dict(self):
+        '''
+        returns a studytime entry in dictionary format
+        '''
         return {column.name: getattr(self, column.name) for column in self.__table__.columns}
     
     def delete(self):
+        '''
+        remove a clocked study time entry from the database
+        '''
         db_session.delete(self)
         db_session.commit()
     
     @classmethod
     def get_by_account(cls, account_id):
+        '''
+        get all study time entries clocked by the given account
+        '''
         return db_session.query(cls).filter_by(account_id=account_id).all()
     
     @classmethod
     def update_study_time(cls, account_id, date, time):
+        '''
+        updates the total study time for the given account on the given date after a new clocked entry
+
+        PARAM: 
+        - account_id: the target account id to update for
+        - date: the date the new study time entry is clocked on
+        - time: the amount of time of the newly clocked entry
+        '''
         study_time_entry = db_session.query(cls).filter_by(account_id=account_id, date=date).first()
         if study_time_entry:
             study_time_entry.study_time += time
@@ -47,6 +70,9 @@ class StudyTime(Base):
 
     @classmethod
     def daily_study_time(cls, account_id, current_date):
+        '''
+        gets the study time for the given id on the given date
+        '''
         result = db_session.query(cls).filter_by(account_id=account_id, date=current_date).first()
         study_time = result.study_time or timedelta(0)
         return study_time
@@ -54,6 +80,9 @@ class StudyTime(Base):
 
     @classmethod
     def weekly_study_time(cls, account_id, current_date):
+        '''
+        gets the total study time clocked by the given account within the week of the given date
+        '''
         start_of_week = current_date - timedelta(days=current_date.weekday())
         total_study_time = (
             db_session.query(func.sum(cls.study_time))
@@ -68,6 +97,9 @@ class StudyTime(Base):
     
     @classmethod
     def get_all_users_weekly_study_time(cls, current_date):
+        '''
+        gets the weekly study time for all users, on the week the given date belongs in
+        '''
         start_of_week = current_date - timedelta(days=current_date.weekday())
         
         # Query to get the total weekly study time for all users

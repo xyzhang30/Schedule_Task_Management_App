@@ -73,6 +73,10 @@
 }
 
 /* Right Section (Post Details) */
+.post-details {
+  width: 80%;
+}
+
 .post-details h3 {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
@@ -240,4 +244,8 @@
   margin-top: auto;
   font-size: 0.9em;
   color: #888;
+}
+
+.comment-input {
+  display: flex;
 }

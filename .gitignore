@@ -7,3 +7,4 @@ backend/event_inbox.log
 backend/event_controller.log
 backend/task_inbox.log
 backend/*.log
+node_modules

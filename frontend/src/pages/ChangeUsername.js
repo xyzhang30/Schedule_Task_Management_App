@@ -6,6 +6,7 @@ const ChangeUsername = () => {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
+  // save the new username
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -31,7 +32,7 @@ const ChangeUsername = () => {
   };
 
   return (
-    <div>
+    <div className='edit-profile-pages'>
       <h2>Change Username</h2>
       <form onSubmit={handleSubmit}>
         <div>

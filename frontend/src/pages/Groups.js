@@ -46,8 +46,8 @@ const Groups = () => {
     // const [sentRequestModal, setSentRequestModal] = useState(false);
     // const [newRequest, setNewRequest] = useState({ message: '' });
 
-    // const [memberRequestsModal, setMemberRequestsModal] = useState(false);
-    // const [memberRequests, setMemberRequests] = useState([]);
+    const [memberRequestsModal, setMemberRequestsModal] = useState(false);
+    const [memberRequests, setMemberRequests] = useState([]);
 
     const [selectedAdmin, setSelectedAdmin] = useState(null);
 
@@ -124,19 +124,19 @@ const Groups = () => {
         fetchMyRequests();
     }, []);
 
-    // // Fetch Member Requests - Runs once when the component mounts
-    // useEffect(() => {
-    //     const fetchMemberRequests = async () => {
-    //         try {
-    //             const response = await axios.get(`${baseUrl}/group-request/show-in-request`);
-    //             console.log("____RESPONSE_MEM_RQ: ", response.data);
-    //             setMemberRequests(response.data);
-    //         } catch (err) {
-    //             console.error("Error fetching member requests: ", err);
-    //         }
-    //     };
-    //     fetchMemberRequests();
-    // }, []);
+    // Fetch Member Requests - Runs once when the component mounts
+    useEffect(() => {
+        const fetchMemberRequests = async () => {
+            try {
+                const response = await axios.get(`${baseUrl}/group-request/show-in-request`);
+                console.log("____RESPONSE_MEM_RQ: ", response.data);
+                setMemberRequests(response.data);
+            } catch (err) {
+                console.error("Error fetching member requests: ", err);
+            }
+        };
+        fetchMemberRequests();
+    }, []);
 
     // Handler for search input
     const handleSearch = (e) => {
@@ -173,8 +173,8 @@ const Groups = () => {
             const updatedGroups = await axios.get(`${baseUrl}/group/show-groups`);
             setGroups(updatedGroups.data);
 
-            // const updatedMemberRequests = await axios.get(`${baseUrl}/group-request/show-in-request`);
-            // setMemberRequests(updatedMemberRequests.data);
+            const updatedMemberRequests = await axios.get(`${baseUrl}/group-request/show-in-request`);
+            setMemberRequests(updatedMemberRequests.data);
 
             setCreateGroupModal(false);
             setNewGroup({ group_name: '' });
@@ -260,8 +260,8 @@ const Groups = () => {
                 setGroups(updatedGroups.data);
                 setSelectedGroup(null);
 
-                // const updatedMemberRequests = await axios.get(`${baseUrl}/group-request/show-in-request`);
-                // setMemberRequests(updatedMemberRequests.data);
+                const updatedMemberRequests = await axios.get(`${baseUrl}/group-request/show-in-request`);
+                setMemberRequests(updatedMemberRequests.data);
             } catch (err) {
                 console.error('Failed to delete group:', err);
             }
@@ -570,18 +570,31 @@ const Groups = () => {
     //     }
     // };
 
-    // // Handle Accept Request
-    // const handleAcceptRequest = async (request_id) => {
-    //     try {
-    //         const response = await axios.put(`${baseUrl}/group-request/accept-request/${request_id}`);
-    //         console.log('Request accepted:', response.data);
+    // Handle Accept Request
+    const handleAcceptRequest = async (request_id) => {
+        try {
+            const response = await axios.put(`${baseUrl}/group-request/accept-request/${request_id}`);
+            console.log('Request accepted:', response.data);
 
-    //         const updatedMemberRequests = await axios.get(`${baseUrl}/group-request/show-in-request`, {withCredentials: true});
-    //         setMemberRequests(updatedMemberRequests.data);
-    //     } catch (err) {
-    //         console.error('Failed to accept request:', err);
-    //     }
-    // };
+            const updatedMemberRequests = await axios.get(`${baseUrl}/group-request/show-in-request`, {withCredentials: true});
+            setMemberRequests(updatedMemberRequests.data);
+        } catch (err) {
+            console.error('Failed to accept request:', err);
+        }
+    };
+
+    // Handle Decline Request
+    const handleDeclineRequest = async (request_id) => {
+        try {
+          const response = await axios.delete(`${baseUrl}/group-request/decline-request/${request_id}`);
+          console.log('Request declined:', response.data);
+    
+          const updatedMemberRequests = await axios.get(`${baseUrl}/group-request/show-in-request`, {withCredentials: true});
+        setMemberRequests(updatedMemberRequests.data);
+        } catch (err) {
+          console.error('Error declining group request:', err);
+        }
+      };
 
     return (
         <div className="split-screen-container">
@@ -596,9 +609,9 @@ const Groups = () => {
                         <button className="button view-button" onClick={() => setMyRequestsModal(true)}>
                             <FontAwesomeIcon icon={faStar} /> View My Pending Requests
                         </button>
-                        {/* <button className="button view-button" onClick={() => setMemberRequestsModal(true)}>
+                        <button className="button view-button" onClick={() => setMemberRequestsModal(true)}>
                             <FontAwesomeIcon icon={faUsersLine} /> View Member Requests
-                        </button> */}
+                        </button>
                         <button className="button view-button" onClick={() => window.location.href = 'http://localhost:3000/groupindex'}>
                             <FontAwesomeIcon icon={faEye} /> View All Groups
                         </button>
@@ -636,9 +649,13 @@ const Groups = () => {
                                 </div> */}
                                 <div className="group-profile-header">
                                     <h2>{selectedGroup.group_name}</h2>
-                                    <button className="button add-button" onClick={() => setCreateEventModal(true)}>
-                                        <FontAwesomeIcon icon={faCirclePlus} />Event
-                                    </button>
+                                    {selectedGroup.is_admin && (
+                                        <>  
+                                            <button className="button add-button" onClick={() => setCreateEventModal(true)}>
+                                                <FontAwesomeIcon icon={faCirclePlus} />Event
+                                            </button>
+                                        </>
+                                    )}
                                 </div>
                                 <div className="group-profile-footer">
                                     <p>Administrator: {selectedAdmin || "Loading..."}</p>
@@ -688,10 +705,10 @@ const Groups = () => {
                                     )}
                                     {selectedGroup.is_member && (
                                         <>
-                                            <button onClick={() => handleLeaveGroup()}>
+                                            <button className="button edit-button" onClick={() => handleLeaveGroup()}>
                                                 <FontAwesomeIcon icon={faUserLargeSlash} />Leave Group
                                             </button>
-                                            <button onClick={() => handleViewMembersClick()}>
+                                            <button className="button view-button" onClick={() => handleViewMembersClick()}>
                                                 <FontAwesomeIcon icon={faUser} />View Members
                                             </button>
                                         </>
@@ -1136,7 +1153,7 @@ const Groups = () => {
                             {myRequests && myRequests.length > 0 ? (
                                 myRequests.map(request => (
                                     <div key={request.request_id} className="request-card">
-                                        <p>Group ID: {request.group_id}</p>
+                                        <p>To group: {request.group_name}</p>
                                         <p>Message: {request.message}</p>
                                         <p>Created at: {request.created_at}</p>
                                     </div>
@@ -1154,35 +1171,38 @@ const Groups = () => {
                 </div>
             )}
 
-            {/* {memberRequestsModal && (
-                <div className="member-requests">
-                    <div className="title">
+            {memberRequestsModal && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
                         <h2> Member Pending Requests </h2>
-                    </div>
-                    <div className="request-list">
-                        {memberRequests && memberRequests.length > 0 ? (
-                            memberRequests.map(request => (
-                                <div key={request.request_id} className="request-card">
-                                    <p>Group ID: {request.group_id}</p>
-                                    <p>Account ID: {request.account_id}</p>
-                                    <p>Message: {request.message}</p>
-                                    <p>Created at: {request.created_at}</p>
-                                    <button className='accept-request-button' onClick={() => handleAcceptRequest(request.request_id)}>
-                                        Accept
-                                    </button>
-                                </div>
-                            ))
-                        ) : (
-                            <p>No requests available.</p>
-                        )}
-                    </div>
-                    <div className="request-actions">
-                        <button className='close-member-requests-button' onClick={() => setMemberRequestsModal(false)}>
-                            Close
-                        </button>
+                        <div className="request-list">
+                            {memberRequests && memberRequests.length > 0 ? (
+                                memberRequests.map(request => (
+                                    <div key={request.request_id} className="request-card">
+                                        <p>To group: {request.group_name}</p>
+                                        <p>From: {request.account_name_from}</p>
+                                        <p>Message: {request.message}</p>
+                                        <p>Created at: {request.created_at}</p>
+                                        <button className='button edit-button' onClick={() => handleAcceptRequest(request.notification_id)}>
+                                            Accept
+                                        </button>
+                                        <button className="button delete-button" onClick={() => handleDeclineRequest(request.notification_id)}>
+                                            Decline
+                                        </button>
+                                    </div>
+                                ))
+                            ) : (
+                                <p>No requests available.</p>
+                            )}
+                        </div>
+                        <div className="request-actions">
+                            <button className='button close-button' onClick={() => setMemberRequestsModal(false)}>
+                                Close
+                            </button>
+                        </div>
                     </div>
                 </div>
-            )} */}
+            )}
 
         </div>
     );

@@ -18,23 +18,41 @@ class PublicEvent(Base):
 
     @classmethod
     def all(cls):
+        '''
+        returns all public events
+        '''
         return db_session.query(cls).all()
 
     @classmethod
     def get_evt_by_id(cls, id):
+        '''
+        gets the public event with the specified id
+        '''
         return db_session.query(cls).filter_by(event_id = id).first()
     
     @classmethod
     def get_evts_by_grp_id(cls, grp_id):
+        '''
+        gets all public events of the specified group
+        '''
         return db_session.query(cls).filter_by(group_id = grp_id).all()
 
     def save(self):
+        '''
+        save a new public event to the database
+        '''
         db_session.add(self)
         db_session.commit()
 
     def delete(self):
+        '''
+        remove a public event from the database
+        '''
         db_session.delete(self)
         db_session.commit()
 
     def to_dict(self):
+        '''
+        returns a public event in dictionary format
+        '''
         return {column.name: getattr(self, column.name) for column in self.__table__.columns}

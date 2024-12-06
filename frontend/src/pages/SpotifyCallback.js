@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
+import './SpotifyCallback.css';
+import './SplitScreen.css';
 
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
@@ -8,10 +10,9 @@ const SpotifyCallback = () => {
   const [loading, setLoading] = useState(true);
   const [topTracks, setTopTracks] = useState([]);
   const [currentTrack, setCurrentTrack] = useState(null);
-  const isFirstRender = useRef(true); // set a flag so that the callback is run only once
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
-
     const fetchAuthorizationCode = async () => {
       const params = new URLSearchParams(window.location.search);
       const code = params.get('code');
@@ -20,14 +21,11 @@ const SpotifyCallback = () => {
         try {
           const response = await axios.get(`${baseUrl}/spotify/callback?code=${code}`);
           const tokens = response.data;
-          console.log('Response:', tokens)
-          console.log('Access Token:', tokens.access_token);
-
           setAccessToken(tokens.access_token);
         } catch (error) {
           console.error('Error exchanging code for token:', error);
           alert('Failed to log in with Spotify. Please try again.');
-        } 
+        }
       } else {
         alert('No authorization code provided. Redirecting back to login.');
         window.location.href = 'http://localhost:3000/spotify-login';
@@ -37,22 +35,17 @@ const SpotifyCallback = () => {
     if (isFirstRender.current) {
       isFirstRender.current = false;
       fetchAuthorizationCode();
-    };
-
+    }
   }, []);
 
   useEffect(() => {
-
     const fetchSongTracks = async () => {
       try {
         const response = await axios.get(`${baseUrl}/spotify/top-tracks`, {
           headers: {
-            'Authorization': `Bearer ${accessToken}`,
-            'Content-Type': 'application/json', // ChatGPT's debug suggestion
+            Authorization: `Bearer ${accessToken}`,
           },
         });
-
-        console.log("__MY_TOP_TRACKS__: ", response.data);
         setTopTracks(response.data.items || []);
       } catch (error) {
         console.error('Error fetching top tracks:', error);
@@ -60,63 +53,88 @@ const SpotifyCallback = () => {
       }
     };
 
-      if (accessToken) {
-        console.log("calling fetchsongtracks");
-        fetchSongTracks();
-      }
+    if (accessToken) {
+      fetchSongTracks();
       setLoading(false);
-
+    }
   }, [accessToken]);
 
-
   if (loading) {
-    return <div>Processing Spotify Login...</div>;
+    return <div className="loading">Processing Spotify Login...</div>;
   }
 
   if (!accessToken) {
-    return <div>Failed to retrieve access token. Please try logging in again.</div>;
+    return <div className="error">Failed to retrieve access token. Please try logging in again.</div>;
   }
-
 
   const handlePlayTrack = (track) => {
     setCurrentTrack(track);
   };
 
   return (
-    <div>
-      <h2>Welcome to Spotify Dashboard</h2>
-      <h3>Your Top Tracks</h3>
-      {loading && <p>Loading tracks...</p>}
+    <div className="split-screen-container">
+      <div className="split-screen-content">
 
-      {/* Display the list of top tracks */}
-      {!loading && topTracks.length > 0 ? (
-        <div>
-          <h2>Top Tracks</h2>
-          <ul>
-            {topTracks.map((track, index) => (
-              <li key={index} onClick={() => handlePlayTrack(track)}>
-                {track.name} by {track.artists.map(artist => artist.name).join(', ')}
-              </li>
-            ))}
-          </ul>
+        <div className="split-screen-filter-container">
+          <h2>Welcome to Spotify Dashboard</h2>
+          {loading && <p className="loading">Loading tracks...</p>}
         </div>
-      ) : (
-        <p>No top tracks found.</p>
-      )}
 
-      {/* Display the current track and play the audio */}
-      {currentTrack && (
-        <div>
-          <h3>Now Playing: {currentTrack.name} by {currentTrack.artists.map(artist => artist.name).join(', ')}</h3>
-          <audio controls autoPlay>
-            <source src={currentTrack.preview_url} type="audio/mp3" />
-            Your browser does not support the audio element.
-          </audio>
+        <div className="split-screen-left">
+          {!loading && topTracks.length > 0 ? (
+            <div className="tracks-container">
+              <h2>Your Top Tracks</h2>
+              <ul className="track-list">
+                {topTracks.map((track, index) => (
+                  <li
+                    key={index}
+                    className="track-item"
+                    onClick={() => handlePlayTrack(track)}
+                  >
+                    {track.name} by {track.artists.map((artist) => artist.name).join(', ')}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ) : (
+            <p className="no-tracks">No top tracks found.</p>
+          )}
         </div>
-      )}
+        
+        <div className="split-screen-right">
+          {currentTrack && (
+            <div className="now-playing">
+              <h3>
+                Now Playing: {currentTrack.name} by{' '}
+                {currentTrack.artists.map((artist) => artist.name).join(', ')}
+              </h3>
+              {currentTrack.external_urls?.spotify && (
+                <p>
+                  <button
+                    onClick={() => window.open(currentTrack.external_urls.spotify, "_blank", "noopener,noreferrer")}
+                    className="spotify-button button"
+                  >
+                    Listen on Spotify
+                  </button>
+                </p>
+                // <p>
+                //   <a
+                //     href={currentTrack.external_urls.spotify}
+                //     target="_blank"
+                //     rel="noopener noreferrer"
+                //     className="spotify-link"
+                //   >
+                //     Listen on Spotify
+                //   </a>
+                // </p>
+              )}
+            </div>
+          )}
+        </div>
+
+      </div>
     </div>
   );
-  
 };
 
 export default SpotifyCallback;

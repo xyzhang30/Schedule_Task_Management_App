@@ -24,7 +24,7 @@ conn_details = psycopg2.connect(
 # create tables 
 cursor = conn_details.cursor()
 Table_creation = '''
-    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, post, accounts, notifications, groups, public_events, memberships, registrations, group_requests, category, event_category, task_category, studytime CASCADE;    
+    DROP TABLE IF EXISTS assignment, task, student, friend, availability, likes, shares, saves, comments, events, event, post, accounts, notifications, groups, public_events, memberships, registrations, group_requests, category, event_category, task_category, studytime CASCADE;    
     
     CREATE TABLE accounts (
         account_id SERIAL PRIMARY KEY,
@@ -66,28 +66,16 @@ Table_creation = '''
         task_id SERIAL PRIMARY KEY,
         account_id INTEGER REFERENCES accounts(account_id),
         due_time TIMESTAMP NOT NULL,
-        task_name VARCHAR(20) NOT NULL,
+        task_name VARCHAR(1000) NOT NULL,
         category VARCHAR(100),
         complete BOOLEAN DEFAULT false,
         event_id INTEGER REFERENCES events(event_id)
-    );
-
-    CREATE TABLE assignment ( 
-        task_id INTEGER PRIMARY KEY REFERENCES task(task_id),
-        class_id INTEGER REFERENCES events(event_id)
     );
 
     CREATE TABLE task_category (
         account_id INTEGER REFERENCES accounts(account_id),
         category_name VARCHAR(100),
         PRIMARY KEY (account_id, category_name)
-    );
-
-    CREATE TABLE availability (
-        account_id INTEGER REFERENCES accounts(account_id),
-        unav_interval VARCHAR(20),
-        full_date VARCHAR(15),
-        PRIMARY KEY (account_id, unav_interval, full_date)
     );
 
     CREATE TABLE post ( 
@@ -103,12 +91,6 @@ Table_creation = '''
         post_id INTEGER REFERENCES post(post_id),
         liker_id INTEGER REFERENCES accounts(account_id),
         PRIMARY KEY (post_id, liker_id)
-    );
-
-    CREATE TABLE shares(
-        post_id INTEGER REFERENCES post(post_id),
-        sharer_id INTEGER REFERENCES accounts(account_id),
-        PRIMARY KEY (post_id, sharer_id)
     );
 
     CREATE TABLE saves(
@@ -214,101 +196,221 @@ for n in range (3):
 print("Friends test data generated")
 
 
-# events test 
-event_categories = ['club', 'personal', 'school', 'work', 'health', 'meetup', 'conference', 'webinar']
+# events test data
+event_categories = ['Academic', 'Social', 'Career', 'Recreational']
+start = datetime(2024, 10, 28)
+end = datetime(2025, 1, 1)
+events_data = {
+    'Academic': [
+        ('Math Lecture', 'Important lecture for your course', 'blue'),
+        ('History Lecture', 'History of World War II', 'green'),
+        ('Physics Lab', 'Lab session on optics', 'red'),
+        ('Chemistry Lecture', 'Organic Chemistry lecture', 'yellow'),
+        ('Computer Science Workshop', 'Programming Workshop', 'purple'),
+        ('Language Class', 'Spanish language class', 'orange'),
+        ('Engineering Seminar', 'Seminar on civil engineering', 'pink'),
+        ('Psychology Lecture', 'Introduction to Psychology', 'brown'),
+        ('Philosophy Class', 'Philosophy 101', 'cyan'),
+        ('Literature Reading', 'Literature discussion session', 'grey')
+    ],
+    'Social': [
+        ('Club Meeting', 'Weekly club gathering', 'blue'),
+        ('Game Night', 'Enjoy some board games with friends', 'green'),
+        ('Dinner Party', 'A social dinner with friends', 'red'),
+        ('Movie Night', 'Watch a movie with friends', 'yellow'),
+        ('Music Concert', 'Live music event', 'purple'),
+        ('Study Group', 'Meet with peers to study', 'orange'),
+        ('Social Event', 'Catch up with old friends', 'pink'),
+        ('Trivia Night', 'Compete in a trivia contest', 'brown'),
+        ('Outdoor BBQ', 'Grill and chill with friends', 'cyan'),
+        ('Potluck Dinner', 'Bring a dish and share', 'grey')
+    ],
+    'Career': [
+        ('Career Fair', 'Network with potential employers', 'blue'),
+        ('Internship Interview', 'Prepare for your interview', 'green'),
+        ('Resume Workshop', 'Improve your resume with experts', 'red'),
+        ('Networking Event', 'Meet professionals in your field', 'yellow'),
+        ('Career Development Workshop', 'Workshops to help your career', 'purple'),
+        ('Job Search Session', 'Strategies for job hunting', 'orange'),
+        ('Mentorship Program', 'Connect with a mentor in your field', 'pink'),
+        ('Professional Seminar', 'Gain insights into your industry', 'brown'),
+        ('Mock Interview', 'Practice for your interview', 'cyan'),
+        ('Industry Event', 'Attend an industry-related event', 'grey')
+    ],
+    'Recreational': [
+        ('Hackathon', 'Programming competition', 'blue'),
+        ('Outdoor Adventure', 'Go hiking with friends', 'green'),
+        ('Beach Day', 'Spend the day at the beach', 'red'),
+        ('Sporting Event', 'Attend a local game', 'yellow'),
+        ('Camping Trip', 'Camp in the wilderness for the weekend', 'purple'),
+        ('Dance Class', 'Learn a new dance style', 'orange'),
+        ('Photography Walk', 'Capture the beauty of nature', 'pink'),
+        ('Art Exhibition', 'Visit a local art show', 'brown'),
+        ('Cooking Class', 'Learn new recipes', 'cyan'),
+        ('Fitness Class', 'Join a fitness challenge', 'grey')
+    ]
+}
+locations = [
+    "Student Union Building",
+    "Main Hall",
+    "Engineering Auditorium",
+    "Science and Technology Center",
+    "Campus Green",
+    "University Conference Center",
+    "Student Commons",
+    "Library Lounge",
+    "Sports Complex Track",
+    "Campus Amphitheater",
+    "University Ballroom",
+    "Lecture Hall 2A",
+    "Campus Stadium",
+    "Art Gallery",
+    "Debate Hall",
+    "Engineering Plaza",
+    "Environmental Science Building",
+    "Health Sciences Auditorium",
+    "Dining Hall",
+    "Computer Science Lab"
+]
+
+# create event category test data
 for category in event_categories:
     cursor.execute('''
         INSERT INTO event_category (category_name)
         VALUES (%s)
         ON CONFLICT (category_name) DO NOTHING
     ''', (category,))
-print("Event categories test data generated")
-num_events = 20  
-for _ in range(num_events):
-    event_name = faker.sentence(nb_words=3).rstrip('.')
-    event_location = faker.city()
-    start_date = faker.date_time_between(start_date='-1y', end_date='+1y')
-    duration = timedelta(hours=random.randint(1, 5), minutes=random.randint(0, 59))
-    end_date = start_date + duration
-    category = random.choice(event_categories)
-    account_id = random.randint(1, 6)
-    label_text = random.choice(['Important', 'Optional', 'Urgent', 'Follow-up', 'Review'])
-    label_color = random.choice(['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'grey', 'pink'])
-    frequency_options = ['Every Day', 'Once a Week', 'Twice a Week', None]
-    frequency = random.choice(frequency_options)
-    repeat_until = None
-    if frequency:
-        repeat_until = start_date + timedelta(days=random.randint(30, 180))
-    cursor.execute('''
-        INSERT INTO events (
-            name, location, start_date, end_date, category,
-            account_id, label_text, label_color, frequency, repeat_until
+
+for account in range(1, 7):
+    for _ in range(20):
+        account_id = account
+        category = random.choice(event_categories)
+        event_name, label_text, label_color = random.choice(events_data[category])
+
+        random_start_date = faker.date_between(start_date=start, end_date=end)
+        random_start_hour = random.randint(9, 23) 
+        random_start_minute = random.choice([0, 15, 30, 45])
+        start_date = datetime(
+            year=random_start_date.year,
+            month=random_start_date.month,
+            day=random_start_date.day,
+            hour=random_start_hour,
+            minute=random_start_minute
         )
-        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-    ''', (
-        event_name,
-        event_location,
-        start_date,
-        end_date,
-        category,
-        account_id,
-        label_text,
-        label_color,
-        frequency,
-        repeat_until
-    ))
-print(f"{num_events} Events test data generated")
+        start_date = faker.date_time_between(start_date=start, end_date=end)
 
+        duration_hours = random.randint(1, 5)
+        end_date = start_date + timedelta(hours=duration_hours)
 
+        location = random.choice(locations)
+        frequency = random.choice(["Once a Week", "None", "Everyday", "Twice a Week"])
+        
+        if frequency == "Everyday":
+            repeat_until = start_date + timedelta(days=random.randint(1, 10))
+        elif frequency == "Once a Week":
+            repeat_until = start_date + timedelta(days=random.choice([7, 14, 21, 28]))
+        elif frequency == "Twice a Week":
+            repeat_until = start_date + timedelta(days=random.choice([14, 28, 42, 56]))
 
+        cursor.execute('''
+            INSERT INTO events (account_id, name, location, start_date, end_date, category, label_text, label_color, frequency, repeat_until)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+        ''', (account, event_name, location, start_date, end_date, category, label_text, label_color, frequency, repeat_until,))
 
-# for _ in range(10):
-#     event_name = faker.word()
-#     event_location = faker.city()
-#     s_date = faker.date_this_year() 
-#     start_time = faker.time_object() 
-#     s_date = datetime.combine(s_date, start_time)
-#     end_time = (datetime.combine(s_date.date(), start_time) + timedelta(hours=random.randint(1, 5), minutes=random.randint(0, 59))).time()
-#     e_date = datetime.combine(s_date.date(), end_time) 
-#     category = random.choice(['club', 'personal', 'school', 'work'])
-#     account_id = random.randint(1, 6)
-#     label_text = faker.word()  # Random word for label text
-#     label_color = faker.color_name()  # Random color name for label color
-
-#     cursor.execute('''
-#         INSERT INTO events (name, location, start_date, end_date, category, account_id, label_text, label_color)
-#         VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-#     ''', (event_name, event_location, s_date, e_date, category, account_id, label_text, label_color))
-# print("Events test data generated")
+print("Event test data generated")
 
 
 # tasks test data
-for _ in range (30):
-    due_time = faker.date_time_this_year() 
-    task_name = faker.word()
-    category = random.choice(['club', 'personal', 'school', 'work'])
-    complete = random.choice([True, False])
-    account_id = random.randint(1, 5)
-    event_id = random.randint(1, 3)
+task_categories = ['club', 'personal', 'assignment', 'housework']
+start_date = datetime(2024, 10, 28)
+end_date = datetime(2025, 1, 1)
+tasks = {
+    'club': [
+        'Organize Club Meeting', 'Plan Club Event', 'Recruit New Members', 
+        'Design Club Flyers', 'Host Club Social', 'Book Club Venue', 
+        'Coordinate Club Fundraiser', 'Arrange Club Trip', 'Prepare Club Newsletter', 
+        'Organize Club Elections'
+    ],
+    'personal': [
+        'Go for a Run', 'Backup Phone Data', 'Learn a New Skill', 
+        'Book a Spa Day', 'Write a Daily Journal Entry', 'Plan a Vacation', 
+        'Write a Letter to a Friend', 'Try a New Recipe', 'Do a Puzzle', 
+        'Take a Photography Walk'
+    ],
+    'assignment': [
+        'Complete Math Homework', 'Write History Essay', 'Study for Final', 
+        'Prepare Presentation', 'Research for Project', 'Complete Lab Report', 
+        'Review Notes', 'Practice Coding', 'Finish Reading Assignment', 'Complete Group Work'
+    ],
+    'housework': [
+        'Clean Kitchen', 'Wash Dishes', 'Vacuum Living Room', 'Mop Floors', 
+        'Do Laundry', 'Take Out Trash', 'Clean Bathroom', 'Organize Closet', 
+        'Water Plants', 'Clean Windows'
+    ]
+}
 
-    cursor.execute('''
-        INSERT INTO task (due_time, task_name, category, complete)
-        VALUES (%s, %s, %s, %s)
-    ''', (due_time, task_name, category, complete))
+# task categories
+event_idx = 1
+for account in range(1, 7):
+    #categories
+    for category in task_categories:
+        cursor.execute('''
+            INSERT INTO task_category (account_id, category_name)
+            VALUES (%s, %s)
+            ON CONFLICT (account_id, category_name) DO NOTHING
+        ''', (account, category))
+    #tasks
+    for _ in range (20):
+        random_date = faker.date_between(start_date=start_date, end_date=end_date)
+        random_hour = random.randint(9, 23) 
+        random_minute = random.choice([0, 30, 59])
+        due_time = datetime(
+            year=random_date.year,
+            month=random_date.month,
+            day=random_date.day,
+            hour=random_hour,
+            minute=random_minute
+        )
+        due_time = faker.date_time_between(start_date=start_date, end_date=end_date)
+        category = random.choice(task_categories)
+        task_name = random.choice(tasks[category])
+        complete = random.choice([True, False])
+        account_id = account
+
+        event_id = random.randint(event_idx, event_idx + 20)
+
+        cursor.execute('''
+            INSERT INTO task (due_time, task_name, category, complete, account_id, event_id)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        ''', (due_time, task_name, category, complete, account_id, event_id))
+
+    event_idx += 20
+
 print("Tasks test data generated")
 
 
 #studytime test data
-for i in range (1, 6):
-    account_id = i
-    date = '2024-11-12'
-    study_time = '02:25:43'
+today = datetime.today()
+start_of_week = today - timedelta(days=today.weekday())
+this_week = [start_of_week + timedelta(days=i) for i in range(7)]
 
-    cursor.execute('''
-        INSERT INTO studytime (account_id, date, study_time)
-        VALUES (%s, %s, %s)
+for account in range(1, 6):
+    account_id = account
+    print(f"Account {account_id}:")
+    for date in this_week:
+        hours = random.randint(0, 14)
+        minutes = random.randint(0, 59)
+        seconds = random.randint(0, 59) 
+        date_str = date.strftime('%Y-%m-%d')
+        study_time = f"{hours:02}:{minutes:02}:{seconds:02}"
+        print(f"  Date: {date_str}, Study Time: {study_time}")
+
+        cursor.execute('''
+            INSERT INTO studytime (account_id, date, study_time)
+            VALUES (%s, %s, %s)
     ''', (account_id, date, study_time))
 print("Studytime test data generated")
+
 
 # Post test data
 titles = [
@@ -400,7 +502,103 @@ for _ in range(50):
 print("Comments test data generated")
 
 
-# commit changes to save
+# Generate group and public event data
+group_events = {
+    "Photography Club": ["Photo Walk in City", "Mastering Portrait Photography", "Outdoor Photography Tips", "Night Photography Workshop", "Landscape Capturing Day"],
+    "Robotics Club": ["Building Advanced Drones", "Coding AI for Robots", "Intro to Machine Learning", "Robotics Expo", "Robot Battle Challenge"],
+    "Drama Society": ["Shakespeare Night", "Modern Play Rehearsal", "Drama Workshop for Beginners", "Improv Comedy Night", "Acting Masterclass"],
+    "Coding Club": ["Hackathon for Beginners", "Intro to Web Development", "Coding Bootcamp", "Data Structures Workshop", "AI Programming Tips"],
+    "Chess Club": ["Beginner Chess Class", "Advanced Chess Tactics", "Simultaneous Chess Match", "Speed Chess Tournament", "Chess Strategy Workshop"],
+    "Book Club": ["Fiction Book Review", "Author Spotlight Night", "Classic Literature Discussion", "Weekly Reading Meetup", "Poetry Slam Night"],
+    "Dance Team": ["Hip Hop Workshop", "Classical Dance Rehearsal", "Salsa Night", "Contemporary Dance Show", "Group Choreography Practice"],
+    "Music Ensemble": ["Orchestra Practice", "Jazz Night", "Solo Recital Showcase", "Band Jam Session", "Classical Music Masterclass"],
+    "Sports Club": ["Friendly Soccer Match", "Basketball Pickup Game", "Tennis Tournament", "Swimming Relay Practice", "Track and Field Sprinting"],
+    "Entrepreneurship Society": ["Startup Pitch Night", "Business Plan Workshop", "Venture Capital Talk", "Entrepreneur Q&A Session", "Product Launch Simulation"],
+    "Volunteering Club": ["Community Clean-Up Drive", "Charity Bake Sale", "Clothes Donation Drive", "Neighborhood Fundraiser", "Animal Shelter Visit"],
+    "Film Society": ["Weekly Movie Screening", "Film Discussion Panel", "Short Film Competition", "Director Guest Lecture", "Silent Film Night"],
+    "Environment Club": ["Tree Planting Event", "Beach Clean-Up Day", "Recycling Workshop", "Energy Conservation Talk", "Sustainable Living Seminar"],
+    "Astronomy Club": ["Star Gazing Night", "Planetarium Visit", "Astrophotography Workshop", "Telescope Building Session", "Space Documentary Screening"],
+    "AI Society": ["Neural Networks Workshop", "Ethics in AI Debate", "Introduction to Natural Language Processing", "AI Coding Contest", "AI Startup Networking"],
+    "Toastmasters": ["Public Speaking 101", "Speech Contest", "Leadership Development Workshop", "Impromptu Speaking Night", "Storytelling Techniques"],
+    "Hackers United": ["Cybersecurity Basics", "Capture the Flag Challenge", "Reverse Engineering Workshop", "Penetration Testing Demo", "Ethical Hacking Seminar"],
+    "Gardening Club": ["Indoor Plant Care Workshop", "Community Garden Day", "Composting Techniques", "Garden Design Basics", "Seed Exchange Meetup"],
+    "Board Games Club": ["Board Game Night", "New Strategy Game Workshop", "Chess and Checkers Evening", "Collaborative Puzzle Solving", "Dungeons & Dragons Session"],
+    "Yoga Enthusiasts": ["Morning Yoga Session", "Yoga for Stress Relief", "Power Yoga Workshop", "Breathwork and Meditation", "Yoga Flow Challenge"],
+    "Running Club": ["Sunrise Marathon Training", "Park Run Meetup", "Sprint Drills Workshop", "Trail Running Adventure", "Post-Run Nutrition Talk"],
+    "Baking Circle": ["Cupcake Decorating Class", "Sourdough Bread Baking", "Cookie Swap Event", "Baking Science Basics", "Cake Frosting Workshop"],
+    "Cultural Association": ["International Food Festival", "Cultural Dance Performances", "World Music Night", "Language Learning Exchange", "Art and Craft Fair"],
+    "Gaming Guild": ["LAN Party Night", "New Game Launch Meetup", "Retro Gaming Competition", "Game Development Workshop", "Esports Viewing Party"],
+    "MUN Team": ["Model UN Training Session", "Debate and Negotiation Workshop", "Resolution Drafting Practice", "Mock Committee Session", "International Policy Talk"],
+    "Literature Lovers": ["Poetry Reading Night", "Book Signing Event", "Creative Writing Workshop", "Literary Trivia Contest", "Author Spotlight Series"],
+    "Podcast Club": ["Podcast Recording Basics", "Interview Techniques Workshop", "Podcast Editing Tips", "Storytelling in Podcasts", "Podcast Launch Party"],
+    "Art Collective": ["Art Exhibit Opening", "Sketching Workshop", "Modern Art Discussion", "Painting for Beginners", "Art Supply Swap"],
+    "Startups Hub": ["Elevator Pitch Practice", "Startup Legal Basics", "Funding Strategy Session", "Startup Success Stories", "Networking Night"],
+    "Chess Enthusiasts": ["Chess Opening Tactics", "Endgame Strategies", "Simultaneous Chess Challenge", "Speed Chess Workshop", "Chess AI Analysis"]
+}
+
+group_events_list = [(group_name, events) for group_name, events in group_events.items()]
+
+for account in range(1, 7):
+    for i in range(5):
+        group_name = group_events_list[i + (account - 1) * 5][0]
+        events_list = group_events_list[i + (account - 1) * 5][1]
+
+        # Insert group and retrieve its ID
+        year_created = random.randint(2021, 2025)
+        cursor.execute('''
+            INSERT INTO groups (group_name, admin_id, year_created)
+            VALUES (%s, %s, %s)
+            ON CONFLICT (group_name) DO NOTHING
+            RETURNING group_id
+        ''', (group_name, account, year_created))
+
+        # Add membership for this account to the group
+        cursor.execute('''
+            INSERT INTO memberships (account_id, group_id)
+            VALUES (%s, (SELECT group_id FROM groups WHERE group_name = %s))
+            ON CONFLICT (account_id, group_id) DO NOTHING
+        ''', (account, group_name,))
+
+        # Add public events for the group
+        for event_name in events_list:
+            is_all_day = random.choice([True, False])
+
+            if is_all_day:
+                random_start_date = faker.date_between(start_date=start, end_date=end)
+                start_date = datetime(
+                    year=random_start_date.year,
+                    month=random_start_date.month,
+                    day=random_start_date.day,
+                    hour=0,
+                    minute=0
+                )
+                duration_hours = random.choice([23, 47, 71, 95])
+                duration_minutes = 59
+                end_date = start_date + timedelta(hours=duration_hours, minutes=duration_minutes)
+            else:
+                random_start_date = faker.date_between(start_date=start, end_date=end)
+                random_start_hour = random.randint(9, 23)
+                random_start_minute = random.choice([0, 15, 30, 45])
+                start_date = datetime(
+                    year=random_start_date.year,
+                    month=random_start_date.month,
+                    day=random_start_date.day,
+                    hour=random_start_hour,
+                    minute=random_start_minute
+                )
+                duration_hours = random.randint(1, 5)
+                end_date = start_date + timedelta(hours=duration_hours)
+
+            cursor.execute('''
+                INSERT INTO public_events (event_name, group_id, start_date_time, end_date_time, is_all_day)
+                VALUES (%s, (SELECT group_id FROM groups WHERE group_name = %s), %s, %s, %s)
+                ON CONFLICT (event_name) DO NOTHING
+            ''', (event_name, group_name, start_date, end_date, is_all_day))
+
+print("Group and public event test data generated")
+
+
+# commit changes
 conn_details.commit()
 cursor.close()
 conn_details.close()

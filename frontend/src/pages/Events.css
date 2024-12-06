@@ -389,23 +389,15 @@
   }
 }
 
-.toggle-button {
-  background-color: #606c38;;
-  color: white;
-  padding: 12px 12px;
-  font-size: 12px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
+#toggle-button {
   transition: background-color 0.3s ease;
   margin-bottom: 20px;
-
   display: block;
   margin-left: auto;
   margin-right: 0;
-
+  padding: 4px 8px;
 }
 
-.toggle-button:hover {
+#toggle-button:hover {
   background-color: #a3b18a;
 }

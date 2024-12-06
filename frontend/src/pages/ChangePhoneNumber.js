@@ -6,6 +6,7 @@ const ChangePhoneNumber = () => {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
+  // save the new phone number
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -31,7 +32,7 @@ const ChangePhoneNumber = () => {
   };
 
   return (
-    <div>
+    <div className='edit-profile-pages'>
       <h2>Change Phone Number</h2>
       <form onSubmit={handleSubmit}>
         <div>

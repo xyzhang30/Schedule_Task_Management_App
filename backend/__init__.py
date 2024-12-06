@@ -9,8 +9,9 @@ uploadParameters = {'UPLOAD_FOLDER': '/srv/app/avatars', 'ALLOWED_EXTENSIONS': {
 postImageParameters = {'UPLOAD_FOLDER': '/srv/app/post_images','ALLOWED_EXTENSIONS': {'png', 'jpg', 'jpeg', 'gif'}}
 
 def create_app(test_config=None):
-    # create and configure the app
-    # app = Flask(__name__, instance_relative_config=True)
+    '''
+    create and configure the app
+    '''
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'TEMPORARY_KEY'
     app.config['MAIL_SERVER']='live.smtp.mailtrap.io'
@@ -24,26 +25,7 @@ def create_app(test_config=None):
     mail.init_app(app)
     CORS(app, supports_credentials=True, resources={r"/*": {"origins": ["http://localhost:3000", "http://127.0.0.1:3000"]}})
 
-    # app.config.from_mapping(
-    #     SECRET_KEY='not-really-that-secret-huh',
-    #     DATABASE=os.path.join(app.instance_path, 'mvc.sqlite'),
-    #     TEMPLATES_AUTO_RELOAD = True 
-    # )
-
-    # if test_config is None:
-    #     # load the instance config, if it exists, when not testing
-    #     app.config.from_pyfile('config.py', silent=True)
-    # else:
-    #     # load the test config if passed inv
-    #     app.config.from_mapping(test_config)
-
-    # # ensure the instance folder exists
-    # try:
-    #     os.makedirs(app.instance_path)
-    # except OSError:
-    #     pass
-
-    # a simple page that says hello
+    
     @app.route('/')
     def hello():
         return 'backend server running'

@@ -33,7 +33,7 @@ const ForgotPassword = () => {
   };
 
   return (
-    <div>
+    <div className='edit-profile-pages'>
       <h2>Forgot Password</h2>
       <form onSubmit={handleSubmit}>
         <div>

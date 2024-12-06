@@ -9,6 +9,7 @@ const ChangePassword = () => {
   const [error, setError] = useState('');
   const [showLogin, setShowLogin] = useState(false)
 
+  // save the new password 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -35,7 +36,7 @@ const ChangePassword = () => {
   };
 
   return (
-    <div>
+    <div className='edit-profile-pages'>
       <h2>Change Password</h2>
       <form onSubmit={handleSubmit}>
         <div>

@@ -49,6 +49,7 @@ const Events = () => {
     refreshEvents();
   }, [showPastEvents]);
 
+  // reload events -- refetch the information of all events
   const refreshEvents = async () => {
     try {
       const response = await axios.get(`${baseUrl}/event/getEventsByAccount`, {
@@ -78,6 +79,7 @@ const Events = () => {
     }
   };
 
+  // fetches categories when event component mounts
   useEffect(() => {
     const fetchCategories = async () => {
       try {
@@ -91,6 +93,7 @@ const Events = () => {
     fetchCategories();
   }, []);
 
+  // check events to sent alert for events that are currently happening when event component mounts
   useEffect(() => {
     const checkEvents = () => {
       const now = new Date();
@@ -112,6 +115,7 @@ const Events = () => {
     return () => clearInterval(interval);
   }, [events]);
 
+  // group the events by start date in display
   const groupEventsByDate = (events) => {
     const grouped = {};
     events.forEach((event) => {
@@ -153,6 +157,7 @@ const Events = () => {
     setShowPastEvents(!showPastEvents);
   };
 
+  // filter events based on search value
   const filteredEvents = Object.keys(events).reduce((filtered, date) => {
     const eventsForDate = events[date].filter(
       (event) =>
@@ -182,6 +187,7 @@ const Events = () => {
     setNewEvent({ ...newEvent, [name]: value });
   };
 
+  // save new event
   const handleAddEvent = async (e) => {
     e.preventDefault();
     const formData = {
@@ -255,12 +261,14 @@ const Events = () => {
     }
   };
 
+  // show confirmation alert when deleting events
   const handleDeleteEventClick = (eventId) => {
     if (window.confirm('Are you sure you want to delete this event?')) {
       handleDeleteEvent(eventId);
     }
   };
 
+  // delete event
   const handleDeleteEvent = async (eventId) => {
     try {
       await axios.delete(`${baseUrl}/event/deleteEvent/${eventId}`);
@@ -285,6 +293,7 @@ const Events = () => {
     }
   };
 
+  // show alert when updating events
   const handleUpdateEventClick = (event) => {
     if (event.series_id && event.event_id !== event.series_id) {
       alert('Cannot update individual occurrences of a recurring event. Please update the original event.');
@@ -370,6 +379,7 @@ const Events = () => {
     }
   };
 
+  // clears all unused categories
   const handleCleanCategories = async () => {
     try {
       await axios.delete(`${baseUrl}/event/category/clean`);
@@ -451,8 +461,8 @@ const Events = () => {
           <p>{error}</p>
         ) : (
           <div className="events-list">
-            <button className="toggle-button" onClick={toggleShowPastEvents}>
-          {showPastEvents ? 'Hide Past Events' : 'Previous Events'}
+            <button className="button" id="toggle-button" onClick={toggleShowPastEvents}>
+          {showPastEvents ? 'Hide Past Events' : 'Past Events'}
           </button>
             {Object.keys(filteredEvents)
               .sort((a, b) => new Date(a) - new Date(b))

@@ -1,5 +1,5 @@
 # Schedule/Task Management System
-
+#### Alina Yin, Alisha Zhang, Carrie Hang, David Shenkerman, Olivia Fu, Weijia Han
 
 ### Running the app
 Run Docker: 
@@ -29,8 +29,10 @@ Frontend:
 - react-router-dom
 - axios 
 - font-awesome
+- microsoft-cognitiveservices-speech-sdk
 
 Backend: 
 - flask-cors
 - sqlalchemy
 - psycopg2
+- flask mail

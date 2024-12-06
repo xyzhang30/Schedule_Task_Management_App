@@ -14,40 +14,18 @@ from ..models.registration import Registration
 from ..decorators import is_logged_in
 
 
-# Functions included:
-
-# Get all groups (index)
-# Get groups by account id (showGroups)
-
-# Group page access control (toGroup)
-# Create group (createGroup)
-# Edit group (editGroup)
-# Delete group (deleteGroup)
-
-# Member page access control (showMembers)
-# Request join group (requestJoin)
-# Leave group (leaveGroup)
-# Add member by account_id (addMember)
-# Delete member by account_id (deleteMember)
-
-# Get events by group id (showEvents)
-
-# Event popup access control (toEvent)
-# Create event (createEvent)
-# Edit event (editEvent)
-# Cancel event (cancelEvent)
-# Register for event (registerEvent)
-# Drop event (dropEvent)
-# Request register event (requestRegister)
-# Add participant to event (addParticipant)
-
-
 bp = Blueprint('group', __name__, url_prefix='/group')
 
 
 @bp.route('/', methods = ['GET'])
 @is_logged_in
 def index():
+    """
+    Fetch and return a list of all groups in the database.
+    
+    :return: JSON response containing a list of all groups, where each group is 
+             represented as a dictionary of its attributes.
+    """
     group = Group.all()
     groups_list = [grp.to_dict() for grp in group]
     return jsonify(groups_list)
@@ -56,6 +34,13 @@ def index():
 @bp.route('/show-groups', methods=['GET'])
 @is_logged_in
 def showGroups():
+    """
+    Fetch and return a list of groups of which the current user is a member.
+
+    :return: JSON response containing a list of groups the current user belongs to, 
+             where each group is represented as a dictionary of its attributes. 
+             Returns a 404 error with a message if no groups are found.
+    """
     user_id = session.get('user')
     # user_id = 1 # HARDCODE
     
@@ -72,6 +57,13 @@ def showGroups():
 @bp.route('/show-admin-groups', methods=['GET'])
 @is_logged_in
 def showAdminGroups():
+    """
+    Fetch and return a list of groups of which the current user is an administrator.
+
+    :return: JSON response containing a list of groups the current user administers, 
+             where each group is represented as a dictionary of its attributes. 
+             Returns a 404 error with a message if no groups are found.
+    """
     user_id = session.get('user')
     # user_id = 1 # HARDCODE
 
@@ -87,7 +79,13 @@ def showAdminGroups():
 @bp.route('/get-group-name-by-id/<int:group_id>', methods=['GET'])
 @is_logged_in
 def getGroupNameByID(group_id):
+    """
+    Fetch and return the name of the group with the specified group_id.
 
+    :param group_id: ID of the group to fetch the name for.
+    :return: Plain text response containing the group name if the group is found. 
+             Returns a 404 error with a message if no group is found with the given ID.
+    """
     group = Group.get_grp_by_id(group_id)
 
     if group is None:
@@ -99,6 +97,13 @@ def getGroupNameByID(group_id):
 @bp.route('/create-group', methods = ['POST'])
 @is_logged_in
 def createGroup():
+    """
+    Create a new group with the specified group name and set the current user as its administrator.
+
+    :request_param group_name: The name of the group to be created (retrieved from form data).
+    :return: JSON response with a success message and the created group's details if successful. 
+             Returns a 400 error with a message if the group name already exists.
+    """
     group_name = request.form.get("group_name")
     # group_avatar = request.form.get("group_avatar")
     year_created = datetime.now().year
@@ -110,10 +115,7 @@ def createGroup():
     if exist_group:
         return jsonify({'message': 'Group name already exists. Please choose a different name.'}), 400
     
-    # generated_id = str(uuid.uuid1())
-
     group = Group(
-        # group_id=generated_id,
         group_name=group_name,
         # group_avatar=group_avatar,
         year_created=year_created,
@@ -125,6 +127,13 @@ def createGroup():
 
 
 def addAdminAsMember(group_id, admin_id):
+    """
+    Add the administrator as a member of the specified group.
+
+    :param group_id: ID of the group to which the administrator will be added as a member.
+    :param admin_id: ID of the administrator to be added as a member.
+    :return: JSON response with a success message and the membership details if successful.
+    """
     membership = Membership(
         group_id=group_id,
         account_id=admin_id
@@ -136,7 +145,16 @@ def addAdminAsMember(group_id, admin_id):
 @bp.route('/to-group/<int:group_id>', methods=['GET'])
 @is_logged_in
 def toGroup(group_id):
+    """
+    Fetch and return detailed information about a specified group, including user-specific permissions.
 
+    :param group_id: ID of the group to fetch information for.
+    :return: JSON response containing the group's details, including:
+             - Group attributes (ID, name, year created, administrator ID, etc.).
+             - List of events associated with the group.
+             - User-specific permissions and status (admin, member, or guest).
+             Returns a 404 error with a message if the group is not found.
+    """
     user_id = session.get('user')
     # user_id = 1 # HARDCODE
 
@@ -172,7 +190,15 @@ def toGroup(group_id):
 @bp.route('/edit-group/<int:group_id>', methods = ['PUT'])
 @is_logged_in
 def editGroup(group_id):
+    """
+    Update the details of a specified group if the current user is the group administrator.
 
+    :param group_id: ID of the group to be updated.
+    :request_param new_group_name: The new name for the group (optional).
+    :return: JSON response with a success message and the updated group's details if successful.
+             Returns an error response if the user is not the group administrator or if 
+             there is an issue with the request.
+    """
     group, error = groupAdminError(group_id)
     if error:
         return error
@@ -192,7 +218,14 @@ def editGroup(group_id):
 @bp.route('/delete-group/<int:group_id>', methods = ['GET', 'DELETE'])
 @is_logged_in
 def deleteGroup(group_id):
+    """
+    Delete the specified group and all associated memberships, if the current user is the group administrator.
 
+    :param group_id: ID of the group to be deleted.
+    :return: JSON response with a success message if the group is deleted successfully.
+             Returns an error response if the user is not the group administrator or if 
+             there is an issue with the deletion process.
+    """
     group, error = groupAdminError(group_id)
     if error:
         return error
@@ -207,6 +240,16 @@ def deleteGroup(group_id):
 @bp.route('/show-members/<int:group_id>', methods=['GET'])
 @is_logged_in
 def showMembers(group_id):
+    """
+    Fetch and return a list of members in the specified group, along with their user information and permissions.
+
+    :param group_id: ID of the group to fetch member information for.
+    :return: JSON response containing the group's details, including:
+             - Group attributes (ID, name, admin ID).
+             - List of members with their associated user data (username, membership details).
+             - User-specific permissions (admin, member).
+             Returns a 404 error if the group is not found, and a 403 error if the user is not a member of the group.
+    """
     group = Group.get_grp_by_id(group_id)
     if not group:
         return jsonify({'message': 'Group not found'}), 404
@@ -249,7 +292,14 @@ def showMembers(group_id):
 @bp.route('/add-member/<int:group_id>', methods=['POST'])
 @is_logged_in
 def addMember(group_id):
+    """
+    Add a new member to the specified group, if the current user is the group administrator.
 
+    :param group_id: ID of the group to add the new member to.
+    :request_param member_name: The username of the member to be added.
+    :return: JSON response with a success message and the new membership details if successful.
+             Returns a 400 error if the member name is missing, invalid, or the member is already in the group.
+    """
     group, error = groupAdminError(group_id)
     if error:
         return error
@@ -276,7 +326,14 @@ def addMember(group_id):
 @bp.route('/remove-member/<int:group_id>/<int:member_id>', methods=['DELETE'])
 @is_logged_in
 def removeMember(group_id, member_id):
+    """
+    Remove a member from the specified group, if the current user is the group administrator.
 
+    :param group_id: ID of the group from which the member will be removed.
+    :param member_id: ID of the member to be removed.
+    :return: JSON response with a success message if the member is removed successfully.
+             Returns a 404 error if the membership is not found.
+    """
     group, error = groupAdminError(group_id)
     if error:
         return error
@@ -293,7 +350,13 @@ def removeMember(group_id, member_id):
 @bp.route('/leave-group/<int:group_id>', methods=['DELETE'])
 @is_logged_in
 def leaveGroup(group_id):
+    """
+    Allow a user to leave a specified group.
 
+    :param group_id: ID of the group the user wants to leave.
+    :return: JSON response with a success message if the user successfully leaves the group.
+             Returns a 404 error if the group is not found, and a 400 error if the user is not a member of the group.
+    """
     group = Group.get_grp_by_id(group_id)
     if not group:
         return jsonify({'message': 'Group not found'}), 404
@@ -305,67 +368,34 @@ def leaveGroup(group_id):
     if not membership:
         return jsonify({'message': 'You are not a member of this group'}), 400
 
-    # admin_id = group.admin_id
-    # admin_email = Account.query.filter_by(account_id=admin_id).first().email
-
-    # send_email(
-    #     from_email=Account.query.filter_by(account_id=user_id).first().email,
-    #     to_email=admin_email,
-    #     subject="Member Left Group",
-    #     message=f"User ID {user_id} has left the group {group.group_name}."
-    # )
-
     membership.delete()
 
     return jsonify({'message': 'You have successfully left the group.'}), 200
 
 
-# @bp.route('/request-join/<int:group_id>', methods=['GET'])
-# def requestJoin(group_id):
-
-#     group = Group.get_grp_by_id(group_id)
-#     if not group:
-#         return jsonify({'message': 'Group not found'}), 404
-
-#     user_id = session.get('user')
-#     account = Account.get_acc_by_id(user_id)
-#     user_email = account.email
-#     user_name = account.username
-
-#     admin_id = group.admin_id
-#     admin = Account.get_acc_by_id(admin_id)
-#     admin_email = admin.email
-#     admin_name = admin.username
-    
-#     # TODO: add link to this email to make replying to request more convenient
-#     subject = f"Join Request for Group {group.group_name}"
-#     message = f"""
-#     Hi {admin_name},
-
-#     {user_name} (Account ID: {user_id}, Email: {user_email}) has requested to join your group "{group.group_name}" (ID: {group_id}).
-    
-#     Please respond to the request at your convenience.
-
-#     Best regards,
-#     Schedule Task Management APP Team
-#     """
-
-#     try:
-#         send_email(from_email=user_email, to_email=admin_email, subject=subject, message=message)
-#         return jsonify({'message': 'Join request sent successfully'}), 200
-#     except Exception as e:
-#         return jsonify({'message': f'Failed to send join request: {str(e)}'}), 500
-
-
 @bp.route('/get-group-id/<int:event_id>', methods=['GET'])
 @is_logged_in
 def getGroupID(event_id):
+    """
+    Fetch the group ID of the group that the specified public event belongs to.
+
+    :param event_id: ID of the public event to fetch the associated group ID for.
+    :return: JSON response containing the group ID associated with the specified event.
+             Returns a 404 error if the event is not found.
+    """
     event = PublicEvent.get_evt_by_id(event_id)
     return jsonify(event.group_id)
 
 
 @bp.route('/show-events/<int:group_id>', methods=['GET'])
 def showEvents(group_id):
+    """
+    Fetch and return a list of events associated with a specified group.
+
+    :param group_id: ID of the group to fetch events for.
+    :return: JSON response containing a list of events for the specified group, 
+             where each event is represented as a dictionary of its attributes.
+    """
     events = [event.to_dict() for event in PublicEvent.get_evts_by_grp_id(group_id)]
     return jsonify(events)
 
@@ -373,6 +403,13 @@ def showEvents(group_id):
 @bp.route('/show-reg-events', methods=['GET'])
 @is_logged_in
 def showRegEvents():
+    """
+    Fetch and return a list of public events that the current user has registered for.
+
+    :return: JSON response containing a list of events that the current user is registered for,
+             where each event is represented as a dictionary of its attributes. 
+             Returns a 204 status if no registrations are found and a 404 error if a registered event is not found.
+    """
     user_id = session.get('user')
     # user_id = 1 # HARDCODE
 
@@ -396,7 +433,16 @@ def showRegEvents():
 @bp.route('/to-event/<int:event_id>', methods=['GET'])
 @is_logged_in
 def toEvent(event_id):
-    
+    """
+    Fetch and return detailed information about a specified public event, including user-specific permissions.
+
+    :param event_id: ID of the event to fetch information for.
+    :return: JSON response containing the event's details, including:
+             - Event attributes (ID, name, start/end time, all-day status).
+             - Group ID and user-specific event registration status.
+             - User-specific permissions (admin, member, guest) and registration status.
+             Returns a 404 error if the event is not found.
+    """
     event = PublicEvent.get_evt_by_id(event_id)
     if not event:
         return jsonify({'message': 'Event not found'}), 404
@@ -450,7 +496,17 @@ def toEvent(event_id):
 @bp.route('/create-event/<int:group_id>', methods = ['POST'])
 @is_logged_in
 def createEvent(group_id):
+    """
+    Create a new public event within a specified group, if the current user is the group administrator.
 
+    :param group_id: ID of the group to create the event for.
+    :request_param event_name: Name of the event to be created.
+    :request_param start_date_time: Start date and time of the event in ISO 8601 format.
+    :request_param end_date_time: End date and time of the event in ISO 8601 format.
+    :request_param is_all_day: Boolean indicating whether the event lasts all day.
+    :return: JSON response with a success message and the details of the newly created event if successful.
+             Returns a 400 error if an event with the same name already exists.
+    """
     group, error_message = groupAdminError(group_id)
     if error_message:
         return error_message
@@ -468,10 +524,7 @@ def createEvent(group_id):
     if exist_event:
         return jsonify({'message': 'Event name already exists. Please choose a different name.'}), 400
     
-    # generated_id = str(uuid.uuid1())
-
     event = PublicEvent(
-        # event_id=generated_id,
         event_name=event_name,
         group_id=group_id,
         start_date_time=start_date_time,
@@ -487,7 +540,17 @@ def createEvent(group_id):
 @bp.route('/edit-event/<int:event_id>', methods = ['PUT'])
 @is_logged_in
 def editEvent(event_id):
+    """
+    Edit the details of an existing public event within a specified group, if the current user is the group administrator.
 
+    :param event_id: ID of the event to be edited.
+    :request_param new_event_name: New name for the event (optional).
+    :request_param start_date_time: New start date and time for the event (optional) in ISO 8601 format.
+    :request_param end_date_time: New end date and time for the event (optional) in ISO 8601 format.
+    :request_param is_all_day: Boolean indicating whether the event is all day (optional).
+    :return: JSON response with a success message and the updated event details if successful.
+             Returns a 404 error if the event is not found and a 400 error if the new event name already exists.
+    """
     event = PublicEvent.get_evt_by_id(event_id)
     if not event:
         return jsonify({'message': 'Event not found'}), 404
@@ -519,6 +582,13 @@ def editEvent(event_id):
 @bp.route('/cancel-event/<int:event_id>', methods=['DELETE'])
 @is_logged_in
 def cancelEvent(event_id):
+    """
+    Cancel a public event and remove all associated registrations, if the current user is the group administrator.
+
+    :param event_id: ID of the event to be canceled.
+    :return: JSON response with a success message if the event is successfully canceled and removed.
+             Returns a 404 error if the event is not found and a 403 error if the user is not the group administrator.
+    """
     event = PublicEvent.get_evt_by_id(event_id)
     if not event:
         return jsonify({'message': 'Event not found'}), 404
@@ -539,7 +609,16 @@ def cancelEvent(event_id):
 @bp.route('/register-event/<int:event_id>', methods=['GET', 'POST'])
 @is_logged_in
 def registerEvent(event_id):
-    
+    """
+    Register the current user for a public event, ensuring they are a member of the event's associated group.
+
+    :param event_id: ID of the event to register for.
+    :return: JSON response with success or error message:
+             - Success message if the user is registered for the event.
+             - 404 error if the event is not found.
+             - 403 error if the user is not a member of the group associated with the event.
+             - 400 error if the user is already registered for the event.
+    """
     event = PublicEvent.get_evt_by_id(event_id)
     if not event:
         return jsonify({'message': 'Event not found'}), 404
@@ -566,7 +645,15 @@ def registerEvent(event_id):
 @bp.route('/drop-event/<int:event_id>', methods=['GET', 'DELETE'])
 @is_logged_in
 def dropEvent(event_id):
-    
+    """
+    Unregister the current user from a public event, ensuring they are already registered.
+
+    :param event_id: ID of the event to unregister from.
+    :return: JSON response with success or error message:
+             - Success message if the user is successfully unregistered from the event.
+             - 404 error if the event is not found.
+             - 400 error if the user is not registered for the event.
+    """
     event = PublicEvent.get_evt_by_id(event_id)
     if not event:
         return jsonify({'message': 'Event not found'}), 404
@@ -585,50 +672,18 @@ def dropEvent(event_id):
     return jsonify({'message': 'Successfully dropped the event'}), 200
 
 
-# @bp.route('/request-register/<int:event_id>', methods=['GET'])
-# def requestRegister(event_id):
-    
-#     event = Group.get_evt_by_id(event_id)
-#     if not event:
-#         return jsonify({'message': 'Event not found'}), 404
-    
-#     group_id = event.group_id
-#     group = Group.get_grp_by_id(group_id)
-
-#     user_id = session.get('user')
-#     account = Account.get_acc_by_id(user_id)
-#     user_email = account.email
-#     user_name = account.username
-
-#     admin_id = group.admin_id
-#     admin = Account.get_acc_by_id(admin_id)
-#     admin_email = admin.email
-#     admin_name = admin.username
-    
-#     # TODO: add link to this email to make replying to request more convenient
-#     subject = f"Register Request for Event {event.event_name}"
-#     message = f"""
-#     Hi {admin_name},
-
-#     {user_name} (Account ID: {user_id}, Email: {user_email}) has requested to attend the event "{event.event_name}" (ID: {event_id}) organized by your group "{group.group_name}" (ID: {group_id}).
-    
-#     Please respond to the request at your convenience.
-
-#     Best regards,
-#     Schedule Task Management APP Team
-#     """
-
-#     try:
-#         send_email(from_email=user_email, to_email=admin_email, subject=subject, message=message)
-#         return jsonify({'message': 'Register request sent successfully'}), 200
-#     except Exception as e:
-#         return jsonify({'message': f'Failed to send join request: {str(e)}'}), 500
-
-
 @bp.route('/add-participant/<int:event_id>', methods=['POST'])
 @is_logged_in
 def addParticipant(event_id):
-    
+    """
+    Add a participant to a public event, ensuring the participant is not already registered.
+
+    :param event_id: ID of the event to which the participant is being added.
+    :return: JSON response with success or error message:
+             - Success message if the participant is successfully added to the event.
+             - 404 error if the event is not found.
+             - 400 error if the participant ID is missing or if the participant is already registered.
+    """
     event = Group.get_evt_by_id(event_id)
     if not event:
         return jsonify({'message': 'Event not found'}), 404
@@ -655,9 +710,16 @@ def addParticipant(event_id):
 
 def groupAdminError(group_id):
     """
-    Check if the group exists and if the current user is the group administrator.
-    """
+    Checks if a group exists and if the current user is the group's administrator.
 
+    :param group_id: The ID of the group to check.
+    :return: 
+        - If the group does not exist, returns None and a 404 error message.
+        - If the current user is not the group's administrator, returns None and a 403 error message.
+        - If the user is the administrator, returns the group object and None.
+
+    This function is used to ensure that only the group administrator has the right to perform actions that modify the group.
+    """
     group = Group.get_grp_by_id(group_id)
     if not group:
         return None, jsonify({'message': 'Group not found'}), 404
@@ -668,43 +730,3 @@ def groupAdminError(group_id):
         return None, jsonify({'message': 'Access denied: You are not the group administrator'}), 403
 
     return group, None
-
-
-# def send_email(from_email, to_email, subject, message):
-#     smtp_server = os.getenv('SMTP_SERVER')
-#     smtp_port = int(os.getenv('SMTP_PORT', 587))  # default port is 587
-#     smtp_user = os.getenv('SMTP_USER')
-#     smtp_password = os.getenv('SMTP_PASSWORD')
-
-#     if not smtp_server or not smtp_user or not smtp_password:
-#         return False, "SMTP configuration missing."
-
-#     msg = MIMET(message)
-#     msg['Subject'] = subject
-#     msg['From'] = from_email
-#     msg['To'] = to_email
-
-#     try:
-#         with smtplib.SMTP(smtp_server, smtp_port) as server:
-#             server.starttls()  # Encrypt the connection
-#             server.login(smtp_user, smtp_password)  # Log in to the SMTP server
-#             server.sendmail(from_email, [to_email], msg.as_string())  # Send the email
-#         return True, "Email sent successfully."
-#     except Exception as e:
-#         return False, f"Failed to send email: {str(e)}"
-
-
-# def convertDateType(date_str):
-#     try:
-#         date = datetime.strptime(date_str, '%Y-%m-%d').date()
-#     except ValueError:
-#         raise ValueError('Invalid date format. Use YYYY-MM-DD.')
-#     return date
-
-
-# def convertTimeType(time_str):
-#     try:
-#         time = datetime.strptime(time_str, '%H:%M').time()
-#     except ValueError:
-#         raise ValueError('Invalid time format. Use HH:MM.')
-#     return time

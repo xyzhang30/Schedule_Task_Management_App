@@ -8,6 +8,9 @@ bp = Blueprint('friend', __name__, url_prefix='/friend')
 @bp.route('/', methods = ['GET'])
 @is_logged_in
 def index():
+    '''
+    gets all friend pairs
+    '''
     friends = Friend.query.all()
     friend_list = [f.to_dict() for f in friends]
     return jsonify(friend_list)
@@ -17,7 +20,7 @@ def index():
 @is_logged_in
 def get_friends():
     '''
-    Gets all the friends for a specific account by account_id
+    Gets all friends for a specific account by account_id
     '''
     account_id = session['user']
     friends = Friend.get_friends_by_id(account_id)

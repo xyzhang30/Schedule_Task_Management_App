@@ -30,7 +30,7 @@ const FindSharedAvailability = () => {
   const [participants, setParticipants] = useState([]);
   const [showAddParticipantsPopup, setShowAddParticipantsPopup] = useState(false);
   const [friends, setFriends] = useState([]);
-  const [loading, setLoading] = useState(false); // Set initial loading to false
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [availability, setAvailability] = useState(null);
   const [appointments, setAppointments] = useState([]);
@@ -56,6 +56,7 @@ const FindSharedAvailability = () => {
   const handleTimeToChange = (e) => setTimeTo(e.target.value);
 
   useEffect(() => {
+    // load friend list (for adding participants), categories for event creation and current user info when component mounts
     fetchFriends();
     fetchCategories();
     setCurrUserInfo();
@@ -71,6 +72,7 @@ const FindSharedAvailability = () => {
     setAppointments(appointmentsData);
   }, [availability]);
 
+  // gets event categories for creating event for all participants
   const fetchCategories = async () => {
     try {
       const response = await axios.get(`${baseUrl}/event/category/all`, { withCredentials: true });
@@ -85,16 +87,20 @@ const FindSharedAvailability = () => {
     setShowAddParticipantsPopup(!showAddParticipantsPopup);
   };
 
+  // add selected account to participant list
   const handleSelectFriend = (friend) => {
     if (participants.some((p) => p.account_id === friend.account_id)) {
       // Remove participant
       setParticipants(participants.filter((p) => p.account_id !== friend.account_id));
     } else {
       // Add participant
+      console.log(participants);
       setParticipants((prevParticipants) => [...prevParticipants, friend]);
     }
   };
 
+
+  // function to post time range and participants to API to generate shared availability
   const handleSubmit = async () => {
     if (!date || !timeFrom || !timeTo || participants.length < 1) {
       alert('Please fill in all fields and add participants.');
@@ -130,6 +136,7 @@ const FindSharedAvailability = () => {
     }
   };
 
+  // fetch all friends for the current user
   const fetchFriends = async () => {
     try {
       const response = await axios.get(`${baseUrl}/friend/get-friends`, { withCredentials: true });
@@ -162,6 +169,7 @@ const FindSharedAvailability = () => {
     return new Date(year, month - 1, day, hour, minute);
   };
 
+  // generate the appointment to populate on the calendar view from the generated available timeslot
   const generateAppointments = () => {
     try {
       if (availability) {
@@ -262,6 +270,7 @@ const FindSharedAvailability = () => {
     />
   );
 
+  
   return (
     
     <div className="split-screen-container">
@@ -311,7 +320,7 @@ const FindSharedAvailability = () => {
             ) : error ? (
               <p>{error}</p>
             ) : availability ? (
-              <p>Available times are displayed on the right. Click on a time slot to create an event.</p>
+              <p>Available times are displayed on the right. Click on a time slot to create an event for all participants.</p>
             ) : (
               <p></p>
             )}
@@ -375,6 +384,7 @@ const FindSharedAvailability = () => {
         refreshEvents={handleSubmit}
         initialEventData={initialEventData}
         timeRange={timeRange}
+        participants={participants}
       />
     </div>
   );

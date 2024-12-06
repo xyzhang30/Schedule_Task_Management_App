@@ -61,7 +61,7 @@ def register():
         
     if user_inputted_avatar: 
         #Checks the user input if they have submitted data in the profile_picture field
-        filename = create_file_name(user_inputted_avatar, user_inputted_username)
+        filename = create_file_name(user_inputted_username, user_inputted_avatar)
     else:
         filename = 'default.jpg'
 
@@ -204,6 +204,7 @@ def reset_password():
 
     return jsonify(response_message), status_code
     
+
 #Helper functions
 def new_password(account_id, new_pass):
     account = Account.get_acc_by_id(account_id)
@@ -246,5 +247,3 @@ def send_reset_email(reset_url):
     )
     email.body = f"Use this link to reset your password: {reset_url}. It will expire in 15 minutes"
     mail.send(email)
-
-#Todo: finalize session understanding

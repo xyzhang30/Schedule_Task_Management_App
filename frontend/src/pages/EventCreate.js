@@ -12,6 +12,7 @@ const EventCreate = ({
   refreshEvents,
   initialEventData = {},
   timeRange = {},
+  participants = [], 
 }) => {
   const [newEvent, setNewEvent] = useState({
     name: '',
@@ -27,6 +28,7 @@ const EventCreate = ({
     ...initialEventData,
   });
   const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     setNewEvent((prevEvent) => ({
@@ -40,8 +42,10 @@ const EventCreate = ({
     setNewEvent({ ...newEvent, [name]: value });
   };
 
+  // create event for all participants in the shared availability generation
   const handleAddEvent = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     if (timeRange && timeRange.start && timeRange.end) {
       const eventStart = new Date(newEvent.start_date);
       const eventEnd = new Date(newEvent.end_date);
@@ -49,13 +53,14 @@ const EventCreate = ({
       const rangeEnd = new Date(timeRange.end);
       if (eventStart < rangeStart || eventEnd > rangeEnd) {
         alert('Selected time exceeds the available time range.');
+        setIsSubmitting(false);
         return;
       }
     }
     const formData = {
       ...newEvent,
       category:
-        newEvent.category === 'custom' ? newEvent.customCategory : newEvent.category,
+      newEvent.category === 'custom' ? newEvent.customCategory : newEvent.category,
       repeat_until: newEvent.repeat_until ? newEvent.repeat_until : null,
       label_color: newEvent.label_color || DEFAULT_LABEL_COLOR,
     };
@@ -75,13 +80,52 @@ const EventCreate = ({
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
+      setIsSubmitting(false);
       return;
     } else {
       setErrors({});
     }
 
     try {
+      let participantIds = [];
+
+      if (Array.isArray(participants)) {
+        participantIds = participants.map(participant => {
+          if (participant && typeof participant.account_id === 'number') {
+            return participant.account_id;
+          } else {
+            console.error('Invalid participant object:', participant);
+            return null;
+          }
+        }).filter(id => id !== null); 
+      } else if (typeof participants === 'object' && participants !== null) {
+        participantIds = Object.values(participants).map(participant => {
+          if (participant && typeof participant.account_id === 'number') {
+            return participant.account_id;
+          } else {
+            console.error('Invalid participant object:', participant);
+            return null;
+          }
+        }).filter(id => id !== null); 
+      } else {
+        console.error('Participants prop is not an array or object:', participants);
+      }
+      console.log('Participant IDs:', participantIds);
       await axios.post(`${baseUrl}/event/createEvent`, formData);
+      if (participantIds.length > 0) {
+        for (let i = 0; i < participantIds.length; i++) {
+          const participantId = participantIds[i];
+          if (isNaN(participantId)) {
+            console.error('Invalid participant ID:', participantId);
+            continue;
+          }
+          await axios.post(`${baseUrl}/event/createEventNotSelf/${participantId}`, formData);
+        }
+        alert('Events created successfully for all participants!');
+      } else {
+        alert('Event created successfully!');
+      }
+
       if (newEvent.category === 'custom') {
         try {
           const data = { category_name: newEvent.customCategory };

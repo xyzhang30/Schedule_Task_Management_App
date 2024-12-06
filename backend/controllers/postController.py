@@ -464,7 +464,7 @@ def get_comments(post_id):
     return jsonify(comment_list), 200
 
 
-# check id
+# Check id
 @bp.route('/checkid/<int:post_id>', methods=['GET'])
 @is_logged_in
 def is_self(post_id):
@@ -481,7 +481,7 @@ def is_self(post_id):
         return jsonify({'is_self': is_self}), 200
 
 
-# check comment id
+# Check comment id
 @bp.route('/check-comment-owner/<int:comment_id>', methods=['GET'])
 @is_logged_in
 def is_comment_owner(comment_id):

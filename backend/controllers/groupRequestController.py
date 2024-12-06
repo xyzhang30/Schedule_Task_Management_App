@@ -9,17 +9,16 @@ from ..decorators import is_logged_in
 
 bp = Blueprint('group-request', __name__, url_prefix='/group-request')
 
-"""
-1. sentRequest
-2. acceptRequest
-3. showOutRequests
-4. showInRequests
-"""
-
 @bp.route('/send-request/<int:group_id>', methods=['GET', 'POST'])
 @is_logged_in
 def sentRequest(group_id):
+    """
+    Handles the creation of a group join request. The current user can send a request to join a group.
+    This request includes a message that will be sent to the group's administrator.
 
+    :param group_id: ID of the group to send the join request to
+    :return: JSON response with a success message and the group request details if successful, or an error message if the group is not found
+    """
     group = Group.get_grp_by_id(group_id)
     if not group:
         return jsonify({'message': 'Group not found'}), 404
@@ -46,7 +45,12 @@ def sentRequest(group_id):
 @bp.route('/accept-request/<int:request_id>', methods=['GET', 'PUT'])
 @is_logged_in
 def acceptRequest(request_id):
+    """
+    Accept a group join request and add the user (who sends the request) to the group.
 
+    :param request_id: ID of the group join request to accept
+    :return: JSON response with a success message and updated group request details if successful, or an error message if the request or group is not found
+    """
     grp_request = Notifications.get_notification_by_notification_id(request_id)
     if not grp_request:
         return jsonify({'message': 'Group request not found'}), 404
@@ -66,7 +70,12 @@ def acceptRequest(request_id):
 @bp.route('/decline-request/<int:request_id>', methods=['GET', 'DELETE'])
 @is_logged_in
 def declineRequest(request_id):
+    """
+    Decline a group join request and delete the notification from database.
 
+    :param request_id: ID of the group join request to decline
+    :return: JSON response with a success message and deleted group request details if successful, or an error message if the request or group is not found
+    """
     grp_request = Notifications.get_notification_by_notification_id(request_id)
     if not grp_request:
         return jsonify({'message': 'Group request not found'}), 404
@@ -83,11 +92,21 @@ def declineRequest(request_id):
 @bp.route('/show-out-request', methods=['GET'])
 @is_logged_in
 def showOutRequests():
+    """
+    Fetch and return a list of group join requests sent by the current user, including the group name.
 
+    :return: JSON response with a list of sent group requests or an empty list if no requests are found
+    """
     user_id = session.get('user')
 
     out_requests = Notifications.get_notifications_by_acc_send(user_id, "group")
-    out_requests_dict = [request.to_dict() for request in out_requests]
+
+    out_requests_dict = []
+    for request in out_requests:
+        request_dict = request.to_dict()
+        group = Group.get_grp_by_id(request.group_id)
+        request_dict['group_name'] = group.group_name
+        out_requests_dict.append(request_dict)
 
     return jsonify(out_requests_dict), 200
 
@@ -95,11 +114,23 @@ def showOutRequests():
 @bp.route('/show-in-request', methods=['GET'])
 @is_logged_in
 def showInRequests():
-    
+    """
+    Fetch and return a list of group join requests received by the current user, including the group name.
+
+    :return: JSON response with a list of received group requests or an empty list if no requests are found
+    """
     user_id = session.get('user')
 
     in_requests = Notifications.get_notifications_by_acc_recv(user_id, "group")
-    in_requests_dict = [request.to_dict() for request in in_requests]
+
+    in_requests_dict = []
+    for request in in_requests:
+        request_dict = request.to_dict()
+        group = Group.get_grp_by_id(request.group_id)
+        request_dict['group_name'] = group.group_name
+        account = Account.get_acc_by_id(request.account_id_from)
+        request_dict['account_name_from'] = account.username
+        in_requests_dict.append(request_dict)
 
     return jsonify(in_requests_dict), 200
 
@@ -107,21 +138,39 @@ def showInRequests():
 @bp.route('/get-grp-request/<int:group_id>', methods=['GET'])
 @is_logged_in
 def getGrpRequest(group_id):
+    """
+    Fetch and return the latest group join request sent by the current user to the specified group, including the group name.
+    If there are mutliple group join requests sent, only the LATEST one will be fetched and returned.
+
+    :param group_id: ID of the group to fetch the request for
+    :return: JSON response with the latest group request or a 204 status if no request was sent by the user
+    """
     user_id = session.get('user')
 
     grp_request = Notifications.get_grp_notifications_by_acc_send_and_grp(user_id, group_id)
 
     if not grp_request:
         return jsonify({'message': 'No group request sent by this user to this group'}), 204
+    
+    grp_request_dict = grp_request.to_dict()
+    group = Group.get_grp_by_id(group_id)
+    grp_request_dict['group_name'] = group.group_name
 
-    return jsonify(grp_request.to_dict()), 200
+    return jsonify(grp_request_dict), 200
 
 
 def groupAdminError(group_id):
     """
-    Check if the group exists and if the current user is the group administrator.
-    """
+    Checks if a group exists and if the current user is the group's administrator.
 
+    :param group_id: The ID of the group to check.
+    :return: 
+        - If the group does not exist, returns None and a 404 error message.
+        - If the current user is not the group's administrator, returns None and a 403 error message.
+        - If the user is the administrator, returns the group object and None.
+
+    This function is used to ensure that only the group administrator has the right to perform actions that modify the group.
+    """
     group = Group.get_grp_by_id(group_id)
     if not group:
         return None, jsonify({'message': 'Group not found'}), 404

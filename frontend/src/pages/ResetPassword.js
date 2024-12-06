@@ -36,7 +36,7 @@ const ResetPassword = () => {
   };
 
   return (
-    <div>
+    <div className='edit-profile-pages'>
       <h2>Reset Password</h2>
       <form onSubmit={handleSubmit}>
         <div>

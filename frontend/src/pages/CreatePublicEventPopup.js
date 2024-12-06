@@ -10,6 +10,7 @@ const CreateEventPopup = ({ isOpen, onRequestClose, onCreate }) => {
         is_all_day: false,
     });
 
+    // sends event details to the onCreate method to save the created event
     const handleSubmit = () => {
         onCreate(eventDetails);
     };

@@ -1,40 +1,77 @@
+/* General Styles */
+body,
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
 .landing-page {
-    text-align: center;
-    padding: 20px;
-  }
-  
-  .hero-banner {
-    background-color: #23396c;
-    color: white;
-    padding: 50px 20px;
-  }
-  
-  .hero-banner h1 {
-    font-size: 3rem;
-    margin-bottom: 20px;
-  }
-  
-  .hero-banner p {
-    font-size: 1.5rem;
-    margin-bottom: 30px;
-  }
-  
-  .cta-buttons .btn {
-    margin: 10px;
-    background-color: #fff;
-    padding: 10px 20px;
-    font-size: 1.2rem;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-  }
-  
-  .sign-up {
-    background-color: #fff;
-    color: #14213d;
-  }
-  
-  .log-in {
-    background-color: #fca311;
-    color: white;
-  }
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  /* background: linear-gradient(oklch(49% 0.17 157), oklch(70% 0.09 176)); */
+  background: linear-gradient(#A3B18A, #588157);
+  color: white;
+  text-align: center;
+}
+
+/* Hero Banner */
+.hero-banner {
+  max-width: 800px;
+  padding: 20px;
+}
+
+.hero-banner h1 {
+  font-size: 3.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* Animated Title */
+.animated-title {
+  font-size: 4rem;
+  font-weight: bold;
+  white-space: nowrap;
+  overflow: hidden;
+  display: inline-block;
+  /* color: #ffeb3b;  */
+  /* color: #283618 */
+  color: white
+}
+
+/* Paragraph */
+.hero-banner p {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 40px;
+  /* color: #dce775; */
+  color: white
+}
+
+/* Buttons */
+.cta-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+}
+
+.cta-buttons .btn {
+  padding: 15px 30px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border-radius: 5px;
+  /* background-color: #ff02; */
+  background-color: #3A5A40;
+  color: white;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cta-buttons .btn:hover {
+  transform: translateY(-5px);
+  box-shadow: 0px 10px 15px rgba(0, 0, 0, 0.2);
+  color: white;
+}

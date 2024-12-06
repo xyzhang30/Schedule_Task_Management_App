@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import PostList from './PostList';
 import './Profile.css';
@@ -6,6 +7,8 @@ import './Profile.css';
 const baseUrl = process.env.REACT_APP_BASE_URL;
 
 function Profile({ self = true, accountId = null}) {
+  const navigate = useNavigate();
+
   const [profile, setProfile] = useState({
     username: '',
     phoneNumber: '',
@@ -17,6 +20,7 @@ function Profile({ self = true, accountId = null}) {
   const [error, setError] = useState('');
   const [userPosts, setUserPosts] = useState([]);
   const [savedPosts, setSavedPosts] = useState([]);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false); 
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -96,10 +100,32 @@ function Profile({ self = true, accountId = null}) {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
+
+  const handleEditProfileClick = () => {
+    setIsEditModalOpen(true); 
+  };
+
+  const closeModal = () => {
+    setIsEditModalOpen(false); 
+  };
  
   return (
     <div className="profile-container">
       {self && <h2>My Profile</h2>}
+      {self && 
+        <>
+          <div className='edit-profile-container'>
+            <button 
+              className='button' 
+              id='edit-profile-button' 
+              onClick={handleEditProfileClick}
+              >
+                Edit Profile
+            </button>
+            <button className="button" onClick={() => navigate('/logout')}>Log Out</button>
+          </div>
+        </>
+      }
       <div className="profile-header">
         <img src={profile.avatar} alt="User Avatar" className="profile-avatar" />
         <div className="profile-details">
@@ -119,6 +145,25 @@ function Profile({ self = true, accountId = null}) {
             <h2>Saved Posts</h2>
             <PostList posts={savedPosts} />
           </>
+        )}
+
+        {isEditModalOpen && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h2 id='edit-profile-title'>Edit Profile</h2>
+              <button className="button" id='close-popup' onClick={closeModal}>
+                close
+              </button>
+              <div className='edit-profile-buttons-container'>
+                <button className="button change-username" id='edit-profile-buttons' onClick={() => navigate('/change-username')}>Change Username</button>
+                <button className="button change-email" id='edit-profile-buttons' onClick={() => navigate('/change-email')}>Change Email</button>
+                <button className="button change-password" id='edit-profile-buttons' onClick={() => navigate('/change-password')}>Change Password</button>
+                <button className="button change-phone" id='edit-profile-buttons' onClick={() => navigate('/change-phone-number')}>Change Phone Number</button>
+                <button className="button change-major" id='edit-profile-buttons' onClick={() => navigate('/change-major')}>Change Major</button>
+                <button className="button change-avatar" id='edit-profile-buttons' onClick={() => navigate('/change-avatar')}>Change Avatar</button>
+              </div>
+            </div>
+          </div>
         )}
       </div>
     </div>

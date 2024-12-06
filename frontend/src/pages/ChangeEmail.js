@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+const baseUrl = process.env.REACT_APP_BASE_URL;
+
 const ChangeEmail = () => {
   const [newEmail, setNewEmail] = useState('');
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
+  // saves new email in the database
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -13,7 +16,7 @@ const ChangeEmail = () => {
       const formData = new URLSearchParams();
       formData.append('new_email', newEmail);
 
-      const response = await axios.post('http://localhost:8080/account/change_email', formData, {
+      const response = await axios.post(`${baseUrl}/account/change_email`, formData, {
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
@@ -34,7 +37,7 @@ const ChangeEmail = () => {
   };
 
   return (
-    <div>
+    <div className='edit-profile-pages'>
       <h2>Change Email</h2>
       <form onSubmit={handleSubmit}>
         <div>

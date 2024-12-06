@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import './EditProfileButtonPages.css'
+
+const baseUrl = process.env.REACT_APP_BASE_URL;
 
 const ChangeAvatar = () => {
   const [newAvatar, setNewAvatar] = useState(null);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
+  // saves the new avatar in the database
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -19,7 +23,7 @@ const ChangeAvatar = () => {
       const formData = new FormData();
       formData.append('new_avatar', newAvatar);
 
-      const response = await axios.post('http://localhost:8080/account/change_avatar', formData, {
+      const response = await axios.post(`${baseUrl}/account/change_avatar`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -44,7 +48,7 @@ const ChangeAvatar = () => {
   };
 
   return (
-    <div>
+    <div className='edit-profile-pages'>
       <h2>Change Avatar</h2>
       <form onSubmit={handleSubmit}>
         <div>

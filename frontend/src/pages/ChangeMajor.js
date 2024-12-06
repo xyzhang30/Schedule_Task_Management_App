@@ -6,6 +6,7 @@ const ChangeMajor = () => {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
+  // saves the new major
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -31,7 +32,7 @@ const ChangeMajor = () => {
   };
 
   return (
-    <div>
+    <div className='edit-profile-pages'>
       <h2>Change Major</h2>
       <form onSubmit={handleSubmit}>
         <div>
