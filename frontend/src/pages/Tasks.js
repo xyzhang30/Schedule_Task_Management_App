@@ -137,9 +137,8 @@ const Tasks = () => {
             formData.append('task_name', newTask.task_name);
             formData.append('category', newTask.category);
             formData.append('due_time', newTask.due_time);
-            formData.append('account_id', '1');
             console.log(events)
-            formData.append('event_id', newTask.event_id);
+            formData.append('event_id', editedTask.event_id ? editedTask.event_id.toString() : '');
             console.log(newTask)
 
             const response = await axios.post(`${baseUrl}/task/create`, formData, {withCredentials:true});
@@ -149,6 +148,7 @@ const Tasks = () => {
 
             const updatedTasks = await axios.get(`${baseUrl}/task/sorted`, {withCredentials:true});
             setTasks(updatedTasks.data);
+            setSelectedTask(null);
         } catch (err) {
             console.error('Error creating task:', err);
             setError('Failed to create task.');
@@ -213,11 +213,13 @@ const Tasks = () => {
     const handleEditTask = async (e) => {
         e.preventDefault();
         try {
+            console.log('Event ID:', editedTask.event_id);
+
             const formData = new FormData();
             formData.append('task_name', editedTask.task_name);
             formData.append('category', editedTask.category);
             formData.append('due_time', editedTask.due_time);
-            formData.append('event_id', editedTask.event_id);
+            formData.append('event_id', editedTask.event_id ? editedTask.event_id.toString() : '');
     
             const response = await axios.put(`${baseUrl}/task/update/${selectedTask.task_id}`, formData, {withCredentials:true});
             console.log('Task updated:', response.data);
@@ -226,7 +228,7 @@ const Tasks = () => {
             setTasks(updatedTasks.data);
     
             setShowEditTaskModal(false);
-            //setSelectedTask(null);
+            setSelectedTask(null);
         } catch (err) {
             console.error('Error updating task:', err);
             setError('Failed to update task.');
@@ -242,6 +244,9 @@ const Tasks = () => {
         
         if (confirmDelete) {
             try {
+                const notificationResponse = await axios.put(`${baseUrl}/task/delete-task-notification-by-task-id/${selectedTask.task_id}`, null, { withCredentials: true });
+                console.log('Notification deleted:', notificationResponse.data);
+
                 const response = await axios.delete(`${baseUrl}/task/remove/${selectedTask.task_id}`, );
                 console.log('Task deleted:', response.data);
     
@@ -401,11 +406,18 @@ const Tasks = () => {
                             <label>
                                 Associated Event:
                                 <select
-                                    name="event_name" 
-                                    value={newTask.event_name || ''}
-                                    onChange={handleInputChangeEventID}
+                                    name="event_name"
+                                    value={editedTask.event_name || ''}
+                                    onChange={(e) => {
+                                        const selectedEvent = events.find(event => event.name === e.target.value);
+                                        setEditedTask({
+                                            ...editedTask,
+                                            event_name: e.target.value,
+                                            event_id: selectedEvent ? selectedEvent.event_id : '',
+                                        });
+                                    }}
                                 >
-                                    <option value="">Select an Event</option>
+                                    <option value="">No Associated Events</option>
                                     {events.map(event => (
                                         <option key={event.event_id} value={event.name}>
                                             {event.name}

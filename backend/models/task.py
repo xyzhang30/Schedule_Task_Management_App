@@ -13,7 +13,7 @@ class Task(Base):
     due_time = Column(TIMESTAMP, unique=False)
     task_name = Column(String, unique=False)
     complete = Column(Boolean, unique=False, default=False)
-    event_id = Column(String, ForeignKey('events.event_id'), nullable=True)
+    event_id = Column(Integer, ForeignKey('events.event_id'), nullable=True)
 
     def __repr__(self):
         return f"<Task account_id={self.account_id} task_id={self.task_id}>"

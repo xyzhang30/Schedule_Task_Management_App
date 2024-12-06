@@ -60,7 +60,7 @@ def get_task_notifications():
 
 @bp.route('/delete-task-notification', methods=['POST'])
 @is_logged_in
-def delete_task_notification():
+def delete_task_notification_by_notification_id():
     '''
     Deletes a task notification
     '''

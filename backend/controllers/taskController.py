@@ -109,9 +109,19 @@ def createTask():
     due_time = request.form.get("due_time")
     account_id = session['user']
     event_id = request.form.get("event_id")
+    print("test4")
+    print(event_id)
 
-    if event_id == 'undefined' or event_id == '':
+    if event_id == 'undefined' or event_id == '' or event_id is None:
         event_id = None
+    else:
+        try:
+            event_id = int(event_id) 
+        except ValueError:
+            event_id = None 
+    
+    print("test3")
+    print(event_id)
 
     if not task_name or not due_time or not account_id:
         return jsonify({'error': 'Missing required fields'}), 400
@@ -143,6 +153,8 @@ def update_task(task_id):
     category = request.form.get("category")
     due_time = request.form.get("due_time")
     event_id = request.form.get("event_id")
+    print("test1")
+    print(event_id)
 
     if task_name:
         task.task_name = task_name
@@ -150,8 +162,14 @@ def update_task(task_id):
         task.category = category
     if due_time:
         task.due_time = due_time
-    if event_id:
+    if event_id == '' or event_id is None:
+        print("trueee")
+        task.event_id = None
+    else:
         task.event_id = event_id
+
+    print("test2")
+    print(task.event_id)
 
     task.save() 
     return index()
@@ -282,5 +300,27 @@ def update_task_notification(task_id):
         # notification.message = f"Your task '{task.task_name}' is due today at {task.due_time.strftime('%H:%M')}."
         # notification.save_notification()
         # return jsonify({"message": "Task notification updated", "notification": notification.to_dict()}), 200
+    except Exception as e:
+        return jsonify({"error": "Failed to update task notification."}), 500
+    
+@bp.route('/delete-task-notification-by-task-id/<int:task_id>', methods=['PUT'])
+@is_logged_in
+def delete_task_notification_by_task_id(task_id):
+    '''
+    Deletes the notification message for the task with task_id == task_id that is due today
+    '''
+    try:
+        task = Task.get_task(task_id)
+        if not task:
+            return jsonify({"error": "Task not found."}), 404
+        notification = Notifications.get_notifications_by_task(task_id)
+        if not notification:
+            return jsonify({"message": "No notification found for this task."}), 200
+        current_date = date.today()
+        if task.due_time.date() == current_date and notification:
+            notification.delete_notification()
+            return jsonify({"message": "Notification deleted successfully."}), 200
+        return jsonify({"message": "No notification to update or delete."}), 200
+        
     except Exception as e:
         return jsonify({"error": "Failed to update task notification."}), 500
