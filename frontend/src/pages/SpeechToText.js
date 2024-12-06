@@ -11,8 +11,8 @@ const SpeechToText = ({ onTranscriptChange }) => {
 
     // Azure Speech-to-Text setup
     const speechConfig = SpeechSDK.SpeechConfig.fromSubscription(
-        process.env.REACT_APP_COLAB_SPEECH_KEY, 
-        process.env.REACT_APP_COLAB_SPEECH_REGION
+        process.env.REACT_APP_316_SPEECH_KEY, 
+        process.env.REACT_APP_316_SPEECH_REGION
     );
     speechConfig.speechRecognitionLanguage = 'en-US';
 
