@@ -4,6 +4,7 @@ const EditGroupPopup = ({ isOpen, onRequestClose, group, onEdit }) => {
     const [newGroupName, setNewGroupName] = useState(group.group_name);
     const [newGroupAvatar, setNewGroupAvatar] = useState(group.group_avatar);
 
+    // sends the new group name and/or new group avatar to the onEdit function to save
     const handleSubmit = () => {
         onEdit(newGroupName, newGroupAvatar);
     };

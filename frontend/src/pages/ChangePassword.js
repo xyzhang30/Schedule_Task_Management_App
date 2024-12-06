@@ -9,6 +9,7 @@ const ChangePassword = () => {
   const [error, setError] = useState('');
   const [showLogin, setShowLogin] = useState(false)
 
+  // save the new password 
   const handleSubmit = async (e) => {
     e.preventDefault();
 

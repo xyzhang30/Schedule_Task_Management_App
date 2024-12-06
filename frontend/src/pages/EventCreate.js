@@ -42,6 +42,7 @@ const EventCreate = ({
     setNewEvent({ ...newEvent, [name]: value });
   };
 
+  // create event for all participants in the shared availability generation
   const handleAddEvent = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);

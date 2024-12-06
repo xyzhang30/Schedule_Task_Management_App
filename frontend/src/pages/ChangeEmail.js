@@ -8,6 +8,7 @@ const ChangeEmail = () => {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
+  // saves new email in the database
   const handleSubmit = async (e) => {
     e.preventDefault();
 

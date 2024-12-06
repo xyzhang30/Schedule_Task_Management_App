@@ -6,6 +6,7 @@ const ChangeUsername = () => {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
+  // save the new username
   const handleSubmit = async (e) => {
     e.preventDefault();
 

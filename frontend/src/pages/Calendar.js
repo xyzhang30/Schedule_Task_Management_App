@@ -189,6 +189,7 @@ const Calendar = () => {
     return appointments;
   };
 
+  // delete the event
   const handleDelete = async (eventId) => {
     if (window.confirm('Are you sure you want to delete this event?')) {
       try {
@@ -200,6 +201,7 @@ const Calendar = () => {
     }
   };
 
+  // save the edited event
   const handleEdit = (event) => {
     if (event.series_id && event.event_id !== event.series_id) {
       alert('Cannot edit individual occurrences of a recurring event. Please edit the original event.');

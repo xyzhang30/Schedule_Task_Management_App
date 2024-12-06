@@ -9,6 +9,7 @@ const ChangeAvatar = () => {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
+  // saves the new avatar in the database
   const handleSubmit = async (e) => {
     e.preventDefault();
 

@@ -6,6 +6,7 @@ const ChangeMajor = () => {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
+  // saves the new major
   const handleSubmit = async (e) => {
     e.preventDefault();
 

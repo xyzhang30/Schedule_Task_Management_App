@@ -6,6 +6,7 @@ const ChangePhoneNumber = () => {
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
+  // save the new phone number
   const handleSubmit = async (e) => {
     e.preventDefault();
 
