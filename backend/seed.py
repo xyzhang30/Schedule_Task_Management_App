@@ -273,6 +273,7 @@ locations = [
     "Computer Science Lab"
 ]
 
+# create event category test data
 for category in event_categories:
     cursor.execute('''
         INSERT INTO event_category (category_name)
@@ -348,6 +349,7 @@ tasks = {
     ]
 }
 
+# task categories
 event_idx = 1
 for account in range(1, 7):
     #categories
@@ -596,7 +598,7 @@ for account in range(1, 7):
 print("Group and public event test data generated")
 
 
-# commit changes to save
+# commit changes
 conn_details.commit()
 cursor.close()
 conn_details.close()
