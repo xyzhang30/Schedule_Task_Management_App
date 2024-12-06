@@ -3,8 +3,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-# engine = create_engine('sqlite:///./test.db')
-# engine = create_engine('sqlite:///./test.db')
 db_user = os.environ.get("POSTGRES_USER")
 db_password = os.environ.get("POSTGRES_PASSWORD")
 db_host = os.environ.get("POSTGRES_HOST")
@@ -35,6 +33,4 @@ def init_db():
     from app.models.membership import Membership
     from app.models.publicEvent import PublicEvent
     from app.models.registration import Registration
-    # from app.models.groupRequest import GroupRequest
-    # from flask_mvc_walkthrough.models.album import Album
     Base.metadata.create_all(bind=engine)

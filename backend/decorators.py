@@ -4,6 +4,9 @@ import functools
 def is_logged_in(func):
     @functools.wraps(func)
     def wrapper_is_logged_in(*args, **kwargs):
+        '''
+        checks whether the user is currently logged in
+        '''
         if 'user' in session:
             return func(*args, **kwargs)
         else:
