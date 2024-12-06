@@ -54,7 +54,7 @@ const Register = () => {
   };
 
   return (
-    <div className="register-page">
+    <div className="register-page edit-profile-pages">
       <h2>Register</h2>
       <form onSubmit={handleSubmit}>
         <div>
